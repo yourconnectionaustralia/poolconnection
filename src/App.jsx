@@ -1,4 +1,4 @@
-import { useState, useRef, createContext, useContext } from "react";
+import { useState, useRef, useEffect, createContext, useContext } from "react";
 import {
   Droplets, ChevronRight, ChevronLeft, ChevronDown, Search,
   CheckCircle2, AlertCircle, X, Bell, Star,
@@ -88,6 +88,22 @@ const THEMES = {
 // Font stack — Inter for readability in sunlight + DM Serif Display for character
 const FONT = "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
 const FONT_HEAD = "'DM Sans', 'Inter', -apple-system, sans-serif";
+
+/* ═══════════════════════════════════════════════════════════════
+   RESPONSIVE SYSTEM
+   ═══════════════════════════════════════════════════════════════ */
+const LayoutCtx = createContext({ w: 480, desk: false, wide: false });
+const useLayout = () => useContext(LayoutCtx);
+
+function useWidth() {
+  const [w, setW] = useState(typeof window !== "undefined" ? window.innerWidth : 480);
+  useEffect(() => {
+    const h = () => setW(window.innerWidth);
+    window.addEventListener("resize", h);
+    return () => window.removeEventListener("resize", h);
+  }, []);
+  return { w, desk: w >= 768, wide: w >= 1024 };
+}
 
 /* ═══════════════════════════════════════════════════════════════
    CHEMISTRY ENGINE
@@ -245,8 +261,41 @@ function SevIcon({ severity, size = 18 }) {
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   TAB BAR
+   NAVIGATION — Bottom tabs on mobile, sidebar on desktop
    ═══════════════════════════════════════════════════════════════ */
+function Sidebar({ active, go, dark, setDark }) {
+  const T = useTheme();
+  const tabs = [{ id: "home", label: "Home", icon: Home }, { id: "test", label: "Test", icon: Beaker }, { id: "diagnose", label: "Fix", icon: HelpCircle }, { id: "shops", label: "Shops", icon: Store }, { id: "history", label: "History", icon: BarChart3 }, { id: "profile", label: "My Pool", icon: User }];
+  return (
+    <div style={{ width: 220, flexShrink: 0, position: "fixed", top: 0, left: 0, bottom: 0, backgroundColor: T.card, borderRight: `1px solid ${T.brd}`, display: "flex", flexDirection: "column", zIndex: 40, overflow: "hidden" }}>
+      {/* Logo */}
+      <div style={{ padding: "24px 20px 20px", display: "flex", alignItems: "center", gap: 10, borderBottom: `1px solid ${T.brdL}` }}>
+        <div style={{ width: 34, height: 34, borderRadius: 10, background: `linear-gradient(135deg, ${T.pri}, ${T.acc})`, display: "flex", alignItems: "center", justifyContent: "center" }}><Waves size={18} color="#fff" /></div>
+        <span style={{ fontSize: 17, fontWeight: 900, color: T.tx, letterSpacing: "-0.02em", fontFamily: FONT_HEAD }}>PoolConnection</span>
+      </div>
+      {/* Nav items */}
+      <div style={{ flex: 1, padding: "12px 10px", display: "flex", flexDirection: "column", gap: 2 }}>
+        {tabs.map(t => {
+          const I = t.icon; const on = active === t.id;
+          return (
+            <button key={t.id} onClick={() => go(t.id)} style={{ display: "flex", alignItems: "center", gap: 12, padding: "11px 14px", border: "none", borderRadius: 10, cursor: "pointer", backgroundColor: on ? T.priL : "transparent", transition: "all 0.15s", width: "100%", textAlign: "left", fontFamily: FONT }}>
+              <I size={20} color={on ? T.pri : T.tx3} strokeWidth={on ? 2.3 : 1.7} />
+              <span style={{ fontSize: 14, fontWeight: on ? 800 : 600, color: on ? T.pri : T.tx2 }}>{t.label}</span>
+            </button>
+          );
+        })}
+      </div>
+      {/* Dark mode toggle at bottom */}
+      <div style={{ padding: "12px 10px 20px", borderTop: `1px solid ${T.brdL}` }}>
+        <button onClick={() => setDark(!dark)} style={{ display: "flex", alignItems: "center", gap: 12, padding: "11px 14px", border: "none", borderRadius: 10, cursor: "pointer", backgroundColor: "transparent", width: "100%", textAlign: "left", fontFamily: FONT }}>
+          {dark ? <SunMedium size={20} color={T.warn} /> : <Moon size={20} color={T.tx3} />}
+          <span style={{ fontSize: 14, fontWeight: 600, color: T.tx2 }}>{dark ? "Light Mode" : "Dark Mode"}</span>
+        </button>
+      </div>
+    </div>
+  );
+}
+
 function TabBar({ active, go }) {
   const T = useTheme();
   const tabs = [{ id: "home", label: "Home", icon: Home }, { id: "test", label: "Test", icon: Beaker }, { id: "diagnose", label: "Fix", icon: HelpCircle }, { id: "shops", label: "Shops", icon: Store }, { id: "profile", label: "My Pool", icon: User }];
@@ -267,6 +316,7 @@ function TabBar({ active, go }) {
    ═══════════════════════════════════════════════════════════════ */
 function HomePage({ history, equipment, go, linkedShop, profile }) {
   const T = useTheme();
+  const { desk } = useLayout();
   const latest = history[history.length - 1];
   const daysSince = latest ? Math.round((Date.now() - new Date(latest.date).getTime()) / 86400000) : 99;
   const issues = [];
@@ -312,6 +362,7 @@ function HomePage({ history, equipment, go, linkedShop, profile }) {
       )}
 
       {latest && (
+        <div style={{ display: desk ? "grid" : "block", gridTemplateColumns: desk ? "1fr 1fr" : "1fr", gap: desk ? 16 : 0 }}>
         <Card style={{ marginBottom: 16 }}>
           <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 16 }}><h3 style={{ margin: 0, fontSize: 16, fontWeight: 800, fontFamily: FONT_HEAD, color: T.tx }}>Latest Readings</h3><span style={{ fontSize: 12, color: T.tx3, fontWeight: 600 }}>{latest.date}</span></div>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 10 }}>
@@ -324,17 +375,18 @@ function HomePage({ history, equipment, go, linkedShop, profile }) {
             ))}
           </div>
         </Card>
-      )}
 
-      <Card style={{ marginBottom: 16 }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}><Sun size={18} color={T.warn} /><h3 style={{ margin: 0, fontSize: 15, fontWeight: 800, fontFamily: FONT_HEAD, color: T.tx }}>Summer Tips</h3></div>
-        {SEASONAL_TIPS.map((t, i) => (
-          <div key={i} style={{ display: "flex", gap: 12, padding: "10px 0", borderTop: i > 0 ? `1px solid ${T.brdL}` : "none" }}>
-            <ThermometerSun size={15} color={T.warn} style={{ flexShrink: 0, marginTop: 2 }} />
-            <p style={{ fontSize: 13, color: T.tx2, margin: 0, lineHeight: 1.6, fontWeight: 500 }}>{t.tip}</p>
-          </div>
-        ))}
-      </Card>
+        <Card style={{ marginBottom: 16 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}><Sun size={18} color={T.warn} /><h3 style={{ margin: 0, fontSize: 15, fontWeight: 800, fontFamily: FONT_HEAD, color: T.tx }}>Summer Tips</h3></div>
+          {SEASONAL_TIPS.map((t, i) => (
+            <div key={i} style={{ display: "flex", gap: 12, padding: "10px 0", borderTop: i > 0 ? `1px solid ${T.brdL}` : "none" }}>
+              <ThermometerSun size={15} color={T.warn} style={{ flexShrink: 0, marginTop: 2 }} />
+              <p style={{ fontSize: 13, color: T.tx2, margin: 0, lineHeight: 1.6, fontWeight: 500 }}>{t.tip}</p>
+            </div>
+          ))}
+        </Card>
+        </div>
+      )}
 
       {eqAlerts.length > 0 && (
         <Card style={{ marginBottom: 16 }} hover onClick={() => go("profile")}>
@@ -369,6 +421,7 @@ function HomePage({ history, equipment, go, linkedShop, profile }) {
    ═══════════════════════════════════════════════════════════════ */
 function TestPage({ history, setHistory, poolVolume }) {
   const T = useTheme();
+  const { desk } = useLayout();
   const [r, setR] = useState({ ph: "7.5", fc: "1.5", ta: "100", ch: "280", cya: "40", salt: "4800", temp: "30" });
   const [done, setDone] = useState(false); const [actions, setActions] = useState([]); const [exp, setExp] = useState(null);
   const vol = parseInt(String(poolVolume).replace(/,/g, "")) || 40000;
@@ -413,7 +466,7 @@ function TestPage({ history, setHistory, poolVolume }) {
     <div>
       <h2 style={{ fontSize: 24, fontWeight: 900, margin: "0 0 4px", fontFamily: FONT_HEAD, color: T.tx }}>Weekly Water Test</h2>
       <p style={{ fontSize: 14, color: T.tx2, margin: "0 0 24px", fontWeight: 500 }}>Enter your test kit or strip readings</p>
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
+      <div style={{ display: "grid", gridTemplateColumns: desk ? "1fr 1fr 1fr" : "1fr 1fr", gap: 14 }}>
         {[{ k: "ph", l: "pH", p: "7.4", s: "0.1" }, { k: "fc", l: "Free Chlorine (ppm)", p: "2.0", s: "0.1" }, { k: "ta", l: "Alkalinity (ppm)", p: "100", s: "10" }, { k: "ch", l: "Calcium (ppm)", p: "300", s: "10" }, { k: "cya", l: "CYA (ppm)", p: "40", s: "5" }, { k: "salt", l: "Salt (ppm)", p: "5000", s: "100" }].map(f => (
           <div key={f.k}><label style={lSty}>{f.l}</label><input type="number" step={f.s} value={r[f.k]} onChange={e => setR(x => ({ ...x, [f.k]: e.target.value }))} placeholder={f.p} style={iSty} /></div>
         ))}
@@ -559,6 +612,7 @@ function ShopsPage({ linkedShop, setLinkedShop }) {
    ═══════════════════════════════════════════════════════════════ */
 function HistoryPage({ history }) {
   const T = useTheme();
+  const { desk } = useLayout();
   const [active, setActive] = useState("ph");
   const params = [{ k: "ph", l: "pH", u: "", ...TARGETS.ph, c: T.pri }, { k: "fc", l: "Chlorine", u: "ppm", ...TARGETS.fc, c: T.acc }, { k: "ta", l: "Alkalinity", u: "ppm", ...TARGETS.ta, c: T.ok }, { k: "salt", l: "Salt", u: "ppm", ...TARGETS.salt, c: T.warn }];
   const p = params.find(x => x.k === active);
@@ -574,7 +628,7 @@ function HistoryPage({ history }) {
       </div>
       <Card style={{ marginBottom: 18, padding: "24px 12px" }}>
         <div style={{ display: "flex", justifyContent: "space-between", padding: "0 8px", marginBottom: 12 }}><h3 style={{ margin: 0, fontSize: 16, fontWeight: 800, fontFamily: FONT_HEAD, color: T.tx }}>{p.l}</h3><span style={{ fontSize: 12, color: T.tx3, fontWeight: 600 }}>Target: {p.min}–{p.max} {p.u}</span></div>
-        <ResponsiveContainer width="100%" height={190}>
+        <ResponsiveContainer width="100%" height={desk ? 280 : 190}>
           <AreaChart data={data} margin={{ top: 5, right: 10, left: -20, bottom: 0 }}>
             <defs><linearGradient id={`g-${active}`} x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor={p.c} stopOpacity={0.3} /><stop offset="100%" stopColor={p.c} stopOpacity={0.03} /></linearGradient></defs>
             <XAxis dataKey="date" tick={{ fontSize: 11, fill: T.tx3, fontWeight: 600 }} axisLine={false} tickLine={false} />
@@ -620,6 +674,7 @@ function HistoryPage({ history }) {
    ═══════════════════════════════════════════════════════════════ */
 function ProfilePage({ profile, setProfile, equipment, setEquipment, go, linkedShop }) {
   const T = useTheme();
+  const { desk } = useLayout();
   const [view, setView] = useState("main");
   const [selEq, setSelEq] = useState(null);
   const [editFields, setEditFields] = useState({});
@@ -717,7 +772,7 @@ function ProfilePage({ profile, setProfile, equipment, setEquipment, go, linkedS
           <div style={{ width: 52, height: 52, borderRadius: "50%", background: `linear-gradient(135deg, ${T.pri}, ${T.acc})`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}><User size={24} color="#fff" /></div>
           <div><p style={{ fontSize: 18, fontWeight: 900, margin: 0, fontFamily: FONT_HEAD, color: T.tx }}>{profile.name || "Add your name"}</p><p style={{ fontSize: 13, color: T.tx3, margin: "3px 0 0" }}>{profile.address || "Add address"}</p></div>
         </div>
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+        <div style={{ display: "grid", gridTemplateColumns: desk ? "1fr 1fr 1fr" : "1fr 1fr", gap: 8 }}>
           {detailRows.map(([l, v]) => <div key={l} style={{ padding: "9px 12px", backgroundColor: T.bgS, borderRadius: 10 }}><p style={{ fontSize: 10, fontWeight: 700, color: T.tx3, margin: "0 0 2px", textTransform: "uppercase", letterSpacing: "0.05em" }}>{l}</p><p style={{ fontSize: 14, fontWeight: 700, margin: 0, color: T.tx }}>{v}</p></div>)}
         </div>
         {(profile.poolPhotos || []).length > 0 && <div style={{ marginTop: 14 }}><div style={{ display: "flex", gap: 8, overflowX: "auto" }}>{profile.poolPhotos.map(p => <img key={p.id} src={p.src} alt="" style={{ width: 70, height: 70, borderRadius: 10, objectFit: "cover" }} />)}</div></div>}
@@ -756,40 +811,52 @@ export default function App() {
   const [linkedShop, setLinkedShop] = useState(null);
   const [profile, setProfile] = useState(INIT_PROFILE);
   const T = dark ? THEMES.dark : THEMES.light;
+  const layout = useWidth();
+  const { desk, wide } = layout;
   const go = (p) => setPage(p);
 
   return (
     <ThemeCtx.Provider value={T}>
-      <div style={{ minHeight: "100vh", backgroundColor: T.bg, maxWidth: 480, margin: "0 auto", position: "relative", fontFamily: FONT }}>
-        {/* Header */}
-        <div style={{ position: "sticky", top: 0, backgroundColor: T.hdr, backdropFilter: "blur(14px)", WebkitBackdropFilter: "blur(14px)", borderBottom: `1px solid ${T.brdL}`, padding: "10px 20px", display: "flex", alignItems: "center", justifyContent: "space-between", zIndex: 40 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-            <div style={{ width: 32, height: 32, borderRadius: 10, background: `linear-gradient(135deg, ${T.pri}, ${T.acc})`, display: "flex", alignItems: "center", justifyContent: "center" }}>
-              <Waves size={17} color="#fff" />
+      <LayoutCtx.Provider value={layout}>
+        <div style={{ minHeight: "100vh", backgroundColor: T.bg, fontFamily: FONT, display: desk ? "flex" : "block" }}>
+          {/* Desktop: sidebar nav */}
+          {desk && <Sidebar active={page} go={go} dark={dark} setDark={setDark} />}
+
+          {/* Main content area */}
+          <div style={{ flex: 1, marginLeft: desk ? 220 : 0, minHeight: "100vh" }}>
+            {/* Mobile: top header bar */}
+            {!desk && (
+              <div style={{ position: "sticky", top: 0, backgroundColor: T.hdr, backdropFilter: "blur(14px)", WebkitBackdropFilter: "blur(14px)", borderBottom: `1px solid ${T.brdL}`, padding: "10px 20px", display: "flex", alignItems: "center", justifyContent: "space-between", zIndex: 40 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                  <div style={{ width: 32, height: 32, borderRadius: 10, background: `linear-gradient(135deg, ${T.pri}, ${T.acc})`, display: "flex", alignItems: "center", justifyContent: "center" }}><Waves size={17} color="#fff" /></div>
+                  <span style={{ fontSize: 16, fontWeight: 900, color: T.tx, letterSpacing: "-0.02em", fontFamily: FONT_HEAD }}>PoolConnection</span>
+                </div>
+                <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                  <button onClick={() => setDark(!dark)} style={{ border: "none", background: "none", cursor: "pointer", padding: 6, display: "flex", borderRadius: 8, backgroundColor: dark ? T.bgS : "transparent" }} title={dark ? "Light mode" : "Dark mode"}>
+                    {dark ? <SunMedium size={19} color={T.warn} /> : <Moon size={19} color={T.tx3} />}
+                  </button>
+                  <button onClick={() => go("profile")} style={{ border: "none", background: "none", cursor: "pointer", padding: 6, display: "flex" }}>
+                    <User size={19} color={T.tx3} />
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Content */}
+            <div style={{ maxWidth: desk ? 900 : 480, margin: "0 auto", padding: desk ? "32px 40px 40px" : "24px 20px 110px" }}>
+              {page === "home" && <HomePage history={history} equipment={equipment} go={go} linkedShop={linkedShop} profile={profile} />}
+              {page === "test" && <TestPage history={history} setHistory={setHistory} poolVolume={profile.poolSize} />}
+              {page === "diagnose" && <DiagnosePage go={go} />}
+              {page === "shops" && <ShopsPage linkedShop={linkedShop} setLinkedShop={setLinkedShop} />}
+              {page === "history" && <HistoryPage history={history} />}
+              {page === "profile" && <ProfilePage profile={profile} setProfile={setProfile} equipment={equipment} setEquipment={setEquipment} go={go} linkedShop={linkedShop} />}
             </div>
-            <span style={{ fontSize: 16, fontWeight: 900, color: T.tx, letterSpacing: "-0.02em", fontFamily: FONT_HEAD }}>PoolConnection</span>
           </div>
-          <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-            <button onClick={() => setDark(!dark)} style={{ border: "none", background: "none", cursor: "pointer", padding: 6, display: "flex", borderRadius: 8, backgroundColor: dark ? T.bgS : "transparent" }} title={dark ? "Light mode" : "Dark mode"}>
-              {dark ? <SunMedium size={19} color={T.warn} /> : <Moon size={19} color={T.tx3} />}
-            </button>
-            <button onClick={() => go("profile")} style={{ border: "none", background: "none", cursor: "pointer", padding: 6, display: "flex" }}>
-              <User size={19} color={T.tx3} />
-            </button>
-          </div>
-        </div>
 
-        <div style={{ padding: "24px 20px 110px" }}>
-          {page === "home" && <HomePage history={history} equipment={equipment} go={go} linkedShop={linkedShop} profile={profile} />}
-          {page === "test" && <TestPage history={history} setHistory={setHistory} poolVolume={profile.poolSize} />}
-          {page === "diagnose" && <DiagnosePage go={go} />}
-          {page === "shops" && <ShopsPage linkedShop={linkedShop} setLinkedShop={setLinkedShop} />}
-          {page === "history" && <HistoryPage history={history} />}
-          {page === "profile" && <ProfilePage profile={profile} setProfile={setProfile} equipment={equipment} setEquipment={setEquipment} go={go} linkedShop={linkedShop} />}
+          {/* Mobile: bottom tab bar */}
+          {!desk && <TabBar active={page} go={go} />}
         </div>
-
-        <TabBar active={page} go={go} />
-      </div>
+      </LayoutCtx.Provider>
     </ThemeCtx.Provider>
   );
 }
