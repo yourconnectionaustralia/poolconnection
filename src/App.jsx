@@ -103,17 +103,17 @@ const THEMES = {
   }
 };
 
-// Brand typography: Syne for display, DM Sans for body/UI
+// Brand typography: Space Grotesk for display (geometric, readable), DM Sans for body/UI
 const FONT = "'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
-const FONT_HEAD = "'Syne', 'DM Sans', -apple-system, sans-serif";
+const FONT_HEAD = "'Space Grotesk', 'DM Sans', -apple-system, sans-serif";
 
 /* ═══════════════════════════════════════════════════════════════
    BRAND LOGO — Droplet Node (from brand guidelines SVG)
    ═══════════════════════════════════════════════════════════════ */
 function DropletNodeIcon({ size = 32 }) {
-  const s = size / 120;
+  // Cropped viewBox: content spans x:17-103, y:8-110
   return (
-    <svg width={size} height={size} viewBox="0 0 120 120" fill="none">
+    <svg width={size} height={size * (102/86)} viewBox="17 8 86 102" fill="none">
       <defs>
         <linearGradient id="pc-grad" x1="60" y1="10" x2="60" y2="108" gradientUnits="userSpaceOnUse">
           <stop offset="0%" stopColor="#00B4D8"/>
@@ -139,7 +139,7 @@ function DropletNodeIcon({ size = 32 }) {
 
 function BrandWordmark({ size = 16 }) {
   const T = useTheme();
-  return <span style={{ fontSize: size, fontWeight: 800, letterSpacing: "-0.02em", fontFamily: FONT_HEAD }}><span style={{ color: T.tx }}>Pool</span><span style={{ color: "#00B4D8" }}>Connection</span></span>;
+  return <span style={{ fontSize: size, fontWeight: 700, letterSpacing: "-0.02em", fontFamily: FONT_HEAD }}><span style={{ color: T.tx }}>Pool</span><span style={{ color: "#00B4D8" }}>Connection</span></span>;
 }
 
 /* ═══════════════════════════════════════════════════════════════
@@ -275,7 +275,7 @@ function Modal({ open, onClose, title, children }) {
       <div style={{ position: "fixed", inset: 0, backgroundColor: T.overlay }} />
       <div style={{ position: "relative", backgroundColor: T.card, borderRadius: 20, boxShadow: `0 20px 60px ${T.shadowH}`, width: "100%", maxWidth: 480, maxHeight: "85vh", overflowY: "auto", margin: "0 16px" }} onClick={e => e.stopPropagation()}>
         <div style={{ position: "sticky", top: 0, backgroundColor: T.card, borderBottom: `1px solid ${T.brdL}`, padding: "16px 24px", display: "flex", alignItems: "center", justifyContent: "space-between", borderRadius: "20px 20px 0 0", zIndex: 1 }}>
-          <h3 style={{ margin: 0, fontSize: 17, fontWeight: 800, color: T.tx, fontFamily: FONT_HEAD }}>{title}</h3>
+          <h3 style={{ margin: 0, fontSize: 17, fontWeight: 700, color: T.tx, fontFamily: FONT_HEAD }}>{title}</h3>
           <button onClick={onClose} style={{ border: "none", background: "none", cursor: "pointer", padding: 4, color: T.tx3 }}><X size={20} /></button>
         </div>
         <div style={{ padding: 24 }}>{children}</div>
@@ -374,7 +374,7 @@ function WelcomeScreen({ onAuth, onGuest }) {
           <DropletNodeIcon size={72} />
         </div>
 
-        <h1 style={{ fontSize: 32, fontWeight: 800, color: T.tx, margin: "0 0 8px", letterSpacing: "-0.03em", fontFamily: FONT_HEAD }}><span style={{ color: T.tx }}>Pool</span><span style={{ color: "#00B4D8" }}>Connection</span></h1>
+        <h1 style={{ fontSize: 32, fontWeight: 700, color: T.tx, margin: "0 0 8px", letterSpacing: "-0.03em", fontFamily: FONT_HEAD }}><span style={{ color: T.tx }}>Pool</span><span style={{ color: "#00B4D8" }}>Connection</span></h1>
         <p style={{ fontSize: 17, color: T.tx2, margin: "0 0 36px", fontWeight: 500, lineHeight: 1.5 }}>Your pool care companion.<br />Clear water, no guesswork.</p>
 
         {!emailMode && (
@@ -411,7 +411,7 @@ function WelcomeScreen({ onAuth, onGuest }) {
           <div style={{ textAlign: "left" }}>
             <button onClick={() => { setEmailMode(null); setEmailErr(""); }} style={{ display: "flex", alignItems: "center", gap: 4, border: "none", background: "none", color: T.tx3, fontSize: 13, fontWeight: 700, cursor: "pointer", padding: 0, marginBottom: 20, fontFamily: FONT }}><ChevronLeft size={16} /> Back</button>
 
-            <h2 style={{ fontSize: 22, fontWeight: 800, color: T.tx, margin: "0 0 20px", fontFamily: FONT_HEAD }}>{emailMode === "signup" ? "Create account" : "Welcome back"}</h2>
+            <h2 style={{ fontSize: 22, fontWeight: 700, color: T.tx, margin: "0 0 20px", fontFamily: FONT_HEAD }}>{emailMode === "signup" ? "Create account" : "Welcome back"}</h2>
 
             <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 16 }}>
               <div>
@@ -462,14 +462,14 @@ function PoolSetupScreen({ onComplete, onSkip }) {
   const steps = [
     // Step 0: Pool size
     <div key="size">
-      <h2 style={{ fontSize: 24, fontWeight: 900, color: T.tx, margin: "0 0 8px", fontFamily: FONT_HEAD }}>How big is your pool?</h2>
+      <h2 style={{ fontSize: 24, fontWeight: 700, color: T.tx, margin: "0 0 8px", fontFamily: FONT_HEAD }}>How big is your pool?</h2>
       <p style={{ fontSize: 14, color: T.tx2, margin: "0 0 24px", lineHeight: 1.5 }}>We use this to calculate exact chemical dosages. Don't know? A typical Australian backyard pool is 40,000–50,000 litres.</p>
       <input type="text" value={poolSize} onChange={e => setPoolSize(e.target.value)} placeholder="e.g. 40,000" style={iSty} />
       <p style={{ fontSize: 12, color: T.tx3, margin: "8px 0 0" }}>Litres — check your pool builder's docs or ask your pool shop</p>
     </div>,
     // Step 1: Pool type
     <div key="type">
-      <h2 style={{ fontSize: 24, fontWeight: 900, color: T.tx, margin: "0 0 8px", fontFamily: FONT_HEAD }}>What type of pool?</h2>
+      <h2 style={{ fontSize: 24, fontWeight: 700, color: T.tx, margin: "0 0 8px", fontFamily: FONT_HEAD }}>What type of pool?</h2>
       <p style={{ fontSize: 14, color: T.tx2, margin: "0 0 24px" }}>This helps us give relevant advice.</p>
       <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
         {["In-ground", "Above-ground", "Plunge pool", "Swim spa"].map(opt => (
@@ -479,7 +479,7 @@ function PoolSetupScreen({ onComplete, onSkip }) {
     </div>,
     // Step 2: Sanitisation
     <div key="sanit">
-      <h2 style={{ fontSize: 24, fontWeight: 900, color: T.tx, margin: "0 0 8px", fontFamily: FONT_HEAD }}>How do you sanitise?</h2>
+      <h2 style={{ fontSize: 24, fontWeight: 700, color: T.tx, margin: "0 0 8px", fontFamily: FONT_HEAD }}>How do you sanitise?</h2>
       <p style={{ fontSize: 14, color: T.tx2, margin: "0 0 24px" }}>This determines which chemicals and tests we recommend.</p>
       <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
         {["Salt Chlorinator", "Liquid Chlorine (manual)", "Chlorine Tablets", "Mineral System", "Not sure"].map(opt => (
@@ -553,11 +553,13 @@ function Sidebar({ active, go, dark, setDark, user, isGuest, onSignUp, onSignOut
   const T = useTheme();
   const tabs = [{ id: "home", label: "Home", icon: Home }, { id: "test", label: "Test", icon: Beaker }, { id: "diagnose", label: "Fix", icon: HelpCircle }, { id: "shops", label: "Shops", icon: Store }, { id: "history", label: "History", icon: BarChart3 }, { id: "profile", label: "My Pool", icon: User }];
   return (
-    <div style={{ width: 220, flexShrink: 0, position: "fixed", top: 0, left: 0, bottom: 0, backgroundColor: T.card, borderRight: `1px solid ${T.brd}`, display: "flex", flexDirection: "column", zIndex: 40, overflow: "hidden" }}>
+    <div style={{ width: 220, flexShrink: 0, position: "fixed", top: 0, left: 0, bottom: 0, backgroundColor: T.card, borderRight: `1px solid ${T.brd}`, display: "flex", flexDirection: "column", zIndex: 40, overflowY: "auto", overflowX: "hidden" }}>
       {/* Logo */}
-      <div style={{ padding: "24px 20px 20px", display: "flex", alignItems: "center", gap: 10, borderBottom: `1px solid ${T.brdL}` }}>
-        <DropletNodeIcon size={32} />
-        <BrandWordmark size={17} />
+      <div style={{ padding: "20px 16px 16px", display: "flex", alignItems: "center", gap: 8, borderBottom: `1px solid ${T.brdL}`, flexShrink: 0 }}>
+        <div style={{ flexShrink: 0, width: 26, display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <DropletNodeIcon size={24} />
+        </div>
+        <BrandWordmark size={15} />
       </div>
       {/* Nav items */}
       <div style={{ flex: 1, padding: "12px 10px", display: "flex", flexDirection: "column", gap: 2 }}>
@@ -629,7 +631,7 @@ function HomePage({ history, equipment, go, linkedShop, profile, isGuest, onSign
       {isGuest && <GuestBanner onSignUp={onSignUp} />}
       <div style={{ marginBottom: 28 }}>
         <p style={{ fontSize: 14, color: T.tx3, fontWeight: 600, margin: 0 }}>Welcome back{profile.name ? `, ${profile.name.split(" ")[0]}` : ""}</p>
-        <h1 style={{ fontSize: 28, fontWeight: 900, color: T.tx, margin: "4px 0 0", letterSpacing: "-0.03em", fontFamily: FONT_HEAD }}>Your Pool</h1>
+        <h1 style={{ fontSize: 28, fontWeight: 700, color: T.tx, margin: "4px 0 0", letterSpacing: "-0.03em", fontFamily: FONT_HEAD }}>Your Pool</h1>
         {profile.poolSize && <p style={{ fontSize: 13, color: T.tx3, margin: "4px 0 0", fontWeight: 600 }}>{profile.poolSize}L · {profile.poolSurface} · {profile.sanitisation}</p>}
       </div>
 
@@ -639,7 +641,7 @@ function HomePage({ history, equipment, go, linkedShop, profile, isGuest, onSign
             {daysSince > 5 ? <AlertCircle size={24} color={T.warn} /> : <Beaker size={24} color={T.pri} />}
           </div>
           <div style={{ flex: 1 }}>
-            <p style={{ fontSize: 16, fontWeight: 800, color: T.tx, margin: 0, fontFamily: FONT_HEAD }}>{daysSince > 5 ? "Time to test your water" : daysSince === 0 ? "Tested today ✓" : `Tested ${daysSince}d ago`}</p>
+            <p style={{ fontSize: 16, fontWeight: 700, color: T.tx, margin: 0, fontFamily: FONT_HEAD }}>{daysSince > 5 ? "Time to test your water" : daysSince === 0 ? "Tested today ✓" : `Tested ${daysSince}d ago`}</p>
             <p style={{ fontSize: 13, color: T.tx2, margin: "3px 0 0", fontWeight: 500 }}>{daysSince > 5 ? "Weekly testing catches problems early." : "Weekly testing keeps your pool healthy."}</p>
           </div>
           <Btn v={daysSince > 5 ? "primary" : "secondary"} sz="sm" onClick={() => go("test")}>Test</Btn>
@@ -648,7 +650,7 @@ function HomePage({ history, equipment, go, linkedShop, profile, isGuest, onSign
 
       {issues.length > 0 && (
         <Card style={{ marginBottom: 16, borderColor: T.badB, backgroundColor: T.badL }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}><AlertTriangle size={18} color={T.bad} /><span style={{ fontSize: 15, fontWeight: 800, color: T.bad, fontFamily: FONT_HEAD }}>{issues.length} need{issues.length === 1 ? "s" : ""} attention</span></div>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}><AlertTriangle size={18} color={T.bad} /><span style={{ fontSize: 15, fontWeight: 700, color: T.bad, fontFamily: FONT_HEAD }}>{issues.length} need{issues.length === 1 ? "s" : ""} attention</span></div>
           {issues.map((iss, i) => (
             <div key={i} style={{ display: "flex", justifyContent: "space-between", padding: "8px 14px", backgroundColor: T.card, borderRadius: 10, marginTop: i > 0 ? 6 : 0, border: `1px solid ${T.badB}` }}>
               <span style={{ fontSize: 14, fontWeight: 700, color: T.tx }}>{iss.p}</span>
@@ -662,12 +664,12 @@ function HomePage({ history, equipment, go, linkedShop, profile, isGuest, onSign
       {latest && (
         <div style={{ display: desk ? "grid" : "block", gridTemplateColumns: desk ? "1fr 1fr" : "1fr", gap: desk ? 16 : 0 }}>
         <Card style={{ marginBottom: 16 }}>
-          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 16 }}><h3 style={{ margin: 0, fontSize: 16, fontWeight: 800, fontFamily: FONT_HEAD, color: T.tx }}>Latest Readings</h3><span style={{ fontSize: 12, color: T.tx3, fontWeight: 600 }}>{latest.date}</span></div>
+          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 16 }}><h3 style={{ margin: 0, fontSize: 16, fontWeight: 700, fontFamily: FONT_HEAD, color: T.tx }}>Latest Readings</h3><span style={{ fontSize: 12, color: T.tx3, fontWeight: 600 }}>{latest.date}</span></div>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 10 }}>
             {[{ l: "pH", v: latest.ph, ok: latest.ph >= TARGETS.ph.min && latest.ph <= TARGETS.ph.max }, { l: "Chlorine", v: latest.fc, u: "ppm", ok: latest.fc >= TARGETS.fc.min && latest.fc <= TARGETS.fc.max }, { l: "Alkalinity", v: latest.ta, u: "ppm", ok: latest.ta >= TARGETS.ta.min && latest.ta <= TARGETS.ta.max }, { l: "Salt", v: latest.salt, u: "ppm", ok: latest.salt >= TARGETS.salt.min && latest.salt <= TARGETS.salt.max }, { l: "Temp", v: `${latest.temp}°`, ok: true }, { l: "CYA", v: latest.cya, u: "ppm", ok: latest.cya >= TARGETS.cya.min && latest.cya <= TARGETS.cya.max }].map((r, i) => (
               <div key={i} style={{ textAlign: "center", padding: "12px 6px", backgroundColor: r.ok ? T.okL : T.badL, borderRadius: 12, border: `1px solid ${r.ok ? T.okB : T.badB}` }}>
                 <p style={{ fontSize: 10, fontWeight: 700, color: T.tx3, margin: 0, textTransform: "uppercase", letterSpacing: "0.06em" }}>{r.l}</p>
-                <p style={{ fontSize: 20, fontWeight: 900, color: r.ok ? T.ok : T.bad, margin: "4px 0 0", fontFamily: FONT_HEAD }}>{r.v}</p>
+                <p style={{ fontSize: 20, fontWeight: 700, color: r.ok ? T.ok : T.bad, margin: "4px 0 0", fontFamily: FONT_HEAD }}>{r.v}</p>
                 {r.u && <p style={{ fontSize: 9, color: T.tx3, margin: 0 }}>{r.u}</p>}
               </div>
             ))}
@@ -675,7 +677,7 @@ function HomePage({ history, equipment, go, linkedShop, profile, isGuest, onSign
         </Card>
 
         <Card style={{ marginBottom: 16 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}><Sun size={18} color={T.warn} /><h3 style={{ margin: 0, fontSize: 15, fontWeight: 800, fontFamily: FONT_HEAD, color: T.tx }}>Summer Tips</h3></div>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}><Sun size={18} color={T.warn} /><h3 style={{ margin: 0, fontSize: 15, fontWeight: 700, fontFamily: FONT_HEAD, color: T.tx }}>Summer Tips</h3></div>
           {SEASONAL_TIPS.map((t, i) => (
             <div key={i} style={{ display: "flex", gap: 12, padding: "10px 0", borderTop: i > 0 ? `1px solid ${T.brdL}` : "none" }}>
               <ThermometerSun size={15} color={T.warn} style={{ flexShrink: 0, marginTop: 2 }} />
@@ -688,7 +690,7 @@ function HomePage({ history, equipment, go, linkedShop, profile, isGuest, onSign
 
       {eqAlerts.length > 0 && (
         <Card style={{ marginBottom: 16 }} hover onClick={() => go("profile")}>
-          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}><Wrench size={18} color={T.warn} /><h3 style={{ margin: 0, fontSize: 15, fontWeight: 800, fontFamily: FONT_HEAD, color: T.tx }}>Equipment Alerts</h3></div>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}><Wrench size={18} color={T.warn} /><h3 style={{ margin: 0, fontSize: 15, fontWeight: 700, fontFamily: FONT_HEAD, color: T.tx }}>Equipment Alerts</h3></div>
           {eqAlerts.map(e => (
             <div key={e.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "7px 0" }}>
               <div><p style={{ fontSize: 14, fontWeight: 700, margin: 0, color: T.tx }}>{e.name}</p><p style={{ fontSize: 12, color: T.tx3, margin: 0 }}>{e.brand} {e.model}</p></div>
@@ -701,12 +703,12 @@ function HomePage({ history, equipment, go, linkedShop, profile, isGuest, onSign
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
         <Card hover onClick={() => go("diagnose")} style={{ textAlign: "center", padding: 18 }}>
           <HelpCircle size={28} color={T.pri} style={{ marginBottom: 8 }} />
-          <p style={{ fontSize: 14, fontWeight: 800, margin: 0, color: T.tx, fontFamily: FONT_HEAD }}>Something Wrong?</p>
+          <p style={{ fontSize: 14, fontWeight: 700, margin: 0, color: T.tx, fontFamily: FONT_HEAD }}>Something Wrong?</p>
           <p style={{ fontSize: 12, color: T.tx3, margin: "3px 0 0" }}>Diagnose a problem</p>
         </Card>
         <Card hover onClick={() => go("shops")} style={{ textAlign: "center", padding: 18 }}>
           <Store size={28} color={T.acc} style={{ marginBottom: 8 }} />
-          <p style={{ fontSize: 14, fontWeight: 800, margin: 0, color: T.tx, fontFamily: FONT_HEAD }}>Find a Pool Shop</p>
+          <p style={{ fontSize: 14, fontWeight: 700, margin: 0, color: T.tx, fontFamily: FONT_HEAD }}>Find a Pool Shop</p>
           <p style={{ fontSize: 12, color: T.tx3, margin: "3px 0 0" }}>Nearby experts</p>
         </Card>
       </div>
@@ -755,7 +757,7 @@ function TestPage({ history, setHistory, poolVolume }) {
         <Back onClick={resetAll} label="New test" />
         <Card style={{ marginBottom: 20, backgroundColor: issN === 0 ? T.okL : T.warnL, border: `1px solid ${issN === 0 ? T.okB : T.warnB}`, textAlign: "center", padding: 28 }}>
           {issN === 0 ? <CheckCircle2 size={40} color={T.ok} /> : <AlertCircle size={40} color={T.warn} />}
-          <h2 style={{ fontSize: 22, fontWeight: 900, margin: "10px 0 4px", fontFamily: FONT_HEAD, color: T.tx }}>{issN === 0 ? "Looking Great!" : `${issN} Thing${issN > 1 ? "s" : ""} to Adjust`}</h2>
+          <h2 style={{ fontSize: 22, fontWeight: 700, margin: "10px 0 4px", fontFamily: FONT_HEAD, color: T.tx }}>{issN === 0 ? "Looking Great!" : `${issN} Thing${issN > 1 ? "s" : ""} to Adjust`}</h2>
           <p style={{ fontSize: 14, color: T.tx2, margin: 0, fontWeight: 500 }}>{issN === 0 ? "All parameters in range." : "Follow the steps below."}</p>
         </Card>
         <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
@@ -766,9 +768,9 @@ function TestPage({ history, setHistory, poolVolume }) {
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
                     <SevIcon severity={a.severity} size={20} />
-                    <div><p style={{ fontSize: 15, fontWeight: 800, margin: 0, color: T.tx, fontFamily: FONT_HEAD }}>{a.param}</p><p style={{ fontSize: 13, color: T.tx2, margin: "3px 0 0", fontWeight: 500 }}>{a.action}</p></div>
+                    <div><p style={{ fontSize: 15, fontWeight: 700, margin: 0, color: T.tx, fontFamily: FONT_HEAD }}>{a.param}</p><p style={{ fontSize: 13, color: T.tx2, margin: "3px 0 0", fontWeight: 500 }}>{a.action}</p></div>
                   </div>
-                  <div style={{ display: "flex", alignItems: "center", gap: 8 }}><span style={{ fontSize: 18, fontWeight: 900, color: sc, fontFamily: FONT_HEAD }}>{a.value}</span><ChevronDown size={14} color={T.tx3} style={{ transform: exp === i ? "rotate(180deg)" : "none", transition: "transform 0.2s" }} /></div>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8 }}><span style={{ fontSize: 18, fontWeight: 700, color: sc, fontFamily: FONT_HEAD }}>{a.value}</span><ChevronDown size={14} color={T.tx3} style={{ transform: exp === i ? "rotate(180deg)" : "none", transition: "transform 0.2s" }} /></div>
                 </div>
                 {exp === i && <div style={{ marginTop: 14, paddingTop: 14, borderTop: `1px solid ${T.brdL}` }}><p style={{ fontSize: 13, color: T.tx2, margin: 0, lineHeight: 1.7, fontWeight: 500 }}>{a.why}</p><p style={{ fontSize: 12, color: T.tx3, margin: "8px 0 0", fontWeight: 600 }}>Target: {a.target}</p></div>}
               </Card>
@@ -788,7 +790,7 @@ function TestPage({ history, setHistory, poolVolume }) {
     return (
       <div>
         <Back onClick={resetAll} label="Back" />
-        <h2 style={{ fontSize: 24, fontWeight: 900, margin: "0 0 4px", fontFamily: FONT_HEAD, color: T.tx }}>Shop Water Test</h2>
+        <h2 style={{ fontSize: 24, fontWeight: 700, margin: "0 0 4px", fontFamily: FONT_HEAD, color: T.tx }}>Shop Water Test</h2>
         <p style={{ fontSize: 14, color: T.tx2, margin: "0 0 24px", fontWeight: 500, lineHeight: 1.5 }}>Photo your shop printout, then enter the results. We'll save both.</p>
 
         {/* Photo capture */}
@@ -824,7 +826,7 @@ function TestPage({ history, setHistory, poolVolume }) {
         <Card style={{ marginBottom: 20 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 16 }}>
             <Edit3 size={16} color={T.pri} />
-            <p style={{ fontSize: 15, fontWeight: 800, margin: 0, color: T.tx, fontFamily: FONT_HEAD }}>Enter the readings</p>
+            <p style={{ fontSize: 15, fontWeight: 700, margin: 0, color: T.tx, fontFamily: FONT_HEAD }}>Enter the readings</p>
           </div>
           <p style={{ fontSize: 13, color: T.tx2, margin: "0 0 16px", lineHeight: 1.5 }}>Copy the values from your printout below. We'll calculate what to do next.</p>
           <div style={{ display: "grid", gridTemplateColumns: desk ? "1fr 1fr 1fr" : "1fr 1fr", gap: 14 }}>
@@ -850,7 +852,7 @@ function TestPage({ history, setHistory, poolVolume }) {
     return (
       <div>
         <Back onClick={resetAll} label="Back" />
-        <h2 style={{ fontSize: 24, fontWeight: 900, margin: "0 0 4px", fontFamily: FONT_HEAD, color: T.tx }}>Home Water Test</h2>
+        <h2 style={{ fontSize: 24, fontWeight: 700, margin: "0 0 4px", fontFamily: FONT_HEAD, color: T.tx }}>Home Water Test</h2>
         <p style={{ fontSize: 14, color: T.tx2, margin: "0 0 24px", fontWeight: 500 }}>Enter your test kit or strip readings</p>
         <div style={{ display: "grid", gridTemplateColumns: desk ? "1fr 1fr 1fr" : "1fr 1fr", gap: 14 }}>
           {[{ k: "ph", l: "pH", p: "7.4", s: "0.1" }, { k: "fc", l: "Free Chlorine (ppm)", p: "2.0", s: "0.1" }, { k: "ta", l: "Alkalinity (ppm)", p: "100", s: "10" }, { k: "ch", l: "Calcium (ppm)", p: "300", s: "10" }, { k: "cya", l: "CYA (ppm)", p: "40", s: "5" }, { k: "salt", l: "Salt (ppm)", p: "5000", s: "100" }].map(f => (
@@ -867,7 +869,7 @@ function TestPage({ history, setHistory, poolVolume }) {
   // ── MODE SELECTOR ──
   return (
     <div>
-      <h2 style={{ fontSize: 24, fontWeight: 900, margin: "0 0 4px", fontFamily: FONT_HEAD, color: T.tx }}>Log Water Test</h2>
+      <h2 style={{ fontSize: 24, fontWeight: 700, margin: "0 0 4px", fontFamily: FONT_HEAD, color: T.tx }}>Log Water Test</h2>
       <p style={{ fontSize: 14, color: T.tx2, margin: "0 0 24px", fontWeight: 500 }}>How are you testing today?</p>
 
       <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
@@ -877,7 +879,7 @@ function TestPage({ history, setHistory, poolVolume }) {
               <Beaker size={26} color={T.pri} />
             </div>
             <div style={{ flex: 1 }}>
-              <p style={{ fontSize: 17, fontWeight: 800, margin: 0, color: T.tx, fontFamily: FONT_HEAD }}>Home Test</p>
+              <p style={{ fontSize: 17, fontWeight: 700, margin: 0, color: T.tx, fontFamily: FONT_HEAD }}>Home Test</p>
               <p style={{ fontSize: 14, color: T.tx2, margin: "4px 0 0", lineHeight: 1.5 }}>Enter readings from your own test kit or strips</p>
             </div>
             <ChevronRight size={20} color={T.tx3} />
@@ -890,7 +892,7 @@ function TestPage({ history, setHistory, poolVolume }) {
               <Camera size={26} color={T.acc} />
             </div>
             <div style={{ flex: 1 }}>
-              <p style={{ fontSize: 17, fontWeight: 800, margin: 0, color: T.tx, fontFamily: FONT_HEAD }}>Shop Test</p>
+              <p style={{ fontSize: 17, fontWeight: 700, margin: 0, color: T.tx, fontFamily: FONT_HEAD }}>Shop Test</p>
               <p style={{ fontSize: 14, color: T.tx2, margin: "4px 0 0", lineHeight: 1.5 }}>Photo your pool shop printout and log the results</p>
             </div>
             <ChevronRight size={20} color={T.tx3} />
@@ -923,30 +925,30 @@ function DiagnosePage({ go }) {
   if (sel && result) return (
     <div>
       <Back onClick={() => { setSel(null); setResult(null); }} />
-      <Card style={{ marginBottom: 16, borderLeft: `4px solid ${result.urgent ? T.bad : T.warn}` }}><h3 style={{ fontSize: 20, fontWeight: 900, margin: "0 0 8px", fontFamily: FONT_HEAD, color: T.tx }}>{result.title}</h3><Badge color={result.urgent ? T.bad : T.warn} bg={result.urgent ? T.badL : T.warnL}>{result.urgent ? "Urgent" : "Moderate"}</Badge></Card>
+      <Card style={{ marginBottom: 16, borderLeft: `4px solid ${result.urgent ? T.bad : T.warn}` }}><h3 style={{ fontSize: 20, fontWeight: 700, margin: "0 0 8px", fontFamily: FONT_HEAD, color: T.tx }}>{result.title}</h3><Badge color={result.urgent ? T.bad : T.warn} bg={result.urgent ? T.badL : T.warnL}>{result.urgent ? "Urgent" : "Moderate"}</Badge></Card>
       <Card style={{ marginBottom: 16 }}>
-        <h4 style={{ fontSize: 15, fontWeight: 800, margin: "0 0 16px", fontFamily: FONT_HEAD, color: T.tx }}>{result.canDIY ? "✅ You can fix this" : "🔧 May need professional help"}</h4>
+        <h4 style={{ fontSize: 15, fontWeight: 700, margin: "0 0 16px", fontFamily: FONT_HEAD, color: T.tx }}>{result.canDIY ? "✅ You can fix this" : "🔧 May need professional help"}</h4>
         <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
           {result.steps.map((s, i) => (
             <div key={i} style={{ display: "flex", gap: 12 }}>
-              <div style={{ width: 24, height: 24, borderRadius: "50%", backgroundColor: T.priL, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, fontSize: 11, fontWeight: 900, color: T.pri }}>{i + 1}</div>
+              <div style={{ width: 24, height: 24, borderRadius: "50%", backgroundColor: T.priL, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, fontSize: 11, fontWeight: 700, color: T.pri }}>{i + 1}</div>
               <p style={{ fontSize: 14, color: T.tx2, margin: 0, lineHeight: 1.7, fontWeight: 500 }}>{s}</p>
             </div>
           ))}
         </div>
       </Card>
-      {result.products.length > 0 && <Card style={{ marginBottom: 16 }}><div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}><ShoppingBag size={16} color={T.pri} /><h4 style={{ fontSize: 14, fontWeight: 800, margin: 0, color: T.tx }}>You'll need</h4></div>{result.products.map((p, i) => <div key={i} style={{ padding: "8px 0", borderTop: i > 0 ? `1px solid ${T.brdL}` : "none" }}><p style={{ fontSize: 14, fontWeight: 600, margin: 0, color: T.tx, textTransform: "capitalize" }}>{p}</p></div>)}<Btn v="secondary" sz="sm" full style={{ marginTop: 12 }} onClick={() => go("shops")}><Store size={14} /> Find a shop</Btn></Card>}
-      {result.shopNeeded && <Card style={{ backgroundColor: T.priL, border: `1px solid ${T.brd}` }}><div style={{ display: "flex", gap: 12 }}><Store size={20} color={T.pri} style={{ flexShrink: 0, marginTop: 2 }} /><div><p style={{ fontSize: 15, fontWeight: 800, color: T.priD, margin: "0 0 4px", fontFamily: FONT_HEAD }}>Visit a pool shop</p><p style={{ fontSize: 13, color: T.priD, margin: "0 0 12px", fontWeight: 500, lineHeight: 1.6 }}>{result.shopWhy}</p><Btn v="primary" sz="sm" onClick={() => go("shops")}><MapPin size={14} /> Find Nearby</Btn></div></div></Card>}
+      {result.products.length > 0 && <Card style={{ marginBottom: 16 }}><div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}><ShoppingBag size={16} color={T.pri} /><h4 style={{ fontSize: 14, fontWeight: 700, margin: 0, color: T.tx }}>You'll need</h4></div>{result.products.map((p, i) => <div key={i} style={{ padding: "8px 0", borderTop: i > 0 ? `1px solid ${T.brdL}` : "none" }}><p style={{ fontSize: 14, fontWeight: 600, margin: 0, color: T.tx, textTransform: "capitalize" }}>{p}</p></div>)}<Btn v="secondary" sz="sm" full style={{ marginTop: 12 }} onClick={() => go("shops")}><Store size={14} /> Find a shop</Btn></Card>}
+      {result.shopNeeded && <Card style={{ backgroundColor: T.priL, border: `1px solid ${T.brd}` }}><div style={{ display: "flex", gap: 12 }}><Store size={20} color={T.pri} style={{ flexShrink: 0, marginTop: 2 }} /><div><p style={{ fontSize: 15, fontWeight: 700, color: T.priD, margin: "0 0 4px", fontFamily: FONT_HEAD }}>Visit a pool shop</p><p style={{ fontSize: 13, color: T.priD, margin: "0 0 12px", fontWeight: 500, lineHeight: 1.6 }}>{result.shopWhy}</p><Btn v="primary" sz="sm" onClick={() => go("shops")}><MapPin size={14} /> Find Nearby</Btn></div></div></Card>}
     </div>
   );
   if (sel) return (
     <div>
       <Back onClick={() => setSel(null)} />
-      <h2 style={{ fontSize: 22, fontWeight: 900, margin: "0 0 4px", fontFamily: FONT_HEAD, color: T.tx }}>{sel.title}</h2>
+      <h2 style={{ fontSize: 22, fontWeight: 700, margin: "0 0 4px", fontFamily: FONT_HEAD, color: T.tx }}>{sel.title}</h2>
       <p style={{ fontSize: 14, color: T.tx2, margin: "0 0 20px" }}>Answer a few questions</p>
       {sel.qs.map((q, qi) => (
         <Card key={qi} style={{ marginBottom: 12 }}>
-          <p style={{ fontSize: 15, fontWeight: 800, margin: "0 0 12px", color: T.tx }}>{q.q}</p>
+          <p style={{ fontSize: 15, fontWeight: 700, margin: "0 0 12px", color: T.tx }}>{q.q}</p>
           <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
             {q.opts.map((o, oi) => <button key={oi} onClick={() => answer(qi, oi)} style={{ width: "100%", textAlign: "left", padding: "13px 16px", borderRadius: 10, border: `2px solid ${ans[qi] === oi ? T.pri : T.brd}`, backgroundColor: ans[qi] === oi ? T.priL : T.card, fontSize: 14, fontWeight: ans[qi] === oi ? 700 : 500, color: T.tx, cursor: "pointer", fontFamily: FONT, transition: "all 0.15s", minHeight: 46 }}>{o}</button>)}
           </div>
@@ -956,14 +958,14 @@ function DiagnosePage({ go }) {
   );
   return (
     <div>
-      <h2 style={{ fontSize: 24, fontWeight: 900, margin: "0 0 4px", fontFamily: FONT_HEAD, color: T.tx }}>What's Wrong?</h2>
+      <h2 style={{ fontSize: 24, fontWeight: 700, margin: "0 0 4px", fontFamily: FONT_HEAD, color: T.tx }}>What's Wrong?</h2>
       <p style={{ fontSize: 14, color: T.tx2, margin: "0 0 20px" }}>Select the problem</p>
       <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
         {PROBLEMS.map(p => { const I = icons[p.icon] || HelpCircle; const sc = p.sev === "high" ? T.bad : p.sev === "med" ? T.warn : T.pri; const sb = p.sev === "high" ? T.badL : p.sev === "med" ? T.warnL : T.priL; return (
           <Card key={p.id} hover onClick={() => pick(p)}>
             <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
               <div style={{ width: 46, height: 46, borderRadius: 13, backgroundColor: sb, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}><I size={22} color={sc} /></div>
-              <div style={{ flex: 1 }}><p style={{ fontSize: 15, fontWeight: 800, margin: 0, color: T.tx, fontFamily: FONT_HEAD }}>{p.title}</p><p style={{ fontSize: 13, color: T.tx2, margin: "3px 0 0" }}>{p.desc}</p></div>
+              <div style={{ flex: 1 }}><p style={{ fontSize: 15, fontWeight: 700, margin: 0, color: T.tx, fontFamily: FONT_HEAD }}>{p.title}</p><p style={{ fontSize: 13, color: T.tx2, margin: "3px 0 0" }}>{p.desc}</p></div>
               <ChevronRight size={18} color={T.tx3} />
             </div>
           </Card>
@@ -982,12 +984,12 @@ function ShopsPage({ linkedShop, setLinkedShop }) {
   const filtered = NEARBY_SHOPS.filter(s => !search || s.name.toLowerCase().includes(search.toLowerCase()) || s.address.toLowerCase().includes(search.toLowerCase()));
   return (
     <div>
-      <h2 style={{ fontSize: 24, fontWeight: 900, margin: "0 0 4px", fontFamily: FONT_HEAD, color: T.tx }}>Pool Shops</h2>
+      <h2 style={{ fontSize: 24, fontWeight: 700, margin: "0 0 4px", fontFamily: FONT_HEAD, color: T.tx }}>Pool Shops</h2>
       <p style={{ fontSize: 14, color: T.tx2, margin: "0 0 20px" }}>Find expert help near you</p>
       {linkedShop && (
         <Card style={{ marginBottom: 18, backgroundColor: T.priL, border: `1px solid ${T.brd}` }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 10 }}><CheckCircle2 size={14} color={T.pri} /><span style={{ fontSize: 11, fontWeight: 800, color: T.pri, textTransform: "uppercase", letterSpacing: "0.04em" }}>Your Linked Shop</span></div>
-          <h3 style={{ fontSize: 17, fontWeight: 900, margin: "0 0 4px", fontFamily: FONT_HEAD, color: T.tx }}>{linkedShop.name}</h3>
+          <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 10 }}><CheckCircle2 size={14} color={T.pri} /><span style={{ fontSize: 11, fontWeight: 700, color: T.pri, textTransform: "uppercase", letterSpacing: "0.04em" }}>Your Linked Shop</span></div>
+          <h3 style={{ fontSize: 17, fontWeight: 700, margin: "0 0 4px", fontFamily: FONT_HEAD, color: T.tx }}>{linkedShop.name}</h3>
           <p style={{ fontSize: 13, color: T.tx2, margin: "0 0 3px" }}>{linkedShop.address}</p>
           <p style={{ fontSize: 13, color: T.tx2, margin: "0 0 12px" }}>{linkedShop.hours}</p>
           <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
@@ -1007,10 +1009,10 @@ function ShopsPage({ linkedShop, setLinkedShop }) {
             <div style={{ display: "flex", gap: 14 }}>
               <div style={{ width: 46, height: 46, borderRadius: 13, backgroundColor: shop.partner ? T.priL : T.bgS, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}><Store size={22} color={shop.partner ? T.pri : T.tx3} /></div>
               <div style={{ flex: 1 }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}><p style={{ fontSize: 15, fontWeight: 800, margin: 0, color: T.tx, fontFamily: FONT_HEAD }}>{shop.name}</p>{shop.partner && <Badge>Partner</Badge>}</div>
+                <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}><p style={{ fontSize: 15, fontWeight: 700, margin: 0, color: T.tx, fontFamily: FONT_HEAD }}>{shop.name}</p>{shop.partner && <Badge>Partner</Badge>}</div>
                 <p style={{ fontSize: 13, color: T.tx2, margin: "3px 0 0" }}>{shop.address}</p>
                 <div style={{ display: "flex", gap: 14, marginTop: 8 }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: 4 }}><Star size={13} color={T.starCol} fill={T.starCol} /><span style={{ fontSize: 13, fontWeight: 800, color: T.tx }}>{shop.rating}</span><span style={{ fontSize: 12, color: T.tx3 }}>({shop.reviews})</span></div>
+                  <div style={{ display: "flex", alignItems: "center", gap: 4 }}><Star size={13} color={T.starCol} fill={T.starCol} /><span style={{ fontSize: 13, fontWeight: 700, color: T.tx }}>{shop.rating}</span><span style={{ fontSize: 12, color: T.tx3 }}>({shop.reviews})</span></div>
                   <div style={{ display: "flex", alignItems: "center", gap: 4 }}><MapPin size={13} color={T.tx3} /><span style={{ fontSize: 13, color: T.tx2, fontWeight: 600 }}>{shop.distance}</span></div>
                 </div>
               </div>
@@ -1023,7 +1025,7 @@ function ShopsPage({ linkedShop, setLinkedShop }) {
         {selShop && (
           <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
             {selShop.partner && <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "10px 14px", backgroundColor: T.priL, borderRadius: 10 }}><CheckCircle2 size={16} color={T.pri} /><span style={{ fontSize: 13, fontWeight: 700, color: T.priD }}>PoolConnection Partner</span></div>}
-            <div style={{ display: "flex", alignItems: "center", gap: 8 }}><Star size={18} color={T.starCol} fill={T.starCol} /><span style={{ fontSize: 20, fontWeight: 900, fontFamily: FONT_HEAD, color: T.tx }}>{selShop.rating}</span><span style={{ fontSize: 14, color: T.tx2 }}>({selShop.reviews} reviews)</span></div>
+            <div style={{ display: "flex", alignItems: "center", gap: 8 }}><Star size={18} color={T.starCol} fill={T.starCol} /><span style={{ fontSize: 20, fontWeight: 700, fontFamily: FONT_HEAD, color: T.tx }}>{selShop.rating}</span><span style={{ fontSize: 14, color: T.tx2 }}>({selShop.reviews} reviews)</span></div>
             <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
               <div style={{ display: "flex", gap: 10 }}><MapPin size={16} color={T.tx3} style={{ flexShrink: 0, marginTop: 2 }} /><div><p style={{ fontSize: 14, fontWeight: 600, margin: 0, color: T.tx }}>{selShop.address}</p><p style={{ fontSize: 12, color: T.tx3, margin: "2px 0 0" }}>{selShop.distance} away</p></div></div>
               <div style={{ display: "flex", gap: 10 }}><Phone size={16} color={T.tx3} /><p style={{ fontSize: 14, fontWeight: 600, margin: 0, color: T.tx }}>{selShop.phone}</p></div>
@@ -1053,13 +1055,13 @@ function HistoryPage({ history }) {
 
   return (
     <div>
-      <h2 style={{ fontSize: 24, fontWeight: 900, margin: "0 0 4px", fontFamily: FONT_HEAD, color: T.tx }}>Water History</h2>
+      <h2 style={{ fontSize: 24, fontWeight: 700, margin: "0 0 4px", fontFamily: FONT_HEAD, color: T.tx }}>Water History</h2>
       <p style={{ fontSize: 14, color: T.tx2, margin: "0 0 20px" }}>Trends over time</p>
       <div style={{ display: "flex", gap: 8, marginBottom: 20, overflowX: "auto" }}>
-        {params.map(x => <button key={x.k} onClick={() => setActive(x.k)} style={{ padding: "8px 16px", borderRadius: 20, border: `2px solid ${active === x.k ? x.c : T.brd}`, backgroundColor: active === x.k ? T.priL : T.card, fontSize: 13, fontWeight: 800, color: active === x.k ? x.c : T.tx3, cursor: "pointer", whiteSpace: "nowrap", fontFamily: FONT, minHeight: 38 }}>{x.l}</button>)}
+        {params.map(x => <button key={x.k} onClick={() => setActive(x.k)} style={{ padding: "8px 16px", borderRadius: 20, border: `2px solid ${active === x.k ? x.c : T.brd}`, backgroundColor: active === x.k ? T.priL : T.card, fontSize: 13, fontWeight: 700, color: active === x.k ? x.c : T.tx3, cursor: "pointer", whiteSpace: "nowrap", fontFamily: FONT, minHeight: 38 }}>{x.l}</button>)}
       </div>
       <Card style={{ marginBottom: 18, padding: "24px 12px" }}>
-        <div style={{ display: "flex", justifyContent: "space-between", padding: "0 8px", marginBottom: 12 }}><h3 style={{ margin: 0, fontSize: 16, fontWeight: 800, fontFamily: FONT_HEAD, color: T.tx }}>{p.l}</h3><span style={{ fontSize: 12, color: T.tx3, fontWeight: 600 }}>Target: {p.min}–{p.max} {p.u}</span></div>
+        <div style={{ display: "flex", justifyContent: "space-between", padding: "0 8px", marginBottom: 12 }}><h3 style={{ margin: 0, fontSize: 16, fontWeight: 700, fontFamily: FONT_HEAD, color: T.tx }}>{p.l}</h3><span style={{ fontSize: 12, color: T.tx3, fontWeight: 600 }}>Target: {p.min}–{p.max} {p.u}</span></div>
         <ResponsiveContainer width="100%" height={desk ? 280 : 190}>
           <AreaChart data={data} margin={{ top: 5, right: 10, left: -20, bottom: 0 }}>
             <defs><linearGradient id={`g-${active}`} x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor={p.c} stopOpacity={0.3} /><stop offset="100%" stopColor={p.c} stopOpacity={0.03} /></linearGradient></defs>
@@ -1076,7 +1078,7 @@ function HistoryPage({ history }) {
         <Card style={{ marginBottom: 18, backgroundColor: trend === "stable" ? T.okL : T.warnL, border: `1px solid ${trend === "stable" ? T.okB : T.warnB}` }}>
           <div style={{ display: "flex", gap: 12 }}>
             {trend === "rising" ? <TrendingUp size={20} color={T.warn} /> : trend === "falling" ? <TrendingDown size={20} color={T.warn} /> : <Activity size={20} color={T.ok} />}
-            <div><p style={{ fontSize: 15, fontWeight: 800, margin: 0, color: T.tx, fontFamily: FONT_HEAD }}>{p.l} is {trend}</p><p style={{ fontSize: 13, color: T.tx2, margin: "3px 0 0", lineHeight: 1.5 }}>{trend === "stable" ? "Consistent — nice work." : trend === "rising" ? `Trending up. Watch near ${p.max}.` : "Trending down. May need a boost."}</p></div>
+            <div><p style={{ fontSize: 15, fontWeight: 700, margin: 0, color: T.tx, fontFamily: FONT_HEAD }}>{p.l} is {trend}</p><p style={{ fontSize: 13, color: T.tx2, margin: "3px 0 0", lineHeight: 1.5 }}>{trend === "stable" ? "Consistent — nice work." : trend === "rising" ? `Trending up. Watch near ${p.max}.` : "Trending down. May need a boost."}</p></div>
           </div>
         </Card>
       )}
@@ -1135,7 +1137,7 @@ function ProfilePage({ profile, setProfile, equipment, setEquipment, go, linkedS
     return (
       <div>
         <Back onClick={() => setView("main")} label="My Pool" />
-        <h2 style={{ fontSize: 22, fontWeight: 900, margin: "0 0 20px", fontFamily: FONT_HEAD, color: T.tx }}>Edit Pool Details</h2>
+        <h2 style={{ fontSize: 22, fontWeight: 700, margin: "0 0 20px", fontFamily: FONT_HEAD, color: T.tx }}>Edit Pool Details</h2>
         <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
           {fields.map(f => (<div key={f.k}><label style={lSty}>{f.l}</label>{f.opts ? <select value={editFields[f.k] ?? profile[f.k] ?? ""} onChange={e => setEditFields(x => ({ ...x, [f.k]: e.target.value }))} style={{ ...iSty }}><option value="">Select...</option>{f.opts.map(o => <option key={o} value={o}>{o}</option>)}</select> : <input value={editFields[f.k] ?? profile[f.k] ?? ""} onChange={e => setEditFields(x => ({ ...x, [f.k]: e.target.value }))} style={iSty} />}</div>))}
           <PhotoGrid photos={profile.poolPhotos || []} onAdd={(p) => setProfile(pr => ({ ...pr, poolPhotos: [...(pr.poolPhotos || []), p] }))} onRemove={(id) => setProfile(pr => ({ ...pr, poolPhotos: (pr.poolPhotos || []).filter(x => x.id !== id) }))} label="Pool Photos" />
@@ -1151,9 +1153,9 @@ function ProfilePage({ profile, setProfile, equipment, setEquipment, go, linkedS
     return (
       <div>
         <Back onClick={() => { setView("equipment"); setSelEq(null); }} label="Equipment" />
-        <h2 style={{ fontSize: 22, fontWeight: 900, margin: "0 0 20px", fontFamily: FONT_HEAD, color: T.tx }}>{eq.name}</h2>
+        <h2 style={{ fontSize: 22, fontWeight: 700, margin: "0 0 20px", fontFamily: FONT_HEAD, color: T.tx }}>{eq.name}</h2>
         <Card style={{ marginBottom: 16 }}><div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>{[["Brand", eq.brand], ["Model", eq.model], ["Installed", eq.installed], ["Last Service", eq.lastService || "—"], ["Age", `${age} yrs`], ["Life", `${eq.lifeYrs} yrs`]].map(([l, v]) => <div key={l}><p style={{ fontSize: 11, fontWeight: 700, color: T.tx3, margin: "0 0 3px", textTransform: "uppercase" }}>{l}</p><p style={{ fontSize: 15, fontWeight: 700, margin: 0, color: T.tx }}>{v}</p></div>)}</div></Card>
-        <Card style={{ marginBottom: 16 }}><div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}><span style={{ fontSize: 13, fontWeight: 700, color: T.tx }}>Lifecycle</span><span style={{ fontSize: 13, fontWeight: 800, color: c }}>{p2}%</span></div><div style={{ height: 10, backgroundColor: T.bgS, borderRadius: 5 }}><div style={{ height: "100%", width: `${p2}%`, backgroundColor: c, borderRadius: 5, transition: "width 0.3s" }} /></div>{p2 > 75 && <p style={{ fontSize: 13, color: T.warn, margin: "10px 0 0", fontWeight: 600 }}>Approaching end of expected life.</p>}</Card>
+        <Card style={{ marginBottom: 16 }}><div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}><span style={{ fontSize: 13, fontWeight: 700, color: T.tx }}>Lifecycle</span><span style={{ fontSize: 13, fontWeight: 700, color: c }}>{p2}%</span></div><div style={{ height: 10, backgroundColor: T.bgS, borderRadius: 5 }}><div style={{ height: "100%", width: `${p2}%`, backgroundColor: c, borderRadius: 5, transition: "width 0.3s" }} /></div>{p2 > 75 && <p style={{ fontSize: 13, color: T.warn, margin: "10px 0 0", fontWeight: 600 }}>Approaching end of expected life.</p>}</Card>
         <Card style={{ marginBottom: 16 }}><h4 style={{ fontSize: 13, fontWeight: 700, margin: "0 0 8px", color: T.tx3, textTransform: "uppercase", letterSpacing: "0.05em" }}>Notes</h4><textarea value={eq.note || ""} onChange={e => setEquipment(eqs => eqs.map(x => x.id === eq.id ? { ...x, note: e.target.value } : x))} placeholder="Serial number, warranty, repairs..." style={{ ...iSty, minHeight: 80, resize: "vertical" }} /></Card>
         <Card style={{ marginBottom: 16 }}><PhotoGrid label="Equipment Photos" photos={eq.photos || []} onAdd={(ph) => setEquipment(eqs => eqs.map(x => x.id === eq.id ? { ...x, photos: [...(x.photos || []), ph] } : x))} onRemove={(phId) => setEquipment(eqs => eqs.map(x => x.id === eq.id ? { ...x, photos: (x.photos || []).filter(p => p.id !== phId) } : x))} /><p style={{ fontSize: 12, color: T.tx3, margin: "8px 0 0" }}>Snap serial plates, installations, damage.</p></Card>
         {p2 > 70 && <Card style={{ backgroundColor: T.priL }}><p style={{ fontSize: 13, color: T.priD, margin: "0 0 10px", lineHeight: 1.6 }}>Getting older — visit a shop to discuss replacement.</p><Btn v="primary" sz="sm" onClick={() => go("shops")}><Store size={14} /> Find a Shop</Btn></Card>}
@@ -1163,7 +1165,7 @@ function ProfilePage({ profile, setProfile, equipment, setEquipment, go, linkedS
   if (view === "equipment") return (
     <div>
       <Back onClick={() => setView("main")} label="My Pool" />
-      <h2 style={{ fontSize: 22, fontWeight: 900, margin: "0 0 20px", fontFamily: FONT_HEAD, color: T.tx }}>My Equipment</h2>
+      <h2 style={{ fontSize: 22, fontWeight: 700, margin: "0 0 20px", fontFamily: FONT_HEAD, color: T.tx }}>My Equipment</h2>
       <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
         {equipment.map(e => { const p2 = pct(e); const c = pctCol(p2); return (
           <Card key={e.id} hover onClick={() => { setSelEq(e.id); setView("equipDetail"); }}>
@@ -1172,7 +1174,7 @@ function ProfilePage({ profile, setProfile, equipment, setEquipment, go, linkedS
                 {(e.photos || []).length > 0 ? <img src={e.photos[0].src} alt="" style={{ width: 46, height: 46, objectFit: "cover" }} /> : <Wrench size={20} color={e.status === "attention" ? T.warn : T.pri} />}
               </div>
               <div style={{ flex: 1 }}>
-                <p style={{ fontSize: 15, fontWeight: 800, margin: 0, color: T.tx, fontFamily: FONT_HEAD }}>{e.name}</p>
+                <p style={{ fontSize: 15, fontWeight: 700, margin: 0, color: T.tx, fontFamily: FONT_HEAD }}>{e.name}</p>
                 <p style={{ fontSize: 12, color: T.tx3, margin: "2px 0 0" }}>{e.brand} {e.model}</p>
                 <div style={{ marginTop: 8, height: 6, backgroundColor: T.bgS, borderRadius: 3 }}><div style={{ height: "100%", width: `${p2}%`, backgroundColor: c, borderRadius: 3 }} /></div>
                 <div style={{ display: "flex", justifyContent: "space-between", marginTop: 4 }}><span style={{ fontSize: 11, color: T.tx3 }}>{((Date.now() - new Date(e.installed).getTime()) / (365.25*24*60*60*1000)).toFixed(1)} yrs</span><div style={{ display: "flex", gap: 6, alignItems: "center" }}>{(e.photos || []).length > 0 && <><Image size={10} color={T.tx3} /><span style={{ fontSize: 10, color: T.tx3 }}>{e.photos.length}</span></>}<span style={{ fontSize: 11, fontWeight: 700, color: c }}>{p2}%</span></div></div>
@@ -1187,7 +1189,7 @@ function ProfilePage({ profile, setProfile, equipment, setEquipment, go, linkedS
   if (view === "notes") return (
     <div>
       <Back onClick={() => setView("main")} label="My Pool" />
-      <h2 style={{ fontSize: 22, fontWeight: 900, margin: "0 0 20px", fontFamily: FONT_HEAD, color: T.tx }}>Notes & Repairs</h2>
+      <h2 style={{ fontSize: 22, fontWeight: 700, margin: "0 0 20px", fontFamily: FONT_HEAD, color: T.tx }}>Notes & Repairs</h2>
       <Card style={{ marginBottom: 18 }}><textarea value={newNote} onChange={e => setNewNote(e.target.value)} placeholder="Add a note — repairs, observations..." style={{ ...iSty, minHeight: 70, resize: "vertical", marginBottom: 10 }} /><Btn v="primary" sz="sm" dis={!newNote.trim()} onClick={() => { if (addNote) addNote(newNote.trim()); else setProfile(p => ({ ...p, notes: [{ id: `n-${Date.now()}`, date: new Date().toISOString().split("T")[0], text: newNote.trim() }, ...p.notes] })); setNewNote(""); }}><Plus size={14} /> Add Note</Btn></Card>
       {profile.notes.length === 0 && <div style={{ textAlign: "center", padding: 32 }}><FileText size={32} color={T.tx3} /><p style={{ fontSize: 14, color: T.tx3, margin: "8px 0 0" }}>No notes yet</p></div>}
       <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
@@ -1200,22 +1202,22 @@ function ProfilePage({ profile, setProfile, equipment, setEquipment, go, linkedS
   if (view === "share") return (
     <div>
       <Back onClick={() => { setView("main"); setShareConfirm(false); }} label="My Pool" />
-      <h2 style={{ fontSize: 22, fontWeight: 900, margin: "0 0 4px", fontFamily: FONT_HEAD, color: T.tx }}>Share Pool Info</h2>
+      <h2 style={{ fontSize: 22, fontWeight: 700, margin: "0 0 4px", fontFamily: FONT_HEAD, color: T.tx }}>Share Pool Info</h2>
       <p style={{ fontSize: 14, color: T.tx2, margin: "0 0 20px", lineHeight: 1.6 }}>Share details with your shop for better advice.</p>
       <Card style={{ marginBottom: 16 }}><h4 style={{ fontSize: 13, fontWeight: 700, margin: "0 0 10px", color: T.tx }}>Shared</h4>{["Pool size, type, surface", "Equipment with photos", "Notes & repair history", "Recent water tests"].map((item, i) => <div key={i} style={{ display: "flex", alignItems: "center", gap: 8, padding: "7px 0" }}><CheckCircle2 size={15} color={T.ok} /><span style={{ fontSize: 14, fontWeight: 500, color: T.tx }}>{item}</span></div>)}</Card>
       <Card style={{ marginBottom: 16 }}><h4 style={{ fontSize: 13, fontWeight: 700, margin: "0 0 10px", color: T.tx }}>NOT Shared</h4>{["Contact details (unless you choose)", "Payment info", "Location data"].map((item, i) => <div key={i} style={{ display: "flex", alignItems: "center", gap: 8, padding: "7px 0" }}><X size={15} color={T.bad} /><span style={{ fontSize: 14, fontWeight: 500, color: T.tx }}>{item}</span></div>)}</Card>
-      {!linkedShop ? <Card style={{ backgroundColor: T.warnL, border: `1px solid ${T.warnB}` }}><p style={{ fontSize: 14, color: T.warn, margin: "0 0 10px", fontWeight: 600 }}>Link a shop first.</p><Btn v="primary" sz="sm" onClick={() => go("shops")}><Store size={14} /> Find a Shop</Btn></Card> : shareConfirm ? <Card style={{ backgroundColor: T.okL, border: `1px solid ${T.okB}`, textAlign: "center", padding: 28 }}><CheckCircle2 size={38} color={T.ok} /><h3 style={{ fontSize: 18, fontWeight: 900, margin: "8px 0 4px", fontFamily: FONT_HEAD, color: T.tx }}>Shared!</h3><p style={{ fontSize: 14, color: T.tx2, margin: 0 }}>Sent to {linkedShop.name}.</p></Card> : <Btn v="primary" sz="lg" full onClick={() => setShareConfirm(true)}><Share2 size={16} /> Share with {linkedShop.name}</Btn>}
+      {!linkedShop ? <Card style={{ backgroundColor: T.warnL, border: `1px solid ${T.warnB}` }}><p style={{ fontSize: 14, color: T.warn, margin: "0 0 10px", fontWeight: 600 }}>Link a shop first.</p><Btn v="primary" sz="sm" onClick={() => go("shops")}><Store size={14} /> Find a Shop</Btn></Card> : shareConfirm ? <Card style={{ backgroundColor: T.okL, border: `1px solid ${T.okB}`, textAlign: "center", padding: 28 }}><CheckCircle2 size={38} color={T.ok} /><h3 style={{ fontSize: 18, fontWeight: 700, margin: "8px 0 4px", fontFamily: FONT_HEAD, color: T.tx }}>Shared!</h3><p style={{ fontSize: 14, color: T.tx2, margin: 0 }}>Sent to {linkedShop.name}.</p></Card> : <Btn v="primary" sz="lg" full onClick={() => setShareConfirm(true)}><Share2 size={16} /> Share with {linkedShop.name}</Btn>}
     </div>
   );
 
   const detailRows = [["Volume", profile.poolSize ? `${profile.poolSize}L` : "—"], ["Type", profile.poolType || "—"], ["Shape", profile.poolShape || "—"], ["Surface", profile.poolSurface || "—"], ["Sanitisation", profile.sanitisation || "—"], ["Filter", profile.filterType || "—"], ["Water", profile.waterSource || "—"], ["Age", profile.poolAge || "—"], ["Cover", profile.cover || "—"]];
   return (
     <div>
-      <h2 style={{ fontSize: 24, fontWeight: 900, margin: "0 0 20px", fontFamily: FONT_HEAD, color: T.tx }}>My Pool</h2>
+      <h2 style={{ fontSize: 24, fontWeight: 700, margin: "0 0 20px", fontFamily: FONT_HEAD, color: T.tx }}>My Pool</h2>
       <Card style={{ marginBottom: 16 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 16 }}>
           <div style={{ width: 52, height: 52, borderRadius: "50%", background: 'linear-gradient(135deg, #0077B6, #00B4D8)', display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}><User size={24} color="#fff" /></div>
-          <div><p style={{ fontSize: 18, fontWeight: 900, margin: 0, fontFamily: FONT_HEAD, color: T.tx }}>{profile.name || "Add your name"}</p><p style={{ fontSize: 13, color: T.tx3, margin: "3px 0 0" }}>{profile.address || "Add address"}</p></div>
+          <div><p style={{ fontSize: 18, fontWeight: 700, margin: 0, fontFamily: FONT_HEAD, color: T.tx }}>{profile.name || "Add your name"}</p><p style={{ fontSize: 13, color: T.tx3, margin: "3px 0 0" }}>{profile.address || "Add address"}</p></div>
         </div>
         <div style={{ display: "grid", gridTemplateColumns: desk ? "1fr 1fr 1fr" : "1fr 1fr", gap: 8 }}>
           {detailRows.map(([l, v]) => <div key={l} style={{ padding: "9px 12px", backgroundColor: T.bgS, borderRadius: 10 }}><p style={{ fontSize: 10, fontWeight: 700, color: T.tx3, margin: "0 0 2px", textTransform: "uppercase", letterSpacing: "0.05em" }}>{l}</p><p style={{ fontSize: 14, fontWeight: 700, margin: 0, color: T.tx }}>{v}</p></div>)}
@@ -1228,7 +1230,7 @@ function ProfilePage({ profile, setProfile, equipment, setEquipment, go, linkedS
           <Card key={item.v} hover onClick={() => item.v === "history_ext" ? go("history") : setView(item.v)}>
             <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
               <div style={{ width: 46, height: 46, borderRadius: 13, backgroundColor: item.bg, display: "flex", alignItems: "center", justifyContent: "center" }}><item.icon size={22} color={item.c} /></div>
-              <div style={{ flex: 1 }}><p style={{ fontSize: 15, fontWeight: 800, margin: 0, fontFamily: FONT_HEAD, color: T.tx }}>{item.t}</p><p style={{ fontSize: 13, color: T.tx3, margin: "3px 0 0" }}>{item.d}</p></div>
+              <div style={{ flex: 1 }}><p style={{ fontSize: 15, fontWeight: 700, margin: 0, fontFamily: FONT_HEAD, color: T.tx }}>{item.t}</p><p style={{ fontSize: 13, color: T.tx3, margin: "3px 0 0" }}>{item.d}</p></div>
               <ChevronRight size={18} color={T.tx3} />
             </div>
           </Card>
@@ -1236,7 +1238,7 @@ function ProfilePage({ profile, setProfile, equipment, setEquipment, go, linkedS
         <Card hover onClick={() => setView("share")} style={{ backgroundColor: T.priL, border: `1px solid ${T.brd}` }}>
           <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
             <div style={{ width: 46, height: 46, borderRadius: 13, backgroundColor: T.bgS, display: "flex", alignItems: "center", justifyContent: "center" }}><Share2 size={22} color={T.pri} /></div>
-            <div style={{ flex: 1 }}><p style={{ fontSize: 15, fontWeight: 800, margin: 0, fontFamily: FONT_HEAD, color: T.priD }}>Share with Pool Shop</p><p style={{ fontSize: 13, color: T.priD, margin: "3px 0 0" }}>{linkedShop ? `Linked to ${linkedShop.name}` : "Link a shop first"}</p></div>
+            <div style={{ flex: 1 }}><p style={{ fontSize: 15, fontWeight: 700, margin: 0, fontFamily: FONT_HEAD, color: T.priD }}>Share with Pool Shop</p><p style={{ fontSize: 13, color: T.priD, margin: "3px 0 0" }}>{linkedShop ? `Linked to ${linkedShop.name}` : "Link a shop first"}</p></div>
             <ChevronRight size={18} color={T.pri} />
           </div>
         </Card>
@@ -1531,9 +1533,11 @@ export default function App() {
           <div style={{ flex: 1, marginLeft: desk ? 220 : 0, minHeight: "100vh" }}>
             {!desk && (
               <div style={{ position: "sticky", top: 0, backgroundColor: T.hdr, backdropFilter: "blur(14px)", WebkitBackdropFilter: "blur(14px)", borderBottom: `1px solid ${T.brdL}`, padding: "10px 20px", display: "flex", alignItems: "center", justifyContent: "space-between", zIndex: 40 }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                  <DropletNodeIcon size={30} />
-                  <BrandWordmark size={16} />
+                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <div style={{ flexShrink: 0, width: 24, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                    <DropletNodeIcon size={22} />
+                  </div>
+                  <BrandWordmark size={15} />
                 </div>
                 <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
                   <button onClick={() => setDark(!dark)} style={{ border: "none", background: "none", cursor: "pointer", padding: 6, display: "flex", borderRadius: 8, backgroundColor: dark ? T.bgS : "transparent" }} title={dark ? "Light mode" : "Dark mode"}>
