@@ -1,93 +1,146 @@
 import { useState, useRef, useEffect, createContext, useContext } from "react";
+import { supabase } from "./supabase";
 import {
   Droplets, ChevronRight, ChevronLeft, ChevronDown, Search,
   CheckCircle2, AlertCircle, X, Bell, Star,
-  Waves, TrendingUp, TrendingDown,
+  TrendingUp, TrendingDown,
   ThermometerSun, Sun, Beaker, Zap,
   Phone, ShoppingBag, BarChart3, Home, MapPin,
   HelpCircle, AlertTriangle, Activity,
   Lightbulb, Wrench, CircleDot, Navigation, Clock, Store,
   Camera, Image, User, Edit3, Save, Share2, FileText, Plus, Trash2,
-  Moon, SunMedium
+  Moon, SunMedium, Mail, ArrowRight, Shield, Sparkles, LogIn, LogOut
 } from "lucide-react";
 import { XAxis, YAxis, ResponsiveContainer, Tooltip, ReferenceLine, Area, AreaChart } from "recharts";
 
 /* ═══════════════════════════════════════════════════════════════
-   THEME SYSTEM — Coastal Clean (light) + Night Swim (dark)
+   THEME SYSTEM — Brand Guidelines v1.1
+   Light-first (consumer outdoor use) with brand dark mode toggle
    ═══════════════════════════════════════════════════════════════ */
 const ThemeCtx = createContext();
 const useTheme = () => useContext(ThemeCtx);
 
 const THEMES = {
   light: {
-    // Coastal Clean — warm sandy neutrals, deep ocean accents
-    pri: "#1B6B93",     // deep ocean blue (not corporate)
-    priL: "#E3F0F5",    // pale coastal mist
-    priD: "#0F4C6B",    // deeper ocean
-    acc: "#2A9D8F",     // teal-green (sea glass)
-    accL: "#E6F5F2",    // pale sea glass
-    ok: "#2D7A4F",      // earthy green (not neon)
-    okL: "#EAF5EE",     // pale sage
-    okB: "#C2E0CC",     // sage border
-    warn: "#C47F17",    // warm amber (sandstone)
-    warnL: "#FDF5E6",   // pale sand
-    warnB: "#EFD9A7",   // sand border
-    bad: "#B5332E",     // terracotta red (not alarm)
-    badL: "#FAEAE9",    // pale rose
-    badB: "#E8B5B3",    // rose border
-    tx: "#2C3539",      // charcoal (high contrast for sun)
-    tx2: "#5A6B73",     // stone grey
-    tx3: "#8FA3AD",     // driftwood
-    bg: "#F5F1EB",      // warm linen / sand
-    bgS: "#EDE8E0",     // slightly darker sand
-    card: "#FFFDF9",    // warm white (not blue-white)
-    cardH: "#FFFFFF",   // hover
-    brd: "#DDD6CA",     // sandy border
-    brdL: "#EDE8E0",    // light sandy
-    hdr: "rgba(245,241,235,0.92)",  // header bg
-    shadow: "rgba(44,53,57,0.06)",  // warm shadow
-    shadowH: "rgba(44,53,57,0.12)", // hover shadow
-    overlay: "rgba(44,53,57,0.4)",  // modal overlay
-    inputBg: "#FFFDF9",
-    chartGrid: "#DDD6CA",
+    // Brand palette adapted for light/outdoor consumer use
+    pri: "#0077B6",       // Ocean — primary brand blue
+    priL: "#E6F3FA",      // Ocean at 10% on white
+    priD: "#03045E",      // Deep — contrast punches
+    acc: "#00B4D8",       // Sky — primary CTAs, highlights
+    accL: "#E5F6FB",      // Sky at 10%
+    ok: "#10B981",        // Green (slightly deeper for light bg contrast)
+    okL: "#ECFDF5",
+    okB: "#A7F3D0",
+    warn: "#F4A261",      // Gold — warm highlights
+    warnL: "#FEF3E2",
+    warnB: "#FCDCB0",
+    bad: "#FF6B6B",       // Coral — alerts
+    badL: "#FEE9E9",
+    badB: "#FDB5B5",
+    tx: "#03045E",        // Deep navy text (high contrast for sun)
+    tx2: "#4A6070",       // muted
+    tx3: "#8899A6",       // tertiary
+    bg: "#F4F7FA",        // cool near-white
+    bgS: "#E8EDF2",       // slightly darker
+    card: "#FFFFFF",
+    cardH: "#FAFCFF",     // brand white on hover
+    brd: "#DAE2EA",
+    brdL: "#EDF1F5",
+    hdr: "rgba(244,247,250,0.92)",
+    shadow: "rgba(3,4,94,0.06)",
+    shadowH: "rgba(3,4,94,0.12)",
+    overlay: "rgba(3,4,94,0.4)",
+    inputBg: "#FFFFFF",
+    chartGrid: "#DAE2EA",
+    // Glass surfaces (light mode uses subtle ocean tints)
+    glass1: "rgba(0,119,182,0.04)",
+    glass2: "rgba(0,119,182,0.07)",
+    glass3: "rgba(0,180,216,0.10)",
+    glass4: "rgba(0,119,182,0.14)",
+    // CTA button uses Sky per brand rules
+    cta: "#00B4D8",
+    ctaHover: "#00A0C2",
+    starCol: "#F4A261",
   },
   dark: {
-    // Night Swim — deep water with luminous accents
-    pri: "#4FC3F7",     // bright sky cyan
-    priL: "#1A2E3D",    // deep teal panel
-    priD: "#81D4FA",    // lighter cyan
-    acc: "#4DD0B8",     // luminous teal
-    accL: "#1A2F2A",    // deep green panel
-    ok: "#66D9A0",      // luminous green
-    okL: "#162B20",     // deep green bg
-    okB: "#2D5A42",     // green border
-    warn: "#FFD166",    // warm gold
-    warnL: "#2B2517",   // deep amber bg
-    warnB: "#5A4A20",   // amber border
-    bad: "#FF8A80",     // soft coral
-    badL: "#2B1A19",    // deep red bg
-    badB: "#5A2D2B",    // red border
-    tx: "#ECF0F1",      // off-white (high contrast)
-    tx2: "#A0B4BE",     // muted blue-grey
-    tx3: "#6B8090",     // slate
-    bg: "#0D1B2A",      // deep navy-black (like pool at night)
-    bgS: "#132333",     // slightly lighter
-    card: "#162635",    // dark panel
-    cardH: "#1A2E40",   // hover panel
-    brd: "#253545",     // subtle border
-    brdL: "#1E2F3F",    // lighter border
-    hdr: "rgba(13,27,42,0.92)",  // header
-    shadow: "rgba(0,0,0,0.2)",
-    shadowH: "rgba(0,0,0,0.35)",
+    // Brand dark — primary canvas as specified in guidelines
+    pri: "#00B4D8",       // Sky becomes primary in dark (higher visibility)
+    priL: "rgba(0,180,216,0.12)",   // glass-3
+    priD: "#90E0EF",      // Foam for emphasis text on dark
+    acc: "#00B4D8",       // Sky
+    accL: "rgba(0,180,216,0.12)",
+    ok: "#6EE7B7",        // Brand green
+    okL: "rgba(110,231,183,0.12)",
+    okB: "rgba(110,231,183,0.25)",
+    warn: "#F4A261",      // Gold
+    warnL: "rgba(244,162,97,0.12)",
+    warnB: "rgba(244,162,97,0.25)",
+    bad: "#FF6B6B",       // Coral
+    badL: "rgba(255,107,107,0.12)",
+    badB: "rgba(255,107,107,0.25)",
+    tx: "#FAFCFF",        // Brand white
+    tx2: "#90A4B8",
+    tx3: "#5E7687",
+    bg: "#081428",        // Brand dark background
+    bgS: "#0D1B30",       // Slightly lighter
+    card: "rgba(255,255,255,0.04)",   // glass-1
+    cardH: "rgba(255,255,255,0.08)",  // glass-2
+    brd: "rgba(255,255,255,0.08)",
+    brdL: "rgba(255,255,255,0.04)",
+    hdr: "rgba(8,20,40,0.92)",
+    shadow: "rgba(0,0,0,0.3)",
+    shadowH: "rgba(0,0,0,0.5)",
     overlay: "rgba(0,0,0,0.6)",
-    inputBg: "#1A2E3D",
-    chartGrid: "#253545",
+    inputBg: "rgba(255,255,255,0.06)",
+    chartGrid: "rgba(255,255,255,0.08)",
+    glass1: "rgba(255,255,255,0.04)",
+    glass2: "rgba(255,255,255,0.08)",
+    glass3: "rgba(0,180,216,0.12)",
+    glass4: "rgba(0,119,182,0.15)",
+    cta: "#00B4D8",
+    ctaHover: "#00C8F0",
+    starCol: "#F4A261",
   }
 };
 
-// Font stack — Inter for readability in sunlight + DM Serif Display for character
-const FONT = "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
-const FONT_HEAD = "'DM Sans', 'Inter', -apple-system, sans-serif";
+// Brand typography: Syne for display, DM Sans for body/UI
+const FONT = "'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
+const FONT_HEAD = "'Syne', 'DM Sans', -apple-system, sans-serif";
+
+/* ═══════════════════════════════════════════════════════════════
+   BRAND LOGO — Droplet Node (from brand guidelines SVG)
+   ═══════════════════════════════════════════════════════════════ */
+function DropletNodeIcon({ size = 32 }) {
+  const s = size / 120;
+  return (
+    <svg width={size} height={size} viewBox="0 0 120 120" fill="none">
+      <defs>
+        <linearGradient id="pc-grad" x1="60" y1="10" x2="60" y2="108" gradientUnits="userSpaceOnUse">
+          <stop offset="0%" stopColor="#00B4D8"/>
+          <stop offset="100%" stopColor="#0077B6"/>
+        </linearGradient>
+      </defs>
+      <path d="M60 10 C60 10,26 46,22 70 C19 88,36 108,60 108 C84 108,101 88,98 70 C94 46,60 10,60 10Z" fill="url(#pc-grad)"/>
+      <line x1="60" y1="72" x2="60" y2="40" stroke="#FAFCFF" strokeWidth="1.5" opacity="0.55" strokeLinecap="round"/>
+      <line x1="60" y1="72" x2="36" y2="62" stroke="#FAFCFF" strokeWidth="1.5" opacity="0.55" strokeLinecap="round"/>
+      <line x1="60" y1="72" x2="84" y2="62" stroke="#FAFCFF" strokeWidth="1.5" opacity="0.55" strokeLinecap="round"/>
+      <line x1="60" y1="72" x2="42" y2="90" stroke="#FAFCFF" strokeWidth="1.2" opacity="0.35" strokeLinecap="round"/>
+      <line x1="60" y1="72" x2="78" y2="90" stroke="#FAFCFF" strokeWidth="1.2" opacity="0.35" strokeLinecap="round"/>
+      <circle cx="60" cy="40" r="5" fill="#FAFCFF"/>
+      <circle cx="36" cy="62" r="4" fill="#FAFCFF"/>
+      <circle cx="84" cy="62" r="4" fill="#FAFCFF"/>
+      <circle cx="42" cy="90" r="3" fill="#90E0EF"/>
+      <circle cx="78" cy="90" r="3" fill="#90E0EF"/>
+      <circle cx="60" cy="72" r="7" fill="#FAFCFF"/>
+      <circle cx="60" cy="72" r="3.5" fill="#00B4D8"/>
+    </svg>
+  );
+}
+
+function BrandWordmark({ size = 16 }) {
+  const T = useTheme();
+  return <span style={{ fontSize: size, fontWeight: 800, letterSpacing: "-0.02em", fontFamily: FONT_HEAD }}><span style={{ color: T.tx }}>Pool</span><span style={{ color: "#00B4D8" }}>Connection</span></span>;
+}
 
 /* ═══════════════════════════════════════════════════════════════
    RESPONSIVE SYSTEM
@@ -152,14 +205,14 @@ const PROBLEMS = [
    SAMPLE DATA
    ═══════════════════════════════════════════════════════════════ */
 const SAMPLE_HISTORY = [
-  { date: "2026-01-10", ph: 7.5, fc: 2.1, ta: 95, ch: 280, cya: 35, salt: 4800, temp: 28 },
-  { date: "2026-01-17", ph: 7.6, fc: 1.8, ta: 100, ch: 280, cya: 35, salt: 4700, temp: 30 },
-  { date: "2026-01-24", ph: 7.8, fc: 1.2, ta: 110, ch: 290, cya: 38, salt: 4600, temp: 32 },
-  { date: "2026-01-31", ph: 7.4, fc: 2.5, ta: 95, ch: 285, cya: 38, salt: 4800, temp: 29 },
-  { date: "2026-02-07", ph: 7.3, fc: 2.8, ta: 90, ch: 285, cya: 40, salt: 4900, temp: 27 },
-  { date: "2026-02-14", ph: 7.5, fc: 2.0, ta: 100, ch: 290, cya: 40, salt: 5000, temp: 31 },
-  { date: "2026-02-21", ph: 7.7, fc: 1.5, ta: 105, ch: 295, cya: 42, salt: 4800, temp: 33 },
-  { date: "2026-02-28", ph: 7.9, fc: 0.8, ta: 115, ch: 300, cya: 42, salt: 4600, temp: 35 },
+  { date: "2026-01-10", ph: 7.5, fc: 2.1, ta: 95, ch: 280, cya: 35, salt: 4800, temp: 28, source: "home" },
+  { date: "2026-01-17", ph: 7.6, fc: 1.8, ta: 100, ch: 280, cya: 35, salt: 4700, temp: 30, source: "home" },
+  { date: "2026-01-24", ph: 7.8, fc: 1.2, ta: 110, ch: 290, cya: 38, salt: 4600, temp: 32, source: "shop", shopName: "AquaClear Hornsby" },
+  { date: "2026-01-31", ph: 7.4, fc: 2.5, ta: 95, ch: 285, cya: 38, salt: 4800, temp: 29, source: "home" },
+  { date: "2026-02-07", ph: 7.3, fc: 2.8, ta: 90, ch: 285, cya: 40, salt: 4900, temp: 27, source: "home" },
+  { date: "2026-02-14", ph: 7.5, fc: 2.0, ta: 100, ch: 290, cya: 40, salt: 5000, temp: 31, source: "shop", shopName: "Poolwerx Pennant Hills" },
+  { date: "2026-02-21", ph: 7.7, fc: 1.5, ta: 105, ch: 295, cya: 42, salt: 4800, temp: 33, source: "home" },
+  { date: "2026-02-28", ph: 7.9, fc: 0.8, ta: 115, ch: 300, cya: 42, salt: 4600, temp: 35, source: "home" },
 ];
 const INIT_EQUIPMENT = [
   { id: "eq-1", name: "Pool Pump", brand: "Astral", model: "CTX 280", installed: "2022-03-15", lifeYrs: 8, status: "good", lastService: "2025-09-10", photos: [], note: "" },
@@ -202,7 +255,7 @@ function Card({ children, style, onClick, hover }) {
 }
 function Btn({ children, onClick, v = "primary", sz = "md", dis, full, style: s }) {
   const T = useTheme();
-  const vs = { primary: { backgroundColor: T.pri, color: "#fff", border: "none" }, secondary: { backgroundColor: T.bgS, color: T.tx, border: `1px solid ${T.brd}` }, ghost: { backgroundColor: "transparent", color: T.pri, border: "none" }, success: { backgroundColor: T.ok, color: "#fff", border: "none" }, danger: { backgroundColor: T.bad, color: "#fff", border: "none" } };
+  const vs = { primary: { backgroundColor: T.cta, color: "#fff", border: "none" }, secondary: { backgroundColor: T.bgS, color: T.tx, border: `1px solid ${T.brd}` }, ghost: { backgroundColor: "transparent", color: T.pri, border: "none" }, success: { backgroundColor: T.ok, color: "#fff", border: "none" }, danger: { backgroundColor: T.bad, color: "#fff", border: "none" } };
   const szs = { sm: { padding: "9px 16px", fontSize: 13, minHeight: 38 }, md: { padding: "12px 22px", fontSize: 14, minHeight: 44 }, lg: { padding: "14px 28px", fontSize: 15, minHeight: 48 } };
   return <button onClick={onClick} disabled={dis} style={{ ...vs[v], ...szs[sz], borderRadius: 12, fontWeight: 700, cursor: dis ? "not-allowed" : "pointer", opacity: dis ? 0.45 : 1, display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8, transition: "all 0.15s", width: full ? "100%" : "auto", fontFamily: FONT, letterSpacing: "-0.01em", ...s }}>{children}</button>;
 }
@@ -261,17 +314,250 @@ function SevIcon({ severity, size = 18 }) {
 }
 
 /* ═══════════════════════════════════════════════════════════════
+   ONBOARDING FLOW
+   ═══════════════════════════════════════════════════════════════ */
+
+// Google SVG icon (inline to avoid external dependency)
+function GoogleIcon({ size = 18 }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24">
+      <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/>
+      <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+      <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+      <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+    </svg>
+  );
+}
+
+function AppleIcon({ size = 18, color = "#000" }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill={color}>
+      <path d="M17.05 20.28c-.98.95-2.05.88-3.08.4-1.09-.5-2.08-.48-3.24 0-1.44.62-2.2.44-3.06-.4C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/>
+    </svg>
+  );
+}
+
+function WelcomeScreen({ onAuth, onGuest }) {
+  const T = useTheme();
+  const { desk } = useLayout();
+  const [emailMode, setEmailMode] = useState(null); // null, "login", "signup"
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [emailErr, setEmailErr] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const features = [
+    { icon: Beaker, text: "Test your water, get exact dosages" },
+    { icon: HelpCircle, text: "Diagnose problems step-by-step" },
+    { icon: BarChart3, text: "Track chemistry trends over time" },
+    { icon: Store, text: "Find pool shops near you" },
+  ];
+
+  const handleEmail = async (isSignUp) => {
+    setEmailErr(""); setLoading(true);
+    try {
+      const { error } = isSignUp
+        ? await supabase.auth.signUp({ email, password })
+        : await supabase.auth.signInWithPassword({ email, password });
+      if (error) setEmailErr(error.message);
+      // Success is handled by onAuthStateChange in App
+    } catch (e) { setEmailErr("Something went wrong. Try again."); }
+    setLoading(false);
+  };
+
+  const iSty = { width: "100%", padding: "14px 16px", borderRadius: 12, border: `2px solid ${T.brd}`, fontSize: 15, fontWeight: 600, color: T.tx, outline: "none", fontFamily: FONT, boxSizing: "border-box", backgroundColor: T.inputBg, minHeight: 50 };
+
+  return (
+    <div style={{ minHeight: "100vh", backgroundColor: T.bg, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: FONT, padding: 20 }}>
+      <div style={{ width: "100%", maxWidth: desk ? 440 : 400, textAlign: "center" }}>
+        <div style={{ display: "flex", justifyContent: "center", marginBottom: 24 }}>
+          <DropletNodeIcon size={72} />
+        </div>
+
+        <h1 style={{ fontSize: 32, fontWeight: 800, color: T.tx, margin: "0 0 8px", letterSpacing: "-0.03em", fontFamily: FONT_HEAD }}><span style={{ color: T.tx }}>Pool</span><span style={{ color: "#00B4D8" }}>Connection</span></h1>
+        <p style={{ fontSize: 17, color: T.tx2, margin: "0 0 36px", fontWeight: 500, lineHeight: 1.5 }}>Your pool care companion.<br />Clear water, no guesswork.</p>
+
+        {!emailMode && (
+          <>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 36, textAlign: "left" }}>
+              {features.map((f, i) => {
+                const I = f.icon;
+                return (
+                  <div key={i} style={{ display: "flex", alignItems: "center", gap: 10, padding: "12px 14px", backgroundColor: T.card, borderRadius: 12, border: `1px solid ${T.brdL}` }}>
+                    <I size={18} color={T.pri} style={{ flexShrink: 0 }} />
+                    <span style={{ fontSize: 13, fontWeight: 600, color: T.tx, lineHeight: 1.3 }}>{f.text}</span>
+                  </div>
+                );
+              })}
+            </div>
+
+            <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 20 }}>
+              <button onClick={() => onAuth("google")} style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 12, width: "100%", padding: "14px 20px", borderRadius: 12, border: `2px solid ${T.brd}`, backgroundColor: T.card, fontSize: 15, fontWeight: 700, color: T.tx, cursor: "pointer", fontFamily: FONT, minHeight: 52, transition: "all 0.15s" }}>
+                <GoogleIcon size={20} /> Continue with Google
+              </button>
+
+              <button onClick={() => setEmailMode("login")} style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 12, width: "100%", padding: "14px 20px", borderRadius: 12, border: `2px solid ${T.brd}`, backgroundColor: "transparent", fontSize: 15, fontWeight: 700, color: T.tx2, cursor: "pointer", fontFamily: FONT, minHeight: 52, transition: "all 0.15s" }}>
+                <Mail size={18} /> Continue with Email
+              </button>
+            </div>
+
+            <button onClick={onGuest} style={{ border: "none", background: "none", color: T.tx3, fontSize: 14, fontWeight: 600, cursor: "pointer", fontFamily: FONT, padding: "8px 16px" }}>
+              Try without an account <ArrowRight size={14} style={{ verticalAlign: "middle", marginLeft: 4 }} />
+            </button>
+          </>
+        )}
+
+        {emailMode && (
+          <div style={{ textAlign: "left" }}>
+            <button onClick={() => { setEmailMode(null); setEmailErr(""); }} style={{ display: "flex", alignItems: "center", gap: 4, border: "none", background: "none", color: T.tx3, fontSize: 13, fontWeight: 700, cursor: "pointer", padding: 0, marginBottom: 20, fontFamily: FONT }}><ChevronLeft size={16} /> Back</button>
+
+            <h2 style={{ fontSize: 22, fontWeight: 800, color: T.tx, margin: "0 0 20px", fontFamily: FONT_HEAD }}>{emailMode === "signup" ? "Create account" : "Welcome back"}</h2>
+
+            <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 16 }}>
+              <div>
+                <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: T.tx3, marginBottom: 6, textTransform: "uppercase", letterSpacing: "0.06em" }}>Email</label>
+                <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="you@example.com" style={iSty} />
+              </div>
+              <div>
+                <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: T.tx3, marginBottom: 6, textTransform: "uppercase", letterSpacing: "0.06em" }}>Password</label>
+                <input type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder={emailMode === "signup" ? "At least 6 characters" : "Your password"} style={iSty} />
+              </div>
+            </div>
+
+            {emailErr && <p style={{ fontSize: 13, color: T.bad, margin: "0 0 12px", fontWeight: 600 }}>{emailErr}</p>}
+
+            <button onClick={() => handleEmail(emailMode === "signup")} disabled={loading || !email || !password} style={{ width: "100%", padding: "14px 20px", borderRadius: 12, border: "none", backgroundColor: (!loading && email && password) ? T.cta : T.brdL, fontSize: 15, fontWeight: 700, color: (!loading && email && password) ? "#fff" : T.tx3, cursor: (!loading && email && password) ? "pointer" : "not-allowed", fontFamily: FONT, minHeight: 52, transition: "all 0.15s" }}>
+              {loading ? "Please wait..." : emailMode === "signup" ? "Create Account" : "Log In"}
+            </button>
+
+            <p style={{ fontSize: 14, color: T.tx3, margin: "16px 0 0", textAlign: "center" }}>
+              {emailMode === "login" ? (
+                <>Don't have an account? <button onClick={() => { setEmailMode("signup"); setEmailErr(""); }} style={{ border: "none", background: "none", color: T.cta, fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: FONT }}>Sign up</button></>
+              ) : (
+                <>Already have an account? <button onClick={() => { setEmailMode("login"); setEmailErr(""); }} style={{ border: "none", background: "none", color: T.cta, fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: FONT }}>Log in</button></>
+              )}
+            </p>
+          </div>
+        )}
+
+        <p style={{ fontSize: 11, color: T.tx3, margin: "24px 0 0", lineHeight: 1.5 }}>
+          By continuing, you agree to our Terms of Service and Privacy Policy.
+        </p>
+      </div>
+    </div>
+  );
+}
+
+function PoolSetupScreen({ onComplete, onSkip }) {
+  const T = useTheme();
+  const { desk } = useLayout();
+  const [poolSize, setPoolSize] = useState("");
+  const [poolType, setPoolType] = useState("");
+  const [sanitisation, setSanitisation] = useState("");
+  const [step, setStep] = useState(0);
+
+  const iSty = { width: "100%", padding: "14px 16px", borderRadius: 12, border: `2px solid ${T.brd}`, fontSize: 16, fontWeight: 700, color: T.tx, outline: "none", fontFamily: FONT, boxSizing: "border-box", backgroundColor: T.inputBg, minHeight: 52 };
+  const optSty = (selected) => ({ width: "100%", textAlign: "left", padding: "14px 16px", borderRadius: 12, border: `2px solid ${selected ? T.pri : T.brd}`, backgroundColor: selected ? T.priL : T.card, fontSize: 15, fontWeight: selected ? 700 : 500, color: T.tx, cursor: "pointer", fontFamily: FONT, transition: "all 0.15s", minHeight: 50 });
+
+  const steps = [
+    // Step 0: Pool size
+    <div key="size">
+      <h2 style={{ fontSize: 24, fontWeight: 900, color: T.tx, margin: "0 0 8px", fontFamily: FONT_HEAD }}>How big is your pool?</h2>
+      <p style={{ fontSize: 14, color: T.tx2, margin: "0 0 24px", lineHeight: 1.5 }}>We use this to calculate exact chemical dosages. Don't know? A typical Australian backyard pool is 40,000–50,000 litres.</p>
+      <input type="text" value={poolSize} onChange={e => setPoolSize(e.target.value)} placeholder="e.g. 40,000" style={iSty} />
+      <p style={{ fontSize: 12, color: T.tx3, margin: "8px 0 0" }}>Litres — check your pool builder's docs or ask your pool shop</p>
+    </div>,
+    // Step 1: Pool type
+    <div key="type">
+      <h2 style={{ fontSize: 24, fontWeight: 900, color: T.tx, margin: "0 0 8px", fontFamily: FONT_HEAD }}>What type of pool?</h2>
+      <p style={{ fontSize: 14, color: T.tx2, margin: "0 0 24px" }}>This helps us give relevant advice.</p>
+      <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+        {["In-ground", "Above-ground", "Plunge pool", "Swim spa"].map(opt => (
+          <button key={opt} onClick={() => setPoolType(opt)} style={optSty(poolType === opt)}>{opt}</button>
+        ))}
+      </div>
+    </div>,
+    // Step 2: Sanitisation
+    <div key="sanit">
+      <h2 style={{ fontSize: 24, fontWeight: 900, color: T.tx, margin: "0 0 8px", fontFamily: FONT_HEAD }}>How do you sanitise?</h2>
+      <p style={{ fontSize: 14, color: T.tx2, margin: "0 0 24px" }}>This determines which chemicals and tests we recommend.</p>
+      <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+        {["Salt Chlorinator", "Liquid Chlorine (manual)", "Chlorine Tablets", "Mineral System", "Not sure"].map(opt => (
+          <button key={opt} onClick={() => setSanitisation(opt)} style={optSty(sanitisation === opt)}>{opt}</button>
+        ))}
+      </div>
+    </div>,
+  ];
+
+  const canNext = step === 0 ? poolSize.trim() : step === 1 ? poolType : sanitisation;
+  const isLast = step === steps.length - 1;
+
+  return (
+    <div style={{ minHeight: "100vh", backgroundColor: T.bg, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: FONT, padding: 20 }}>
+      <div style={{ width: "100%", maxWidth: desk ? 480 : 420 }}>
+        {/* Progress */}
+        <div style={{ display: "flex", gap: 6, marginBottom: 32 }}>
+          {steps.map((_, i) => (
+            <div key={i} style={{ flex: 1, height: 4, borderRadius: 2, backgroundColor: i <= step ? T.pri : T.brdL, transition: "background-color 0.3s" }} />
+          ))}
+        </div>
+
+        {steps[step]}
+
+        {/* Navigation */}
+        <div style={{ display: "flex", gap: 10, marginTop: 28 }}>
+          {step > 0 && (
+            <button onClick={() => setStep(step - 1)} style={{ padding: "14px 20px", borderRadius: 12, border: `2px solid ${T.brd}`, backgroundColor: "transparent", fontSize: 15, fontWeight: 700, color: T.tx2, cursor: "pointer", fontFamily: FONT, minHeight: 52 }}>
+              <ChevronLeft size={18} />
+            </button>
+          )}
+          <button
+            onClick={() => {
+              if (isLast) onComplete({ poolSize: poolSize.trim() || "40,000", poolType: poolType || "In-ground", sanitisation: sanitisation || "Salt Chlorinator" });
+              else setStep(step + 1);
+            }}
+            disabled={!canNext}
+            style={{ flex: 1, padding: "14px 20px", borderRadius: 12, border: "none", backgroundColor: canNext ? T.pri : T.brdL, fontSize: 15, fontWeight: 700, color: canNext ? "#fff" : T.tx3, cursor: canNext ? "pointer" : "not-allowed", fontFamily: FONT, minHeight: 52, transition: "all 0.15s" }}>
+            {isLast ? "Let's Go" : "Next"} {isLast ? <Sparkles size={16} style={{ verticalAlign: "middle", marginLeft: 4 }} /> : <ArrowRight size={16} style={{ verticalAlign: "middle", marginLeft: 4 }} />}
+          </button>
+        </div>
+
+        <div style={{ textAlign: "center", marginTop: 16 }}>
+          <button onClick={onSkip} style={{ border: "none", background: "none", color: T.tx3, fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: FONT }}>
+            Skip for now — I'll add this later
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function GuestBanner({ onSignUp }) {
+  const T = useTheme();
+  return (
+    <div style={{ backgroundColor: T.warnL, border: `1px solid ${T.warnB}`, borderRadius: 12, padding: "12px 16px", marginBottom: 16, display: "flex", alignItems: "center", gap: 12 }}>
+      <Shield size={20} color={T.warn} style={{ flexShrink: 0 }} />
+      <div style={{ flex: 1 }}>
+        <p style={{ fontSize: 13, fontWeight: 700, color: T.tx, margin: 0 }}>You're browsing as a guest</p>
+        <p style={{ fontSize: 12, color: T.tx2, margin: "2px 0 0" }}>Sign up to save your data and access all features.</p>
+      </div>
+      <button onClick={onSignUp} style={{ padding: "8px 14px", borderRadius: 10, border: "none", backgroundColor: T.pri, color: "#fff", fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: FONT, whiteSpace: "nowrap" }}>Sign Up</button>
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════════════════════════
    NAVIGATION — Bottom tabs on mobile, sidebar on desktop
    ═══════════════════════════════════════════════════════════════ */
-function Sidebar({ active, go, dark, setDark }) {
+function Sidebar({ active, go, dark, setDark, user, isGuest, onSignUp, onSignOut }) {
   const T = useTheme();
   const tabs = [{ id: "home", label: "Home", icon: Home }, { id: "test", label: "Test", icon: Beaker }, { id: "diagnose", label: "Fix", icon: HelpCircle }, { id: "shops", label: "Shops", icon: Store }, { id: "history", label: "History", icon: BarChart3 }, { id: "profile", label: "My Pool", icon: User }];
   return (
     <div style={{ width: 220, flexShrink: 0, position: "fixed", top: 0, left: 0, bottom: 0, backgroundColor: T.card, borderRight: `1px solid ${T.brd}`, display: "flex", flexDirection: "column", zIndex: 40, overflow: "hidden" }}>
       {/* Logo */}
       <div style={{ padding: "24px 20px 20px", display: "flex", alignItems: "center", gap: 10, borderBottom: `1px solid ${T.brdL}` }}>
-        <div style={{ width: 34, height: 34, borderRadius: 10, background: `linear-gradient(135deg, ${T.pri}, ${T.acc})`, display: "flex", alignItems: "center", justifyContent: "center" }}><Waves size={18} color="#fff" /></div>
-        <span style={{ fontSize: 17, fontWeight: 900, color: T.tx, letterSpacing: "-0.02em", fontFamily: FONT_HEAD }}>PoolConnection</span>
+        <DropletNodeIcon size={32} />
+        <BrandWordmark size={17} />
       </div>
       {/* Nav items */}
       <div style={{ flex: 1, padding: "12px 10px", display: "flex", flexDirection: "column", gap: 2 }}>
@@ -285,12 +571,23 @@ function Sidebar({ active, go, dark, setDark }) {
           );
         })}
       </div>
-      {/* Dark mode toggle at bottom */}
-      <div style={{ padding: "12px 10px 20px", borderTop: `1px solid ${T.brdL}` }}>
+      {/* Bottom section */}
+      <div style={{ padding: "12px 10px 20px", borderTop: `1px solid ${T.brdL}`, display: "flex", flexDirection: "column", gap: 2 }}>
         <button onClick={() => setDark(!dark)} style={{ display: "flex", alignItems: "center", gap: 12, padding: "11px 14px", border: "none", borderRadius: 10, cursor: "pointer", backgroundColor: "transparent", width: "100%", textAlign: "left", fontFamily: FONT }}>
           {dark ? <SunMedium size={20} color={T.warn} /> : <Moon size={20} color={T.tx3} />}
           <span style={{ fontSize: 14, fontWeight: 600, color: T.tx2 }}>{dark ? "Light Mode" : "Dark Mode"}</span>
         </button>
+        {isGuest ? (
+          <button onClick={onSignUp} style={{ display: "flex", alignItems: "center", gap: 12, padding: "11px 14px", border: "none", borderRadius: 10, cursor: "pointer", backgroundColor: T.priL, width: "100%", textAlign: "left", fontFamily: FONT }}>
+            <LogIn size={20} color={T.pri} />
+            <span style={{ fontSize: 14, fontWeight: 700, color: T.pri }}>Sign Up / Log In</span>
+          </button>
+        ) : (
+          <button onClick={onSignOut} style={{ display: "flex", alignItems: "center", gap: 12, padding: "11px 14px", border: "none", borderRadius: 10, cursor: "pointer", backgroundColor: "transparent", width: "100%", textAlign: "left", fontFamily: FONT }}>
+            <LogOut size={20} color={T.tx3} />
+            <span style={{ fontSize: 14, fontWeight: 600, color: T.tx2 }}>Sign Out</span>
+          </button>
+        )}
       </div>
     </div>
   );
@@ -314,7 +611,7 @@ function TabBar({ active, go }) {
 /* ═══════════════════════════════════════════════════════════════
    HOME PAGE
    ═══════════════════════════════════════════════════════════════ */
-function HomePage({ history, equipment, go, linkedShop, profile }) {
+function HomePage({ history, equipment, go, linkedShop, profile, isGuest, onSignUp }) {
   const T = useTheme();
   const { desk } = useLayout();
   const latest = history[history.length - 1];
@@ -329,6 +626,7 @@ function HomePage({ history, equipment, go, linkedShop, profile }) {
 
   return (
     <div style={{ paddingBottom: 20 }}>
+      {isGuest && <GuestBanner onSignUp={onSignUp} />}
       <div style={{ marginBottom: 28 }}>
         <p style={{ fontSize: 14, color: T.tx3, fontWeight: 600, margin: 0 }}>Welcome back{profile.name ? `, ${profile.name.split(" ")[0]}` : ""}</p>
         <h1 style={{ fontSize: 28, fontWeight: 900, color: T.tx, margin: "4px 0 0", letterSpacing: "-0.03em", fontFamily: FONT_HEAD }}>Your Pool</h1>
@@ -417,23 +715,44 @@ function HomePage({ history, equipment, go, linkedShop, profile }) {
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   TEST PAGE
+   TEST PAGE — with Home Test + Shop Result Scan modes
    ═══════════════════════════════════════════════════════════════ */
 function TestPage({ history, setHistory, poolVolume }) {
   const T = useTheme();
   const { desk } = useLayout();
-  const [r, setR] = useState({ ph: "7.5", fc: "1.5", ta: "100", ch: "280", cya: "40", salt: "4800", temp: "30" });
+  const [mode, setMode] = useState(null); // null = choose, "home" = manual, "shop" = photo scan
+  const [r, setR] = useState({ ph: "", fc: "", ta: "", ch: "", cya: "", salt: "", temp: "" });
   const [done, setDone] = useState(false); const [actions, setActions] = useState([]); const [exp, setExp] = useState(null);
+  const [shopPhoto, setShopPhoto] = useState(null);
+  const [shopName, setShopName] = useState("");
+  const photoRef = useRef(null);
   const vol = parseInt(String(poolVolume).replace(/,/g, "")) || 40000;
-  const submit = () => { const p = { ph: parseFloat(r.ph), fc: parseFloat(r.fc), ta: parseInt(r.ta), ch: parseInt(r.ch), cya: parseInt(r.cya), salt: parseInt(r.salt), temp: parseInt(r.temp) }; setActions(calcDosages(p, vol)); setDone(true); setHistory(h => [...h, { date: new Date().toISOString().split("T")[0], ...p }]); };
+
+  const submit = (source) => {
+    const p = { ph: parseFloat(r.ph) || 7.4, fc: parseFloat(r.fc) || 2.0, ta: parseInt(r.ta) || 100, ch: parseInt(r.ch) || 280, cya: parseInt(r.cya) || 40, salt: parseInt(r.salt) || 4800, temp: parseInt(r.temp) || 28 };
+    setActions(calcDosages(p, vol)); setDone(true);
+    const entry = { date: new Date().toISOString().split("T")[0], ...p, source: source || "home", shopName: shopName || null, photo: shopPhoto?.src || null, photoFile: shopPhoto?.file || null };
+    setHistory(entry);
+  };
+
+  const handlePhoto = (e) => {
+    const file = e.target.files[0]; if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => setShopPhoto({ src: ev.target.result, name: file.name, date: new Date().toISOString().split("T")[0], file });
+    reader.readAsDataURL(file); e.target.value = "";
+  };
+
+  const resetAll = () => { setMode(null); setDone(false); setExp(null); setR({ ph: "", fc: "", ta: "", ch: "", cya: "", salt: "", temp: "" }); setShopPhoto(null); setShopName(""); };
+
   const iSty = { width: "100%", padding: "13px 14px", borderRadius: 12, border: `2px solid ${T.brd}`, fontSize: 16, fontWeight: 700, color: T.tx, outline: "none", fontFamily: FONT, boxSizing: "border-box", backgroundColor: T.inputBg, minHeight: 48 };
   const lSty = { display: "block", fontSize: 11, fontWeight: 700, color: T.tx3, marginBottom: 6, textTransform: "uppercase", letterSpacing: "0.06em" };
 
+  // ── RESULTS VIEW (shared by both modes) ──
   if (done) {
     const issN = actions.filter(a => a.severity !== "ok").length;
     return (
       <div>
-        <Back onClick={() => { setDone(false); setExp(null); }} label="New test" />
+        <Back onClick={resetAll} label="New test" />
         <Card style={{ marginBottom: 20, backgroundColor: issN === 0 ? T.okL : T.warnL, border: `1px solid ${issN === 0 ? T.okB : T.warnB}`, textAlign: "center", padding: 28 }}>
           {issN === 0 ? <CheckCircle2 size={40} color={T.ok} /> : <AlertCircle size={40} color={T.warn} />}
           <h2 style={{ fontSize: 22, fontWeight: 900, margin: "10px 0 4px", fontFamily: FONT_HEAD, color: T.tx }}>{issN === 0 ? "Looking Great!" : `${issN} Thing${issN > 1 ? "s" : ""} to Adjust`}</h2>
@@ -462,18 +781,131 @@ function TestPage({ history, setHistory, poolVolume }) {
       </div>
     );
   }
+
+  // ── SHOP SCAN MODE ──
+  if (mode === "shop") {
+    const hasValues = r.ph || r.fc || r.ta;
+    return (
+      <div>
+        <Back onClick={resetAll} label="Back" />
+        <h2 style={{ fontSize: 24, fontWeight: 900, margin: "0 0 4px", fontFamily: FONT_HEAD, color: T.tx }}>Shop Water Test</h2>
+        <p style={{ fontSize: 14, color: T.tx2, margin: "0 0 24px", fontWeight: 500, lineHeight: 1.5 }}>Photo your shop printout, then enter the results. We'll save both.</p>
+
+        {/* Photo capture */}
+        <Card style={{ marginBottom: 20 }}>
+          <p style={lSty}>Test Result Photo</p>
+          {shopPhoto ? (
+            <div style={{ position: "relative", borderRadius: 12, overflow: "hidden", marginBottom: 12 }}>
+              <img src={shopPhoto.src} alt="Shop test result" style={{ width: "100%", maxHeight: 240, objectFit: "cover", borderRadius: 12 }} />
+              <button onClick={() => setShopPhoto(null)} style={{ position: "absolute", top: 8, right: 8, width: 28, height: 28, borderRadius: "50%", backgroundColor: "rgba(0,0,0,0.6)", border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}><X size={14} color="#fff" /></button>
+              <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, padding: "8px 12px", background: "linear-gradient(transparent, rgba(0,0,0,0.6))" }}>
+                <p style={{ fontSize: 12, color: "#fff", margin: 0, fontWeight: 600 }}>Captured {shopPhoto.date}</p>
+              </div>
+            </div>
+          ) : (
+            <button onClick={() => photoRef.current?.click()} style={{ width: "100%", padding: "32px 20px", borderRadius: 12, border: `2px dashed ${T.brd}`, backgroundColor: T.bgS, display: "flex", flexDirection: "column", alignItems: "center", gap: 10, cursor: "pointer" }}>
+              <div style={{ width: 52, height: 52, borderRadius: 14, backgroundColor: T.priL, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <Camera size={24} color={T.pri} />
+              </div>
+              <span style={{ fontSize: 15, fontWeight: 700, color: T.tx }}>Take photo of shop results</span>
+              <span style={{ fontSize: 13, color: T.tx3 }}>Thermal printout, screen, or report card</span>
+            </button>
+          )}
+          <input ref={photoRef} type="file" accept="image/*" capture="environment" style={{ display: "none" }} onChange={handlePhoto} />
+        </Card>
+
+        {/* Shop name (optional) */}
+        <div style={{ marginBottom: 20 }}>
+          <label style={lSty}>Which shop? (optional)</label>
+          <input value={shopName} onChange={e => setShopName(e.target.value)} placeholder="e.g. AquaClear Hornsby" style={iSty} />
+        </div>
+
+        {/* Values entry */}
+        <Card style={{ marginBottom: 20 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 16 }}>
+            <Edit3 size={16} color={T.pri} />
+            <p style={{ fontSize: 15, fontWeight: 800, margin: 0, color: T.tx, fontFamily: FONT_HEAD }}>Enter the readings</p>
+          </div>
+          <p style={{ fontSize: 13, color: T.tx2, margin: "0 0 16px", lineHeight: 1.5 }}>Copy the values from your printout below. We'll calculate what to do next.</p>
+          <div style={{ display: "grid", gridTemplateColumns: desk ? "1fr 1fr 1fr" : "1fr 1fr", gap: 14 }}>
+            {[{ k: "ph", l: "pH", p: "7.4", s: "0.1" }, { k: "fc", l: "Free Chlorine", p: "2.0", s: "0.1" }, { k: "ta", l: "Alkalinity", p: "100", s: "10" }, { k: "ch", l: "Calcium", p: "300", s: "10" }, { k: "cya", l: "CYA", p: "40", s: "5" }, { k: "salt", l: "Salt", p: "5000", s: "100" }].map(f => (
+              <div key={f.k}><label style={lSty}>{f.l}</label><input type="number" step={f.s} value={r[f.k]} onChange={e => setR(x => ({ ...x, [f.k]: e.target.value }))} placeholder={f.p} style={iSty} /></div>
+            ))}
+            <div style={{ gridColumn: "1 / -1" }}><label style={lSty}>Water Temp (°C)</label><input type="number" value={r.temp} onChange={e => setR(x => ({ ...x, temp: e.target.value }))} placeholder="28" style={iSty} /></div>
+          </div>
+        </Card>
+
+        <Btn v="primary" sz="lg" full onClick={() => submit("shop")} dis={!hasValues}>
+          <Store size={18} /> Save Shop Results
+        </Btn>
+        <p style={{ fontSize: 12, color: T.tx3, textAlign: "center", marginTop: 10, fontWeight: 500 }}>
+          {shopPhoto ? "Photo + readings will be saved to your history" : "No photo? That's fine — just the numbers works too"}
+        </p>
+      </div>
+    );
+  }
+
+  // ── HOME TEST MODE ──
+  if (mode === "home") {
+    return (
+      <div>
+        <Back onClick={resetAll} label="Back" />
+        <h2 style={{ fontSize: 24, fontWeight: 900, margin: "0 0 4px", fontFamily: FONT_HEAD, color: T.tx }}>Home Water Test</h2>
+        <p style={{ fontSize: 14, color: T.tx2, margin: "0 0 24px", fontWeight: 500 }}>Enter your test kit or strip readings</p>
+        <div style={{ display: "grid", gridTemplateColumns: desk ? "1fr 1fr 1fr" : "1fr 1fr", gap: 14 }}>
+          {[{ k: "ph", l: "pH", p: "7.4", s: "0.1" }, { k: "fc", l: "Free Chlorine (ppm)", p: "2.0", s: "0.1" }, { k: "ta", l: "Alkalinity (ppm)", p: "100", s: "10" }, { k: "ch", l: "Calcium (ppm)", p: "300", s: "10" }, { k: "cya", l: "CYA (ppm)", p: "40", s: "5" }, { k: "salt", l: "Salt (ppm)", p: "5000", s: "100" }].map(f => (
+            <div key={f.k}><label style={lSty}>{f.l}</label><input type="number" step={f.s} value={r[f.k]} onChange={e => setR(x => ({ ...x, [f.k]: e.target.value }))} placeholder={f.p} style={iSty} /></div>
+          ))}
+          <div style={{ gridColumn: "1 / -1" }}><label style={lSty}>Water Temp (°C)</label><input type="number" value={r.temp} onChange={e => setR(x => ({ ...x, temp: e.target.value }))} placeholder="28" style={iSty} /></div>
+        </div>
+        <Btn v="primary" sz="lg" full style={{ marginTop: 24 }} onClick={() => submit("home")}><Beaker size={18} /> Analyse My Water</Btn>
+        <p style={{ fontSize: 12, color: T.tx3, textAlign: "center", marginTop: 10, fontWeight: 500 }}>Dosages for {vol.toLocaleString()}L pool</p>
+      </div>
+    );
+  }
+
+  // ── MODE SELECTOR ──
   return (
     <div>
-      <h2 style={{ fontSize: 24, fontWeight: 900, margin: "0 0 4px", fontFamily: FONT_HEAD, color: T.tx }}>Weekly Water Test</h2>
-      <p style={{ fontSize: 14, color: T.tx2, margin: "0 0 24px", fontWeight: 500 }}>Enter your test kit or strip readings</p>
-      <div style={{ display: "grid", gridTemplateColumns: desk ? "1fr 1fr 1fr" : "1fr 1fr", gap: 14 }}>
-        {[{ k: "ph", l: "pH", p: "7.4", s: "0.1" }, { k: "fc", l: "Free Chlorine (ppm)", p: "2.0", s: "0.1" }, { k: "ta", l: "Alkalinity (ppm)", p: "100", s: "10" }, { k: "ch", l: "Calcium (ppm)", p: "300", s: "10" }, { k: "cya", l: "CYA (ppm)", p: "40", s: "5" }, { k: "salt", l: "Salt (ppm)", p: "5000", s: "100" }].map(f => (
-          <div key={f.k}><label style={lSty}>{f.l}</label><input type="number" step={f.s} value={r[f.k]} onChange={e => setR(x => ({ ...x, [f.k]: e.target.value }))} placeholder={f.p} style={iSty} /></div>
-        ))}
-        <div style={{ gridColumn: "1 / -1" }}><label style={lSty}>Water Temp (°C)</label><input type="number" value={r.temp} onChange={e => setR(x => ({ ...x, temp: e.target.value }))} placeholder="28" style={iSty} /></div>
+      <h2 style={{ fontSize: 24, fontWeight: 900, margin: "0 0 4px", fontFamily: FONT_HEAD, color: T.tx }}>Log Water Test</h2>
+      <p style={{ fontSize: 14, color: T.tx2, margin: "0 0 24px", fontWeight: 500 }}>How are you testing today?</p>
+
+      <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+        <Card hover onClick={() => setMode("home")} style={{ padding: 24 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+            <div style={{ width: 52, height: 52, borderRadius: 14, backgroundColor: T.priL, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+              <Beaker size={26} color={T.pri} />
+            </div>
+            <div style={{ flex: 1 }}>
+              <p style={{ fontSize: 17, fontWeight: 800, margin: 0, color: T.tx, fontFamily: FONT_HEAD }}>Home Test</p>
+              <p style={{ fontSize: 14, color: T.tx2, margin: "4px 0 0", lineHeight: 1.5 }}>Enter readings from your own test kit or strips</p>
+            </div>
+            <ChevronRight size={20} color={T.tx3} />
+          </div>
+        </Card>
+
+        <Card hover onClick={() => setMode("shop")} style={{ padding: 24 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+            <div style={{ width: 52, height: 52, borderRadius: 14, backgroundColor: T.accL, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+              <Camera size={26} color={T.acc} />
+            </div>
+            <div style={{ flex: 1 }}>
+              <p style={{ fontSize: 17, fontWeight: 800, margin: 0, color: T.tx, fontFamily: FONT_HEAD }}>Shop Test</p>
+              <p style={{ fontSize: 14, color: T.tx2, margin: "4px 0 0", lineHeight: 1.5 }}>Photo your pool shop printout and log the results</p>
+            </div>
+            <ChevronRight size={20} color={T.tx3} />
+          </div>
+        </Card>
       </div>
-      <Btn v="primary" sz="lg" full style={{ marginTop: 24 }} onClick={submit}><Beaker size={18} /> Analyse My Water</Btn>
-      <p style={{ fontSize: 12, color: T.tx3, textAlign: "center", marginTop: 10, fontWeight: 500 }}>Dosages for {vol.toLocaleString()}L pool</p>
+
+      <Card style={{ marginTop: 24, backgroundColor: T.priL, border: `1px solid ${T.brd}` }}>
+        <div style={{ display: "flex", gap: 12 }}>
+          <Lightbulb size={18} color={T.pri} style={{ flexShrink: 0, marginTop: 2 }} />
+          <p style={{ fontSize: 13, color: T.priD, margin: 0, lineHeight: 1.6, fontWeight: 500 }}>
+            Test weekly at home, and take a water sample to your pool shop monthly for a full analysis. We'll track both in your history.
+          </p>
+        </div>
+      </Card>
     </div>
   );
 }
@@ -578,7 +1010,7 @@ function ShopsPage({ linkedShop, setLinkedShop }) {
                 <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}><p style={{ fontSize: 15, fontWeight: 800, margin: 0, color: T.tx, fontFamily: FONT_HEAD }}>{shop.name}</p>{shop.partner && <Badge>Partner</Badge>}</div>
                 <p style={{ fontSize: 13, color: T.tx2, margin: "3px 0 0" }}>{shop.address}</p>
                 <div style={{ display: "flex", gap: 14, marginTop: 8 }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: 4 }}><Star size={13} color="#E6A817" fill="#E6A817" /><span style={{ fontSize: 13, fontWeight: 800, color: T.tx }}>{shop.rating}</span><span style={{ fontSize: 12, color: T.tx3 }}>({shop.reviews})</span></div>
+                  <div style={{ display: "flex", alignItems: "center", gap: 4 }}><Star size={13} color={T.starCol} fill={T.starCol} /><span style={{ fontSize: 13, fontWeight: 800, color: T.tx }}>{shop.rating}</span><span style={{ fontSize: 12, color: T.tx3 }}>({shop.reviews})</span></div>
                   <div style={{ display: "flex", alignItems: "center", gap: 4 }}><MapPin size={13} color={T.tx3} /><span style={{ fontSize: 13, color: T.tx2, fontWeight: 600 }}>{shop.distance}</span></div>
                 </div>
               </div>
@@ -591,7 +1023,7 @@ function ShopsPage({ linkedShop, setLinkedShop }) {
         {selShop && (
           <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
             {selShop.partner && <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "10px 14px", backgroundColor: T.priL, borderRadius: 10 }}><CheckCircle2 size={16} color={T.pri} /><span style={{ fontSize: 13, fontWeight: 700, color: T.priD }}>PoolConnection Partner</span></div>}
-            <div style={{ display: "flex", alignItems: "center", gap: 8 }}><Star size={18} color="#E6A817" fill="#E6A817" /><span style={{ fontSize: 20, fontWeight: 900, fontFamily: FONT_HEAD, color: T.tx }}>{selShop.rating}</span><span style={{ fontSize: 14, color: T.tx2 }}>({selShop.reviews} reviews)</span></div>
+            <div style={{ display: "flex", alignItems: "center", gap: 8 }}><Star size={18} color={T.starCol} fill={T.starCol} /><span style={{ fontSize: 20, fontWeight: 900, fontFamily: FONT_HEAD, color: T.tx }}>{selShop.rating}</span><span style={{ fontSize: 14, color: T.tx2 }}>({selShop.reviews} reviews)</span></div>
             <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
               <div style={{ display: "flex", gap: 10 }}><MapPin size={16} color={T.tx3} style={{ flexShrink: 0, marginTop: 2 }} /><div><p style={{ fontSize: 14, fontWeight: 600, margin: 0, color: T.tx }}>{selShop.address}</p><p style={{ fontSize: 12, color: T.tx3, margin: "2px 0 0" }}>{selShop.distance} away</p></div></div>
               <div style={{ display: "flex", gap: 10 }}><Phone size={16} color={T.tx3} /><p style={{ fontSize: 14, fontWeight: 600, margin: 0, color: T.tx }}>{selShop.phone}</p></div>
@@ -650,18 +1082,31 @@ function HistoryPage({ history }) {
       )}
       <Card style={{ padding: 0, overflow: "hidden" }}>
         <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
-          <thead><tr style={{ backgroundColor: T.bgS }}>{["Date", "pH", "FC", "TA", "Salt", "°C"].map(h => <th key={h} style={{ padding: "12px 10px", textAlign: "left", fontWeight: 700, color: T.tx3, fontSize: 10, textTransform: "uppercase", letterSpacing: "0.06em" }}>{h}</th>)}</tr></thead>
+          <thead><tr style={{ backgroundColor: T.bgS }}>{["Date", "Source", "pH", "FC", "TA", "Salt", "°C"].map(h => <th key={h} style={{ padding: "12px 8px", textAlign: "left", fontWeight: 700, color: T.tx3, fontSize: 10, textTransform: "uppercase", letterSpacing: "0.06em" }}>{h}</th>)}</tr></thead>
           <tbody>
-            {[...history].reverse().slice(0, 10).map((h, i) => (
-              <tr key={i} style={{ borderTop: `1px solid ${T.brdL}` }}>
-                <td style={{ padding: "10px", fontWeight: 700, color: T.tx }}>{h.date}</td>
-                <td style={{ padding: "10px", fontWeight: 700, color: h.ph >= TARGETS.ph.min && h.ph <= TARGETS.ph.max ? T.ok : T.bad }}>{h.ph}</td>
-                <td style={{ padding: "10px", fontWeight: 700, color: h.fc >= TARGETS.fc.min && h.fc <= TARGETS.fc.max ? T.ok : T.bad }}>{h.fc}</td>
-                <td style={{ padding: "10px", fontWeight: 700, color: h.ta >= TARGETS.ta.min && h.ta <= TARGETS.ta.max ? T.ok : T.bad }}>{h.ta}</td>
-                <td style={{ padding: "10px", fontWeight: 700, color: h.salt >= TARGETS.salt.min && h.salt <= TARGETS.salt.max ? T.ok : T.bad }}>{h.salt}</td>
-                <td style={{ padding: "10px", fontWeight: 600, color: T.tx2 }}>{h.temp}°</td>
-              </tr>
-            ))}
+            {[...history].reverse().slice(0, 12).map((h, i) => {
+              const isShop = h.source === "shop";
+              return (
+                <tr key={i} style={{ borderTop: `1px solid ${T.brdL}` }}>
+                  <td style={{ padding: "10px 8px", fontWeight: 700, color: T.tx, whiteSpace: "nowrap" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                      {h.photo && <Camera size={11} color={T.tx3} />}
+                      {h.date.slice(5)}
+                    </div>
+                  </td>
+                  <td style={{ padding: "10px 8px" }}>
+                    <span style={{ display: "inline-flex", alignItems: "center", gap: 3, fontSize: 10, fontWeight: 700, padding: "2px 7px", borderRadius: 10, color: isShop ? T.acc : T.tx3, backgroundColor: isShop ? T.accL : T.bgS, whiteSpace: "nowrap" }}>
+                      {isShop ? <Store size={9} /> : <Beaker size={9} />}{isShop ? "Shop" : "Home"}
+                    </span>
+                  </td>
+                  <td style={{ padding: "10px 8px", fontWeight: 700, color: h.ph >= TARGETS.ph.min && h.ph <= TARGETS.ph.max ? T.ok : T.bad }}>{h.ph}</td>
+                  <td style={{ padding: "10px 8px", fontWeight: 700, color: h.fc >= TARGETS.fc.min && h.fc <= TARGETS.fc.max ? T.ok : T.bad }}>{h.fc}</td>
+                  <td style={{ padding: "10px 8px", fontWeight: 700, color: h.ta >= TARGETS.ta.min && h.ta <= TARGETS.ta.max ? T.ok : T.bad }}>{h.ta}</td>
+                  <td style={{ padding: "10px 8px", fontWeight: 700, color: h.salt >= TARGETS.salt.min && h.salt <= TARGETS.salt.max ? T.ok : T.bad }}>{h.salt}</td>
+                  <td style={{ padding: "10px 8px", fontWeight: 600, color: T.tx2 }}>{h.temp}°</td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </Card>
@@ -672,7 +1117,7 @@ function HistoryPage({ history }) {
 /* ═══════════════════════════════════════════════════════════════
    PROFILE PAGE (pool details, equipment, notes, share)
    ═══════════════════════════════════════════════════════════════ */
-function ProfilePage({ profile, setProfile, equipment, setEquipment, go, linkedShop }) {
+function ProfilePage({ profile, setProfile, equipment, setEquipment, go, linkedShop, addNote, deleteNote }) {
   const T = useTheme();
   const { desk } = useLayout();
   const [view, setView] = useState("main");
@@ -743,11 +1188,11 @@ function ProfilePage({ profile, setProfile, equipment, setEquipment, go, linkedS
     <div>
       <Back onClick={() => setView("main")} label="My Pool" />
       <h2 style={{ fontSize: 22, fontWeight: 900, margin: "0 0 20px", fontFamily: FONT_HEAD, color: T.tx }}>Notes & Repairs</h2>
-      <Card style={{ marginBottom: 18 }}><textarea value={newNote} onChange={e => setNewNote(e.target.value)} placeholder="Add a note — repairs, observations..." style={{ ...iSty, minHeight: 70, resize: "vertical", marginBottom: 10 }} /><Btn v="primary" sz="sm" dis={!newNote.trim()} onClick={() => { setProfile(p => ({ ...p, notes: [{ id: `n-${Date.now()}`, date: new Date().toISOString().split("T")[0], text: newNote.trim() }, ...p.notes] })); setNewNote(""); }}><Plus size={14} /> Add Note</Btn></Card>
+      <Card style={{ marginBottom: 18 }}><textarea value={newNote} onChange={e => setNewNote(e.target.value)} placeholder="Add a note — repairs, observations..." style={{ ...iSty, minHeight: 70, resize: "vertical", marginBottom: 10 }} /><Btn v="primary" sz="sm" dis={!newNote.trim()} onClick={() => { if (addNote) addNote(newNote.trim()); else setProfile(p => ({ ...p, notes: [{ id: `n-${Date.now()}`, date: new Date().toISOString().split("T")[0], text: newNote.trim() }, ...p.notes] })); setNewNote(""); }}><Plus size={14} /> Add Note</Btn></Card>
       {profile.notes.length === 0 && <div style={{ textAlign: "center", padding: 32 }}><FileText size={32} color={T.tx3} /><p style={{ fontSize: 14, color: T.tx3, margin: "8px 0 0" }}>No notes yet</p></div>}
       <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
         {profile.notes.map(n => (
-          <Card key={n.id}><div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}><div style={{ flex: 1 }}><p style={{ fontSize: 11, fontWeight: 700, color: T.tx3, margin: "0 0 4px" }}>{n.date}</p><p style={{ fontSize: 14, color: T.tx, margin: 0, lineHeight: 1.6, fontWeight: 500 }}>{n.text}</p></div><button onClick={() => setProfile(p => ({ ...p, notes: p.notes.filter(x => x.id !== n.id) }))} style={{ border: "none", background: "none", cursor: "pointer", padding: 4, color: T.tx3 }}><Trash2 size={14} /></button></div></Card>
+          <Card key={n.id}><div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}><div style={{ flex: 1 }}><p style={{ fontSize: 11, fontWeight: 700, color: T.tx3, margin: "0 0 4px" }}>{n.date}</p><p style={{ fontSize: 14, color: T.tx, margin: 0, lineHeight: 1.6, fontWeight: 500 }}>{n.text}</p></div><button onClick={() => { if (deleteNote) deleteNote(n.id); else setProfile(p => ({ ...p, notes: p.notes.filter(x => x.id !== n.id) })); }} style={{ border: "none", background: "none", cursor: "pointer", padding: 4, color: T.tx3 }}><Trash2 size={14} /></button></div></Card>
         ))}
       </div>
     </div>
@@ -769,7 +1214,7 @@ function ProfilePage({ profile, setProfile, equipment, setEquipment, go, linkedS
       <h2 style={{ fontSize: 24, fontWeight: 900, margin: "0 0 20px", fontFamily: FONT_HEAD, color: T.tx }}>My Pool</h2>
       <Card style={{ marginBottom: 16 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 16 }}>
-          <div style={{ width: 52, height: 52, borderRadius: "50%", background: `linear-gradient(135deg, ${T.pri}, ${T.acc})`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}><User size={24} color="#fff" /></div>
+          <div style={{ width: 52, height: 52, borderRadius: "50%", background: 'linear-gradient(135deg, #0077B6, #00B4D8)', display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}><User size={24} color="#fff" /></div>
           <div><p style={{ fontSize: 18, fontWeight: 900, margin: 0, fontFamily: FONT_HEAD, color: T.tx }}>{profile.name || "Add your name"}</p><p style={{ fontSize: 13, color: T.tx3, margin: "3px 0 0" }}>{profile.address || "Add address"}</p></div>
         </div>
         <div style={{ display: "grid", gridTemplateColumns: desk ? "1fr 1fr 1fr" : "1fr 1fr", gap: 8 }}>
@@ -806,54 +1251,317 @@ function ProfilePage({ profile, setProfile, equipment, setEquipment, go, linkedS
 export default function App() {
   const [dark, setDark] = useState(false);
   const [page, setPage] = useState("home");
-  const [history, setHistory] = useState(SAMPLE_HISTORY);
-  const [equipment, setEquipment] = useState(INIT_EQUIPMENT);
+  const [history, setHistory] = useState([]);
+  const [equipment, setEquipment] = useState([]);
   const [linkedShop, setLinkedShop] = useState(null);
   const [profile, setProfile] = useState(INIT_PROFILE);
+
+  // Auth state: null = loading, false = show welcome, "guest" = guest, {user object} = signed in
+  const [authState, setAuthState] = useState(null);
+  const [onboardStep, setOnboardStep] = useState(null);
+  const [authLoading, setAuthLoading] = useState(true);
+
   const T = dark ? THEMES.dark : THEMES.light;
   const layout = useWidth();
-  const { desk, wide } = layout;
+  const { desk } = layout;
   const go = (p) => setPage(p);
 
+  const isGuest = authState === "guest";
+  const isAuthed = authState && authState !== "guest" && typeof authState === "object";
+
+  // ── Listen for auth state changes ──
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session?.user) {
+        setAuthState(session.user);
+        setOnboardStep("loading");
+      } else {
+        setAuthState(false);
+      }
+      setAuthLoading(false);
+    });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session?.user) {
+        setAuthState(session.user);
+        // Check if user has profile data (returning user vs new)
+        setOnboardStep("loading");
+      } else {
+        setAuthState(false);
+        setOnboardStep(null);
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  // ── Load user data from Supabase when authenticated ──
+  useEffect(() => {
+    if (!isAuthed || onboardStep !== "loading") return;
+
+    const load = async () => {
+      const uid = authState.id;
+
+      // Load profile
+      const { data: prof } = await supabase.from("profiles").select("*").eq("id", uid).single();
+      if (prof) {
+        setProfile(p => ({
+          ...p,
+          name: prof.name || "",
+          address: prof.address || "",
+          poolSize: prof.pool_size || "",
+          poolType: prof.pool_type || "",
+          poolShape: prof.pool_shape || "",
+          poolSurface: prof.pool_surface || "Pebblecrete",
+          sanitisation: prof.sanitisation || "Salt Chlorinator",
+          filterType: prof.filter_type || "Sand Filter",
+          waterSource: prof.water_source || "Town Water",
+          poolAge: prof.pool_age || "",
+          cover: prof.cover || "No",
+        }));
+        // If they have pool_size set, they've done onboarding — go straight in
+        if (prof.pool_size) {
+          setOnboardStep("done");
+        } else {
+          setOnboardStep("setup");
+        }
+      } else {
+        setOnboardStep("setup");
+      }
+
+      // Load water tests
+      const { data: tests } = await supabase.from("water_tests").select("*").eq("user_id", uid).order("tested_at", { ascending: true });
+      if (tests && tests.length > 0) {
+        setHistory(tests.map(t => ({
+          id: t.id, date: t.tested_at, ph: Number(t.ph), fc: Number(t.fc), ta: t.ta, ch: t.ch, cya: t.cya, salt: t.salt, temp: t.temp,
+          source: t.source || "home", shopName: t.shop_name, photo: t.photo_url,
+        })));
+      } else {
+        setHistory(SAMPLE_HISTORY); // Show sample data for new users
+      }
+
+      // Load equipment
+      const { data: eqs } = await supabase.from("equipment").select("*").eq("user_id", uid).order("created_at");
+      if (eqs && eqs.length > 0) {
+        setEquipment(eqs.map(e => ({
+          id: e.id, name: e.name, brand: e.brand, model: e.model, installed: e.installed, lifeYrs: e.life_years || 8,
+          status: e.status || "good", lastService: e.last_service, photos: [], note: e.note || "",
+        })));
+      } else {
+        setEquipment(INIT_EQUIPMENT);
+      }
+
+      // Load notes
+      const { data: nts } = await supabase.from("notes").select("*").eq("user_id", uid).order("created_at", { ascending: false });
+      if (nts) {
+        setProfile(p => ({ ...p, notes: nts.map(n => ({ id: n.id, date: n.noted_at, text: n.text })) }));
+      }
+    };
+
+    load();
+  }, [isAuthed, authState?.id, onboardStep === "loading"]);
+
+  // ── Supabase auth handlers ──
+  const handleAuth = async (method) => {
+    if (method === "google") {
+      await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: { redirectTo: window.location.origin },
+      });
+    }
+    // Email auth is handled inside WelcomeScreen directly
+  };
+
+  const handleGuest = () => {
+    setAuthState("guest");
+    setOnboardStep("done");
+    setHistory(SAMPLE_HISTORY);
+    setEquipment(INIT_EQUIPMENT);
+  };
+
+  const handlePoolSetup = async (poolData) => {
+    setProfile(p => ({ ...p, ...poolData }));
+    setOnboardStep("done");
+    // Save to Supabase if authenticated
+    if (isAuthed) {
+      await supabase.from("profiles").update({
+        pool_size: poolData.poolSize,
+        pool_type: poolData.poolType,
+        sanitisation: poolData.sanitisation,
+        updated_at: new Date().toISOString(),
+      }).eq("id", authState.id);
+    }
+  };
+
+  const handleSkipSetup = () => {
+    setOnboardStep("done");
+  };
+
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+    setAuthState(false);
+    setOnboardStep(null);
+    setPage("home");
+    setHistory([]);
+    setEquipment([]);
+    setProfile(INIT_PROFILE);
+  };
+
+  const handleSignUp = () => {
+    setAuthState(false);
+    setOnboardStep(null);
+  };
+
+  // ── Wrapped setHistory that also persists to Supabase ──
+  const addTest = async (newEntry) => {
+    setHistory(h => [...h, newEntry]);
+    if (isAuthed) {
+      const row = {
+        user_id: authState.id,
+        tested_at: newEntry.date,
+        ph: newEntry.ph, fc: newEntry.fc, ta: newEntry.ta, ch: newEntry.ch, cya: newEntry.cya, salt: newEntry.salt, temp: newEntry.temp,
+        source: newEntry.source || "home",
+        shop_name: newEntry.shopName || null,
+        photo_url: newEntry.photo || null,
+      };
+      // Upload photo if present
+      if (newEntry.photoFile) {
+        const ext = newEntry.photoFile.name?.split(".").pop() || "jpg";
+        const path = `${authState.id}/${Date.now()}.${ext}`;
+        const { data: upload } = await supabase.storage.from("test-photos").upload(path, newEntry.photoFile);
+        if (upload) {
+          const { data: urlData } = supabase.storage.from("test-photos").getPublicUrl(path);
+          row.photo_url = urlData?.publicUrl || null;
+        }
+      }
+      await supabase.from("water_tests").insert(row);
+    }
+  };
+
+  // ── Wrapped setProfile that persists ──
+  const updateProfile = async (updater) => {
+    const newProfile = typeof updater === "function" ? updater(profile) : updater;
+    setProfile(newProfile);
+    if (isAuthed) {
+      await supabase.from("profiles").update({
+        name: newProfile.name, address: newProfile.address,
+        pool_size: newProfile.poolSize, pool_type: newProfile.poolType, pool_shape: newProfile.poolShape,
+        pool_surface: newProfile.poolSurface, sanitisation: newProfile.sanitisation,
+        filter_type: newProfile.filterType, water_source: newProfile.waterSource,
+        pool_age: newProfile.poolAge, cover: newProfile.cover,
+        updated_at: new Date().toISOString(),
+      }).eq("id", authState.id);
+    }
+  };
+
+  // ── Add note with persistence ──
+  const addNote = async (text) => {
+    const note = { id: `n-${Date.now()}`, date: new Date().toISOString().split("T")[0], text };
+    setProfile(p => ({ ...p, notes: [note, ...p.notes] }));
+    if (isAuthed) {
+      const { data } = await supabase.from("notes").insert({ user_id: authState.id, noted_at: note.date, text }).select().single();
+      if (data) setProfile(p => ({ ...p, notes: p.notes.map(n => n.id === note.id ? { ...n, id: data.id } : n) }));
+    }
+  };
+
+  const deleteNote = async (noteId) => {
+    setProfile(p => ({ ...p, notes: p.notes.filter(n => n.id !== noteId) }));
+    if (isAuthed) {
+      await supabase.from("notes").delete().eq("id", noteId);
+    }
+  };
+
+  // ── LOADING ──
+  if (authLoading) {
+    return (
+      <ThemeCtx.Provider value={T}>
+        <div style={{ minHeight: "100vh", backgroundColor: T.bg, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: FONT }}>
+          <div style={{ textAlign: "center" }}>
+            <DropletNodeIcon size={56} />
+            <p style={{ fontSize: 15, color: T.tx3, marginTop: 16, fontWeight: 600 }}>Loading...</p>
+          </div>
+        </div>
+      </ThemeCtx.Provider>
+    );
+  }
+
+  // ── WELCOME SCREEN ──
+  if (authState === false) {
+    return (
+      <ThemeCtx.Provider value={T}>
+        <LayoutCtx.Provider value={layout}>
+          <WelcomeScreen onAuth={handleAuth} onGuest={handleGuest} />
+        </LayoutCtx.Provider>
+      </ThemeCtx.Provider>
+    );
+  }
+
+  // ── POOL SETUP (after sign-in, not for guests) ──
+  if (onboardStep === "setup") {
+    return (
+      <ThemeCtx.Provider value={T}>
+        <LayoutCtx.Provider value={layout}>
+          <PoolSetupScreen onComplete={handlePoolSetup} onSkip={handleSkipSetup} />
+        </LayoutCtx.Provider>
+      </ThemeCtx.Provider>
+    );
+  }
+
+  // ── STILL LOADING DATA ──
+  if (onboardStep === "loading") {
+    return (
+      <ThemeCtx.Provider value={T}>
+        <div style={{ minHeight: "100vh", backgroundColor: T.bg, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: FONT }}>
+          <div style={{ textAlign: "center" }}>
+            <DropletNodeIcon size={56} />
+            <p style={{ fontSize: 15, color: T.tx3, marginTop: 16, fontWeight: 600 }}>Loading your pool data...</p>
+          </div>
+        </div>
+      </ThemeCtx.Provider>
+    );
+  }
+
+  // ── MAIN APP ──
   return (
     <ThemeCtx.Provider value={T}>
       <LayoutCtx.Provider value={layout}>
         <div style={{ minHeight: "100vh", backgroundColor: T.bg, fontFamily: FONT, display: desk ? "flex" : "block" }}>
-          {/* Desktop: sidebar nav */}
-          {desk && <Sidebar active={page} go={go} dark={dark} setDark={setDark} />}
+          {desk && <Sidebar active={page} go={go} dark={dark} setDark={setDark} user={isAuthed ? authState : null} isGuest={isGuest} onSignUp={handleSignUp} onSignOut={handleSignOut} />}
 
-          {/* Main content area */}
           <div style={{ flex: 1, marginLeft: desk ? 220 : 0, minHeight: "100vh" }}>
-            {/* Mobile: top header bar */}
             {!desk && (
               <div style={{ position: "sticky", top: 0, backgroundColor: T.hdr, backdropFilter: "blur(14px)", WebkitBackdropFilter: "blur(14px)", borderBottom: `1px solid ${T.brdL}`, padding: "10px 20px", display: "flex", alignItems: "center", justifyContent: "space-between", zIndex: 40 }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                  <div style={{ width: 32, height: 32, borderRadius: 10, background: `linear-gradient(135deg, ${T.pri}, ${T.acc})`, display: "flex", alignItems: "center", justifyContent: "center" }}><Waves size={17} color="#fff" /></div>
-                  <span style={{ fontSize: 16, fontWeight: 900, color: T.tx, letterSpacing: "-0.02em", fontFamily: FONT_HEAD }}>PoolConnection</span>
+                  <DropletNodeIcon size={30} />
+                  <BrandWordmark size={16} />
                 </div>
                 <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
                   <button onClick={() => setDark(!dark)} style={{ border: "none", background: "none", cursor: "pointer", padding: 6, display: "flex", borderRadius: 8, backgroundColor: dark ? T.bgS : "transparent" }} title={dark ? "Light mode" : "Dark mode"}>
                     {dark ? <SunMedium size={19} color={T.warn} /> : <Moon size={19} color={T.tx3} />}
                   </button>
-                  <button onClick={() => go("profile")} style={{ border: "none", background: "none", cursor: "pointer", padding: 6, display: "flex" }}>
-                    <User size={19} color={T.tx3} />
-                  </button>
+                  {isGuest ? (
+                    <button onClick={handleSignUp} style={{ border: "none", background: "none", cursor: "pointer", padding: 6, display: "flex" }}>
+                      <LogIn size={19} color={T.pri} />
+                    </button>
+                  ) : (
+                    <button onClick={() => go("profile")} style={{ border: "none", background: "none", cursor: "pointer", padding: 6, display: "flex" }}>
+                      <User size={19} color={T.tx3} />
+                    </button>
+                  )}
                 </div>
               </div>
             )}
 
-            {/* Content */}
             <div style={{ maxWidth: desk ? 900 : 480, margin: "0 auto", padding: desk ? "32px 40px 40px" : "24px 20px 110px" }}>
-              {page === "home" && <HomePage history={history} equipment={equipment} go={go} linkedShop={linkedShop} profile={profile} />}
-              {page === "test" && <TestPage history={history} setHistory={setHistory} poolVolume={profile.poolSize} />}
+              {page === "home" && <HomePage history={history} equipment={equipment} go={go} linkedShop={linkedShop} profile={profile} isGuest={isGuest} onSignUp={handleSignUp} />}
+              {page === "test" && <TestPage history={history} setHistory={addTest} poolVolume={profile.poolSize} />}
               {page === "diagnose" && <DiagnosePage go={go} />}
               {page === "shops" && <ShopsPage linkedShop={linkedShop} setLinkedShop={setLinkedShop} />}
               {page === "history" && <HistoryPage history={history} />}
-              {page === "profile" && <ProfilePage profile={profile} setProfile={setProfile} equipment={equipment} setEquipment={setEquipment} go={go} linkedShop={linkedShop} />}
+              {page === "profile" && <ProfilePage profile={profile} setProfile={updateProfile} equipment={equipment} setEquipment={setEquipment} go={go} linkedShop={linkedShop} addNote={addNote} deleteNote={deleteNote} />}
             </div>
           </div>
 
-          {/* Mobile: bottom tab bar */}
           {!desk && <TabBar active={page} go={go} />}
         </div>
       </LayoutCtx.Provider>
