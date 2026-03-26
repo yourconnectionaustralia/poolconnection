@@ -9,9 +9,7 @@ import {
   HelpCircle, AlertTriangle, Activity,
   Lightbulb, Wrench, CircleDot, Navigation, Clock, Store,
   Camera, Image, User, Edit3, Save, Share2, FileText, Plus, Trash2,
-  Moon, SunMedium, Mail, ArrowRight, Shield, Sparkles, LogIn, LogOut,
-  Gauge, Crown, CalendarCheck, FlaskConical, DollarSign, Lock, Check,
-  MessageSquarePlus
+  Moon, SunMedium, Mail, ArrowRight, Shield, Sparkles, LogIn, LogOut
 } from "lucide-react";
 import { XAxis, YAxis, ResponsiveContainer, Tooltip, ReferenceLine, Area, AreaChart } from "recharts";
 
@@ -63,6 +61,9 @@ const THEMES = {
     cta: "#00B4D8",
     ctaHover: "#00A0C2",
     starCol: "#F4A261",
+    coral: "#E8734A",       // Coral — warmth, trust, pricing callouts, social proof
+    coralL: "#FDF0EB",      // Coral at 8% on white
+    coralB: "#F5C4AD",      // Coral border
   },
   dark: {
     // Brand dark — primary canvas as specified in guidelines
@@ -102,18 +103,21 @@ const THEMES = {
     cta: "#00B4D8",
     ctaHover: "#00C8F0",
     starCol: "#F4A261",
+    coral: "#E8734A",       // Coral — warmth, trust, pricing callouts, social proof
+    coralL: "rgba(232,115,74,0.12)",
+    coralB: "rgba(232,115,74,0.30)",
   }
 };
 
-// Brand typography: Space Grotesk for display (geometric, readable), DM Sans for body/UI
+// Brand typography: Outfit for display (clean, warm, professional), DM Sans for body/UI
 const FONT = "'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
-const FONT_HEAD = "'Space Grotesk', 'DM Sans', -apple-system, sans-serif";
+const FONT_HEAD = "'Outfit', 'DM Sans', -apple-system, sans-serif";
 
 /* ═══════════════════════════════════════════════════════════════
    BRAND LOGO — Droplet Node (from brand guidelines SVG)
    ═══════════════════════════════════════════════════════════════ */
 function DropletNodeIcon({ size = 32 }) {
-  // Cropped viewBox: content spans x:17-103, y:8-110
+  // Pure Drop — clean gradient droplet with glass highlight (no network nodes)
   return (
     <svg width={size} height={size * (102/86)} viewBox="17 8 86 102" fill="none">
       <defs>
@@ -123,25 +127,15 @@ function DropletNodeIcon({ size = 32 }) {
         </linearGradient>
       </defs>
       <path d="M60 10 C60 10,26 46,22 70 C19 88,36 108,60 108 C84 108,101 88,98 70 C94 46,60 10,60 10Z" fill="url(#pc-grad)"/>
-      <line x1="60" y1="72" x2="60" y2="40" stroke="#FAFCFF" strokeWidth="1.5" opacity="0.55" strokeLinecap="round"/>
-      <line x1="60" y1="72" x2="36" y2="62" stroke="#FAFCFF" strokeWidth="1.5" opacity="0.55" strokeLinecap="round"/>
-      <line x1="60" y1="72" x2="84" y2="62" stroke="#FAFCFF" strokeWidth="1.5" opacity="0.55" strokeLinecap="round"/>
-      <line x1="60" y1="72" x2="42" y2="90" stroke="#FAFCFF" strokeWidth="1.2" opacity="0.35" strokeLinecap="round"/>
-      <line x1="60" y1="72" x2="78" y2="90" stroke="#FAFCFF" strokeWidth="1.2" opacity="0.35" strokeLinecap="round"/>
-      <circle cx="60" cy="40" r="5" fill="#FAFCFF"/>
-      <circle cx="36" cy="62" r="4" fill="#FAFCFF"/>
-      <circle cx="84" cy="62" r="4" fill="#FAFCFF"/>
-      <circle cx="42" cy="90" r="3" fill="#90E0EF"/>
-      <circle cx="78" cy="90" r="3" fill="#90E0EF"/>
-      <circle cx="60" cy="72" r="7" fill="#FAFCFF"/>
-      <circle cx="60" cy="72" r="3.5" fill="#00B4D8"/>
+      <ellipse cx="48" cy="50" rx="8" ry="14" fill="#FAFCFF" opacity="0.25" transform="rotate(-15 48 50)"/>
+      <ellipse cx="46" cy="44" rx="3" ry="6" fill="#FAFCFF" opacity="0.45" transform="rotate(-15 46 44)"/>
     </svg>
   );
 }
 
 function BrandWordmark({ size = 16 }) {
   const T = useTheme();
-  return <span style={{ fontSize: size, fontWeight: 700, letterSpacing: "-0.02em", fontFamily: FONT_HEAD }}><span style={{ color: T.tx }}>Pool</span><span style={{ color: "#00B4D8" }}>Connection</span></span>;
+  return <span style={{ fontSize: size, letterSpacing: "-0.02em", fontFamily: FONT_HEAD }}><span style={{ color: T.tx, fontWeight: 700 }}>Pool</span><span style={{ color: T.tx, fontWeight: 400 }}>Connection</span></span>;
 }
 
 /* ═══════════════════════════════════════════════════════════════
@@ -224,10 +218,14 @@ const INIT_EQUIPMENT = [
   { id: "eq-5", name: "Robotic Cleaner", brand: "Dolphin", model: "M600", installed: "2024-06-01", lifeYrs: 5, status: "good", lastService: null, photos: [], note: "" },
 ];
 const INIT_PROFILE = {
-  name: "", email: "", phone: "", address: "",
-  poolSize: "", poolType: "", poolShape: "", poolSurface: "",
-  sanitisation: "", filterType: "", waterSource: "", poolAge: "", cover: "",
-  notes: [],
+  name: "Sam Mitchell", email: "sam@example.com", phone: "0412 345 678", address: "24 Waratah Ave, Hornsby NSW 2077",
+  poolSize: "40,000", poolType: "In-ground", poolShape: "Kidney", poolSurface: "Pebblecrete",
+  sanitisation: "Salt Chlorinator", filterType: "Glass Media", waterSource: "Town Water", poolAge: "12 years", cover: "Solar blanket",
+  notes: [
+    { id: "n1", date: "2025-11-20", text: "Filter media replaced — sand to glass media. Done by AquaClear." },
+    { id: "n2", date: "2025-06-15", text: "Salt cell cleaned. Plates showing wear — 12–18 months left." },
+    { id: "n3", date: "2025-04-20", text: "Annual gas heater service. New igniter fitted." },
+  ],
   poolPhotos: [],
 };
 const NEARBY_SHOPS = [
@@ -242,201 +240,6 @@ const SEASONAL_TIPS = [
   { tip: "High UV burns through chlorine fast. Add in the evening for maximum effectiveness." },
   { tip: "Shower before swimming to reduce chloramines — they cause that 'chlorine smell', not the chlorine." },
 ];
-
-/* ═══════════════════════════════════════════════════════════════
-   POOL HEALTH SCORE (0–100)
-   Weighted: chemistry 50%, testing frequency 20%, trends 15%, equipment 15%
-   ═══════════════════════════════════════════════════════════════ */
-function calcHealthScore(history, equipment) {
-  if (!history.length) return { score: 0, grade: "?", breakdown: {} };
-  const latest = history[history.length - 1];
-
-  // Chemistry score (0–50): each param scored 0-10, scaled to 50
-  const paramScore = (v, min, max) => {
-    if (v >= min && v <= max) return 10;
-    const mid = (min + max) / 2, range = (max - min) / 2;
-    const dist = Math.abs(v - mid) - range;
-    return Math.max(0, 10 - dist * 3);
-  };
-  const chem = [
-    paramScore(latest.ph, TARGETS.ph.min, TARGETS.ph.max),
-    paramScore(latest.fc, TARGETS.fc.min, TARGETS.fc.max),
-    paramScore(latest.ta, TARGETS.ta.min, TARGETS.ta.max),
-    paramScore(latest.salt, TARGETS.salt.min, TARGETS.salt.max),
-    paramScore(latest.cya, TARGETS.cya.min, TARGETS.cya.max),
-  ];
-  const chemScore = (chem.reduce((a, b) => a + b, 0) / 50) * 50;
-
-  // Testing frequency score (0–20)
-  const daysSince = Math.round((Date.now() - new Date(latest.date).getTime()) / 86400000);
-  const freqScore = daysSince <= 3 ? 20 : daysSince <= 7 ? 16 : daysSince <= 14 ? 10 : daysSince <= 30 ? 5 : 0;
-
-  // Trend score (0–15): stable = great, volatile = bad
-  let trendScore = 15;
-  if (history.length >= 3) {
-    const last3 = history.slice(-3);
-    const phSwing = Math.abs(last3[2].ph - last3[0].ph);
-    const fcSwing = Math.abs(last3[2].fc - last3[0].fc);
-    if (phSwing > 0.6) trendScore -= 5;
-    else if (phSwing > 0.3) trendScore -= 2;
-    if (fcSwing > 2) trendScore -= 5;
-    else if (fcSwing > 1) trendScore -= 3;
-    trendScore = Math.max(0, trendScore);
-  }
-
-  // Equipment score (0–15)
-  let eqScore = 15;
-  equipment.forEach(e => {
-    const age = (Date.now() - new Date(e.installed).getTime()) / (365.25*24*60*60*1000);
-    const pct = age / e.lifeYrs;
-    if (pct > 1) eqScore -= 5;
-    else if (pct > 0.8) eqScore -= 2;
-    if (e.status === "attention") eqScore -= 2;
-  });
-  eqScore = Math.max(0, eqScore);
-
-  const score = Math.round(chemScore + freqScore + trendScore + eqScore);
-  const grade = score >= 85 ? "Excellent" : score >= 70 ? "Good" : score >= 50 ? "Fair" : "Needs Work";
-  return { score, grade, breakdown: { chemistry: Math.round(chemScore), testing: freqScore, trends: trendScore, equipment: eqScore } };
-}
-
-/* ═══════════════════════════════════════════════════════════════
-   SMART INSIGHTS — dynamic cards based on user data
-   ═══════════════════════════════════════════════════════════════ */
-function getInsights(history, equipment) {
-  const ins = [];
-  if (!history.length) return ins;
-  const latest = history[history.length - 1];
-  const daysSince = Math.round((Date.now() - new Date(latest.date).getTime()) / 86400000);
-
-  // Trend detection
-  if (history.length >= 3) {
-    const last3 = history.slice(-3);
-    const phDiff = last3[2].ph - last3[0].ph;
-    if (phDiff > 0.3) ins.push({ type: "warn", icon: TrendingUp, text: `pH rising — up ${phDiff.toFixed(1)} over last 3 tests. Check alkalinity and consider adding acid.` });
-    if (phDiff < -0.3) ins.push({ type: "warn", icon: TrendingDown, text: `pH dropping — down ${Math.abs(phDiff).toFixed(1)} over last 3 tests. Your water may be getting aggressive.` });
-    const fcDiff = last3[2].fc - last3[0].fc;
-    if (fcDiff < -1 && latest.fc < 2) ins.push({ type: "warn", icon: TrendingDown, text: `Chlorine has been falling. Down ${Math.abs(fcDiff).toFixed(1)}ppm over 3 tests. Check CYA isn't too high.` });
-    if (last3.every(h => h.ph >= TARGETS.ph.min && h.ph <= TARGETS.ph.max && h.fc >= TARGETS.fc.min)) ins.push({ type: "ok", icon: CheckCircle2, text: "Chemistry has been stable for 3 tests in a row. Keep it up." });
-  }
-
-  // Testing frequency
-  if (daysSince > 14) ins.push({ type: "warn", icon: Clock, text: `You haven't tested in ${daysSince} days. Weekly testing catches problems before they cost you money.` });
-
-  // Equipment lifecycle
-  equipment.forEach(e => {
-    const age = (Date.now() - new Date(e.installed).getTime()) / (365.25*24*60*60*1000);
-    const remaining = e.lifeYrs - age;
-    if (remaining < 1 && remaining > 0) ins.push({ type: "alert", icon: Wrench, text: `Your ${e.name} is ${age.toFixed(0)} years old. Typical life is ${e.lifeYrs} years. Start budgeting for a replacement.` });
-    if (remaining <= 0) ins.push({ type: "alert", icon: AlertTriangle, text: `Your ${e.name} is past its expected lifespan. Consider getting it inspected.` });
-  });
-
-  // Season-aware
-  const month = new Date().getMonth();
-  if (month >= 8 && month <= 9 && daysSince > 10) ins.push({ type: "info", icon: Sun, text: "Spring is here — time to open up your pool for swim season. Shock, clean the filter, and test all levels." });
-  if (month >= 4 && month <= 5) ins.push({ type: "info", icon: ThermometerSun, text: "Heading into winter. Reduce pump run time to 4-6 hours and keep testing fortnightly to avoid algae surprise." });
-
-  return ins.slice(0, 4); // Max 4 insights
-}
-
-/* ═══════════════════════════════════════════════════════════════
-   SEASONAL TASK CHECKLIST
-   ═══════════════════════════════════════════════════════════════ */
-function getSeasonalTasks() {
-  const month = new Date().getMonth(); // 0-11
-  if (month >= 9 || month <= 1) { // Oct-Feb (summer)
-    return { season: "Summer", tasks: [
-      { id: "s1", text: "Test water twice weekly", freq: "Ongoing" },
-      { id: "s2", text: "Run pump 10-12 hours daily", freq: "Daily" },
-      { id: "s3", text: "Check salt level monthly", freq: "Monthly" },
-      { id: "s4", text: "Backwash or clean filter fortnightly", freq: "Fortnightly" },
-      { id: "s5", text: "Empty skimmer baskets weekly", freq: "Weekly" },
-      { id: "s6", text: "Brush pool walls and floor", freq: "Fortnightly" },
-      { id: "s7", text: "Check water level — top up if low", freq: "Weekly" },
-      { id: "s8", text: "Book a shop test this month", freq: "Monthly" },
-    ]};
-  }
-  if (month >= 2 && month <= 4) { // Mar-May (autumn)
-    return { season: "Autumn", tasks: [
-      { id: "a1", text: "Test water weekly", freq: "Weekly" },
-      { id: "a2", text: "Reduce pump to 6-8 hours", freq: "Adjust once" },
-      { id: "a3", text: "Remove debris and fallen leaves daily", freq: "Daily" },
-      { id: "a4", text: "Clean filter thoroughly", freq: "Once" },
-      { id: "a5", text: "Check equipment before winter", freq: "Once" },
-      { id: "a6", text: "Consider installing a leaf net", freq: "Once" },
-    ]};
-  }
-  if (month >= 5 && month <= 7) { // Jun-Aug (winter)
-    return { season: "Winter", tasks: [
-      { id: "w1", text: "Test water fortnightly", freq: "Fortnightly" },
-      { id: "w2", text: "Run pump 4-6 hours daily", freq: "Daily" },
-      { id: "w3", text: "Check chlorine level — algae grows in winter too", freq: "Fortnightly" },
-      { id: "w4", text: "Keep cover clean and secure", freq: "Weekly" },
-      { id: "w5", text: "Service equipment while pool is quiet", freq: "Once" },
-    ]};
-  }
-  // Aug-Sep (spring / pre-season)
-  return { season: "Spring", tasks: [
-    { id: "sp1", text: "Full water test — take sample to shop", freq: "Once" },
-    { id: "sp2", text: "Shock pool with high chlorine dose", freq: "Once" },
-    { id: "sp3", text: "Clean and backwash filter", freq: "Once" },
-    { id: "sp4", text: "Check pump, chlorinator, and heater", freq: "Once" },
-    { id: "sp5", text: "Brush and vacuum thoroughly", freq: "Once" },
-    { id: "sp6", text: "Balance pH, alkalinity, and calcium", freq: "Once" },
-    { id: "sp7", text: "Increase pump run time to 8+ hours", freq: "Adjust once" },
-    { id: "sp8", text: "Remove winter cover, clean and store", freq: "Once" },
-  ]};
-}
-
-/* ═══════════════════════════════════════════════════════════════
-   CHEMICAL PRODUCTS (common Australian brands)
-   ═══════════════════════════════════════════════════════════════ */
-const CHEMICAL_PRODUCTS = [
-  { id: "liq-chlor", name: "Liquid Chlorine", unit: "L", sizes: ["2.5L", "5L", "10L", "15L", "20L"] },
-  { id: "gran-chlor", name: "Granular Chlorine (Cal Hypo)", unit: "kg", sizes: ["1kg", "2kg", "4kg", "10kg"] },
-  { id: "ph-down", name: "pH Reducer (Dry Acid)", unit: "kg", sizes: ["1kg", "2kg", "4kg"] },
-  { id: "ph-up", name: "pH Increaser (Soda Ash)", unit: "kg", sizes: ["1kg", "2kg", "4kg"] },
-  { id: "alk-up", name: "Alkalinity Increaser (Buffer)", unit: "kg", sizes: ["2kg", "4kg", "10kg"] },
-  { id: "stab", name: "Stabiliser (CYA)", unit: "kg", sizes: ["1kg", "2kg", "4kg"] },
-  { id: "salt", name: "Pool Salt", unit: "kg", sizes: ["10kg", "20kg", "25kg"] },
-  { id: "algae", name: "Algaecide", unit: "L", sizes: ["1L", "2.5L", "5L"] },
-  { id: "floc", name: "Clarifier / Flocculant", unit: "L", sizes: ["1L", "2.5L"] },
-  { id: "calc", name: "Calcium Hardness Increaser", unit: "kg", sizes: ["2kg", "4kg"] },
-  { id: "other", name: "Other", unit: "—", sizes: [] },
-];
-
-/* ═══════════════════════════════════════════════════════════════
-   PREMIUM TIER — feature gating
-   ═══════════════════════════════════════════════════════════════ */
-const FREE_FEATURES = ["test", "dosage", "diagnose", "shops", "basic_history"];
-const PREMIUM_FEATURES = ["trends", "insights", "health_score", "seasonal_tasks", "chemical_log", "cost_tracker", "full_history", "equipment_tracking", "photo_storage"];
-const PREMIUM_PRICE = 39; // AUD/year
-
-function PremiumGate({ feature, children }) {
-  const T = useTheme();
-  const [showUpgrade, setShowUpgrade] = useState(false);
-  // For now, premium is always unlocked (set to true for testing)
-  // When payments are live, this checks user.premium flag
-  const isPremium = true;
-
-  if (isPremium) return children;
-
-  return (
-    <div style={{ position: "relative" }}>
-      <div style={{ filter: "blur(3px)", pointerEvents: "none", opacity: 0.5 }}>{children}</div>
-      <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
-        <div style={{ textAlign: "center", padding: 24, backgroundColor: T.card, borderRadius: 16, border: `2px solid ${T.warn}`, boxShadow: `0 8px 32px ${T.shadow}`, maxWidth: 300 }}>
-          <Crown size={28} color={T.warn} style={{ marginBottom: 8 }} />
-          <h3 style={{ fontSize: 17, fontWeight: 700, margin: "0 0 6px", fontFamily: FONT_HEAD, color: T.tx }}>Premium Feature</h3>
-          <p style={{ fontSize: 13, color: T.tx2, margin: "0 0 16px", lineHeight: 1.5 }}>Unlock {feature} and more for ${PREMIUM_PRICE}/year.</p>
-          <Btn v="primary" sz="sm" full onClick={() => setShowUpgrade(true)}>
-            <Crown size={14} /> Upgrade
-          </Btn>
-        </div>
-      </div>
-    </div>
-  );
-}
 
 /* ═══════════════════════════════════════════════════════════════
    SHARED UI — all theme-aware
@@ -567,7 +370,7 @@ function WelcomeScreen({ onAuth, onGuest }) {
           <DropletNodeIcon size={72} />
         </div>
 
-        <h1 style={{ fontSize: 32, fontWeight: 700, color: T.tx, margin: "0 0 8px", letterSpacing: "-0.03em", fontFamily: FONT_HEAD }}><span style={{ color: T.tx }}>Pool</span><span style={{ color: "#00B4D8" }}>Connection</span></h1>
+        <h1 style={{ fontSize: 32, fontWeight: 700, color: T.tx, margin: "0 0 8px", letterSpacing: "-0.03em", fontFamily: FONT_HEAD }}><span style={{ color: T.tx, fontWeight: 700 }}>Pool</span><span style={{ color: T.tx, fontWeight: 400 }}>Connection</span></h1>
         <p style={{ fontSize: 17, color: T.tx2, margin: "0 0 36px", fontWeight: 500, lineHeight: 1.5 }}>Your pool care companion.<br />Clear water, no guesswork.</p>
 
         {!emailMode && (
@@ -584,18 +387,35 @@ function WelcomeScreen({ onAuth, onGuest }) {
               })}
             </div>
 
+            {/* Trust signals — founder credentials, rating, partnerships */}
+            <div style={{ marginBottom: 28, padding: "16px 18px", backgroundColor: T.coralL, borderRadius: 14, border: `1px solid ${T.coralB}`, textAlign: "left" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
+                {[1,2,3,4,5].map(i => <Star key={i} size={14} fill={T.coral} color={T.coral} />)}
+                <span style={{ fontSize: 13, fontWeight: 700, color: T.tx, marginLeft: 4 }}>Trusted by Australian pool owners</span>
+              </div>
+              <p style={{ fontSize: 13, color: T.tx2, margin: "0 0 10px", lineHeight: 1.6, fontWeight: 500, fontStyle: "italic" }}>
+                "Finally an app that gives me exact amounts — not just 'add some chlorine'. Saved me hours of guessing."
+              </p>
+              <p style={{ fontSize: 11, fontWeight: 700, color: T.coral, margin: 0, textTransform: "uppercase", letterSpacing: "0.05em" }}>
+                Built with 20+ years of Australian pool industry experience · Partnered with local pool shops
+              </p>
+            </div>
+
             <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 20 }}>
-              <button onClick={() => onAuth("google")} style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 12, width: "100%", padding: "14px 20px", borderRadius: 12, border: `2px solid ${T.brd}`, backgroundColor: T.card, fontSize: 15, fontWeight: 700, color: T.tx, cursor: "pointer", fontFamily: FONT, minHeight: 52, transition: "all 0.15s" }}>
+              {/* Primary CTA — solid Ocean fill per brand audit */}
+              <button onClick={() => onAuth("google")} style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 12, width: "100%", padding: "14px 20px", borderRadius: 12, border: "none", backgroundColor: T.pri, fontSize: 15, fontWeight: 700, color: "#fff", cursor: "pointer", fontFamily: FONT, minHeight: 52, transition: "all 0.15s" }}>
                 <GoogleIcon size={20} /> Continue with Google
               </button>
 
+              {/* Secondary CTA — outlined */}
               <button onClick={() => setEmailMode("login")} style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 12, width: "100%", padding: "14px 20px", borderRadius: 12, border: `2px solid ${T.brd}`, backgroundColor: "transparent", fontSize: 15, fontWeight: 700, color: T.tx2, cursor: "pointer", fontFamily: FONT, minHeight: 52, transition: "all 0.15s" }}>
                 <Mail size={18} /> Continue with Email
               </button>
             </div>
 
-            <button onClick={onGuest} style={{ border: "none", background: "none", color: T.tx3, fontSize: 14, fontWeight: 600, cursor: "pointer", fontFamily: FONT, padding: "8px 16px" }}>
-              Try without an account <ArrowRight size={14} style={{ verticalAlign: "middle", marginLeft: 4 }} />
+            {/* Tertiary — text link only, no border/background */}
+            <button onClick={onGuest} style={{ border: "none", background: "none", color: T.tx3, fontSize: 13, fontWeight: 500, cursor: "pointer", fontFamily: FONT, padding: "4px 8px" }}>
+              Try without an account <ArrowRight size={13} style={{ verticalAlign: "middle", marginLeft: 2 }} />
             </button>
           </>
         )}
@@ -804,151 +624,9 @@ function TabBar({ active, go }) {
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   HOME PAGE — with Pool Health Score, Smart Insights, Seasonal Tasks
+   HOME PAGE
    ═══════════════════════════════════════════════════════════════ */
-function HealthScoreRing({ score, grade, size = 120 }) {
-  const T = useTheme();
-  const r = (size - 12) / 2;
-  const circ = 2 * Math.PI * r;
-  const offset = circ - (score / 100) * circ;
-  const col = score >= 85 ? T.ok : score >= 70 ? "#00B4D8" : score >= 50 ? T.warn : T.bad;
-  return (
-    <div style={{ position: "relative", width: size, height: size }}>
-      <svg width={size} height={size} style={{ transform: "rotate(-90deg)" }}>
-        <circle cx={size/2} cy={size/2} r={r} fill="none" stroke={T.bgS} strokeWidth={10} />
-        <circle cx={size/2} cy={size/2} r={r} fill="none" stroke={col} strokeWidth={10} strokeLinecap="round" strokeDasharray={circ} strokeDashoffset={offset} style={{ transition: "stroke-dashoffset 1s ease-out" }} />
-      </svg>
-      <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
-        <span style={{ fontSize: size * 0.3, fontWeight: 700, color: col, fontFamily: FONT_HEAD, lineHeight: 1 }}>{score}</span>
-        <span style={{ fontSize: 11, fontWeight: 600, color: T.tx3, marginTop: 2 }}>{grade}</span>
-      </div>
-    </div>
-  );
-}
-
-function SeasonalChecklist() {
-  const T = useTheme();
-  const { season, tasks } = getSeasonalTasks();
-  const [checked, setChecked] = useState({});
-  const toggle = (id) => setChecked(c => ({ ...c, [id]: !c[id] }));
-  const done = Object.values(checked).filter(Boolean).length;
-
-  return (
-    <Card>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <CalendarCheck size={18} color={T.pri} />
-          <h3 style={{ margin: 0, fontSize: 15, fontWeight: 700, fontFamily: FONT_HEAD, color: T.tx }}>{season} Checklist</h3>
-        </div>
-        <span style={{ fontSize: 12, fontWeight: 700, color: done === tasks.length ? T.ok : T.tx3 }}>{done}/{tasks.length}</span>
-      </div>
-      {done === tasks.length && tasks.length > 0 && (
-        <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 12px", backgroundColor: T.okL, borderRadius: 10, marginBottom: 12, border: `1px solid ${T.okB}` }}>
-          <CheckCircle2 size={14} color={T.ok} />
-          <span style={{ fontSize: 13, fontWeight: 600, color: T.ok }}>All done — nice work!</span>
-        </div>
-      )}
-      <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-        {tasks.map(t => (
-          <button key={t.id} onClick={() => toggle(t.id)} style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 12px", borderRadius: 10, border: "none", backgroundColor: checked[t.id] ? T.okL : "transparent", cursor: "pointer", width: "100%", textAlign: "left", fontFamily: FONT, transition: "all 0.15s" }}>
-            <div style={{ width: 22, height: 22, borderRadius: 6, border: `2px solid ${checked[t.id] ? T.ok : T.brd}`, backgroundColor: checked[t.id] ? T.ok : "transparent", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, transition: "all 0.15s" }}>
-              {checked[t.id] && <Check size={13} color="#fff" strokeWidth={3} />}
-            </div>
-            <span style={{ fontSize: 14, fontWeight: checked[t.id] ? 500 : 600, color: checked[t.id] ? T.tx3 : T.tx, textDecoration: checked[t.id] ? "line-through" : "none", flex: 1 }}>{t.text}</span>
-            <span style={{ fontSize: 11, fontWeight: 600, color: T.tx3, whiteSpace: "nowrap" }}>{t.freq}</span>
-          </button>
-        ))}
-      </div>
-    </Card>
-  );
-}
-
-function ChemicalLogCard({ chemLog, addChemical }) {
-  const T = useTheme();
-  const { desk } = useLayout();
-  const [adding, setAdding] = useState(false);
-  const [product, setProduct] = useState("");
-  const [amount, setAmount] = useState("");
-  const [cost, setCost] = useState("");
-  const iSty = { width: "100%", padding: "10px 12px", borderRadius: 10, border: `2px solid ${T.brd}`, fontSize: 14, fontWeight: 600, color: T.tx, outline: "none", fontFamily: FONT, boxSizing: "border-box", backgroundColor: T.inputBg, minHeight: 42 };
-
-  const save = () => {
-    if (!product || !amount) return;
-    addChemical({ id: `ch-${Date.now()}`, date: new Date().toISOString().split("T")[0], product, amount, cost: cost ? parseFloat(cost) : null });
-    setProduct(""); setAmount(""); setCost(""); setAdding(false);
-  };
-
-  const totalCost = chemLog.reduce((sum, c) => sum + (c.cost || 0), 0);
-
-  return (
-    <Card>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <FlaskConical size={18} color={T.acc} />
-          <h3 style={{ margin: 0, fontSize: 15, fontWeight: 700, fontFamily: FONT_HEAD, color: T.tx }}>Chemical Log</h3>
-        </div>
-        {!adding && <button onClick={() => setAdding(true)} style={{ display: "flex", alignItems: "center", gap: 4, padding: "6px 12px", borderRadius: 8, border: `1px solid ${T.brd}`, backgroundColor: "transparent", cursor: "pointer", fontSize: 12, fontWeight: 700, color: T.pri, fontFamily: FONT }}><Plus size={13} /> Add</button>}
-      </div>
-
-      {adding && (
-        <div style={{ padding: 14, backgroundColor: T.bgS, borderRadius: 12, marginBottom: 14 }}>
-          <div style={{ display: "grid", gridTemplateColumns: desk ? "2fr 1fr 1fr" : "1fr", gap: 10, marginBottom: 10 }}>
-            <div>
-              <label style={{ fontSize: 10, fontWeight: 700, color: T.tx3, textTransform: "uppercase", letterSpacing: "0.06em" }}>Product</label>
-              <select value={product} onChange={e => setProduct(e.target.value)} style={iSty}>
-                <option value="">Select...</option>
-                {CHEMICAL_PRODUCTS.map(p => <option key={p.id} value={p.name}>{p.name}</option>)}
-              </select>
-            </div>
-            <div>
-              <label style={{ fontSize: 10, fontWeight: 700, color: T.tx3, textTransform: "uppercase", letterSpacing: "0.06em" }}>Amount</label>
-              <input value={amount} onChange={e => setAmount(e.target.value)} placeholder="e.g. 2kg" style={iSty} />
-            </div>
-            <div>
-              <label style={{ fontSize: 10, fontWeight: 700, color: T.tx3, textTransform: "uppercase", letterSpacing: "0.06em" }}>Cost (optional)</label>
-              <input type="number" value={cost} onChange={e => setCost(e.target.value)} placeholder="$" style={iSty} />
-            </div>
-          </div>
-          <div style={{ display: "flex", gap: 8 }}>
-            <Btn v="primary" sz="sm" onClick={save} dis={!product || !amount}><Plus size={13} /> Save</Btn>
-            <Btn v="ghost" sz="sm" onClick={() => setAdding(false)}>Cancel</Btn>
-          </div>
-        </div>
-      )}
-
-      {chemLog.length === 0 && !adding && (
-        <p style={{ fontSize: 13, color: T.tx3, textAlign: "center", padding: "12px 0" }}>No chemicals logged yet. Tap "Add" after treating your pool.</p>
-      )}
-
-      {chemLog.length > 0 && (
-        <>
-          {totalCost > 0 && (
-            <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 12px", backgroundColor: T.priL, borderRadius: 10, marginBottom: 12 }}>
-              <DollarSign size={14} color={T.pri} />
-              <span style={{ fontSize: 13, fontWeight: 700, color: T.pri }}>${totalCost.toFixed(0)} spent this season</span>
-            </div>
-          )}
-          <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-            {chemLog.slice(0, 5).map(c => (
-              <div key={c.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "8px 12px", borderRadius: 8, backgroundColor: T.bgS }}>
-                <div>
-                  <span style={{ fontSize: 13, fontWeight: 700, color: T.tx }}>{c.product}</span>
-                  <span style={{ fontSize: 12, color: T.tx3, marginLeft: 8 }}>{c.amount}</span>
-                </div>
-                <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                  {c.cost && <span style={{ fontSize: 12, fontWeight: 600, color: T.tx2 }}>${c.cost}</span>}
-                  <span style={{ fontSize: 11, color: T.tx3 }}>{c.date.slice(5)}</span>
-                </div>
-              </div>
-            ))}
-          </div>
-        </>
-      )}
-    </Card>
-  );
-}
-
-function HomePage({ history, equipment, go, linkedShop, profile, isGuest, onSignUp, chemLog, addChemical }) {
+function HomePage({ history, equipment, go, linkedShop, profile, isGuest, onSignUp }) {
   const T = useTheme();
   const { desk } = useLayout();
   const latest = history[history.length - 1];
@@ -960,57 +638,16 @@ function HomePage({ history, equipment, go, linkedShop, profile, isGuest, onSign
     if (latest.ta > TARGETS.ta.max || latest.ta < TARGETS.ta.min) issues.push({ p: "Alkalinity", v: `${latest.ta} ppm`, s: latest.ta > TARGETS.ta.max ? "high" : "low" });
   }
   const eqAlerts = equipment.filter(e => { const age = (Date.now() - new Date(e.installed).getTime()) / (365.25*24*60*60*1000); return age > e.lifeYrs * 0.8 || e.status === "attention"; });
-  const health = calcHealthScore(history, equipment);
-  const insights = getInsights(history, equipment);
 
   return (
     <div style={{ paddingBottom: 20 }}>
       {isGuest && <GuestBanner onSignUp={onSignUp} />}
-
-      {/* Header with Health Score */}
-      <div style={{ display: "flex", alignItems: desk ? "center" : "flex-start", justifyContent: "space-between", marginBottom: 24, gap: 16 }}>
-        <div style={{ flex: 1 }}>
-          <p style={{ fontSize: 14, color: T.tx3, fontWeight: 600, margin: 0 }}>{profile.name ? `Welcome, ${profile.name.split(" ")[0]}` : "Welcome"}</p>
-          <h1 style={{ fontSize: 28, fontWeight: 700, color: T.tx, margin: "4px 0 0", letterSpacing: "-0.03em", fontFamily: FONT_HEAD }}>Your Pool</h1>
-          {profile.poolSize && <p style={{ fontSize: 13, color: T.tx3, margin: "4px 0 0", fontWeight: 600 }}>{profile.poolSize}L · {profile.poolSurface} · {profile.sanitisation}</p>}
-        </div>
-        {latest && (
-          <PremiumGate feature="health score">
-            <HealthScoreRing score={health.score} grade={health.grade} size={desk ? 110 : 90} />
-          </PremiumGate>
-        )}
+      <div style={{ marginBottom: 28 }}>
+        <p style={{ fontSize: 14, color: T.tx3, fontWeight: 600, margin: 0 }}>Welcome back{profile.name ? `, ${profile.name.split(" ")[0]}` : ""}</p>
+        <h1 style={{ fontSize: 28, fontWeight: 700, color: T.tx, margin: "4px 0 0", letterSpacing: "-0.03em", fontFamily: FONT_HEAD }}>Your Pool</h1>
+        {profile.poolSize && <p style={{ fontSize: 13, color: T.tx3, margin: "4px 0 0", fontWeight: 600 }}>{profile.poolSize}L · {profile.poolSurface} · {profile.sanitisation}</p>}
       </div>
 
-      {/* Empty state — no tests yet */}
-      {!latest && (
-        <Card style={{ marginBottom: 20, textAlign: "center", padding: 32, backgroundColor: T.priL, border: `1px solid ${T.brd}` }}>
-          <DropletNodeIcon size={48} />
-          <h2 style={{ fontSize: 20, fontWeight: 700, margin: "16px 0 6px", fontFamily: FONT_HEAD, color: T.tx }}>Let's get started</h2>
-          <p style={{ fontSize: 14, color: T.tx2, margin: "0 0 20px", lineHeight: 1.6 }}>Run your first water test to see your pool health score, get dosage advice, and start tracking trends.</p>
-          <Btn v="primary" sz="lg" onClick={() => go("test")}><Beaker size={18} /> Log Your First Test</Btn>
-        </Card>
-      )}
-
-      {/* Smart Insights */}
-      {insights.length > 0 && (
-        <PremiumGate feature="smart insights">
-          <div style={{ marginBottom: 16 }}>
-            {insights.map((ins, i) => {
-              const I = ins.icon;
-              const col = ins.type === "ok" ? T.ok : ins.type === "warn" ? T.warn : ins.type === "alert" ? T.bad : T.pri;
-              const bg = ins.type === "ok" ? T.okL : ins.type === "warn" ? T.warnL : ins.type === "alert" ? T.badL : T.priL;
-              return (
-                <div key={i} style={{ display: "flex", gap: 12, padding: "12px 14px", backgroundColor: bg, borderRadius: 12, marginBottom: 8, border: `1px solid ${ins.type === "ok" ? T.okB : ins.type === "warn" ? T.warnB : ins.type === "alert" ? T.badB : T.brd}` }}>
-                  <I size={18} color={col} style={{ flexShrink: 0, marginTop: 1 }} />
-                  <p style={{ fontSize: 13, color: T.tx, margin: 0, lineHeight: 1.55, fontWeight: 500 }}>{ins.text}</p>
-                </div>
-              );
-            })}
-          </div>
-        </PremiumGate>
-      )}
-
-      {/* Test prompt */}
       <Card style={{ marginBottom: 16, backgroundColor: daysSince > 5 ? T.warnL : T.priL, border: `1px solid ${daysSince > 5 ? T.warnB : T.brd}` }}>
         <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
           <div style={{ width: 50, height: 50, borderRadius: 14, display: "flex", alignItems: "center", justifyContent: "center", backgroundColor: daysSince > 5 ? T.warnB : T.bgS, flexShrink: 0 }}>
@@ -1024,7 +661,6 @@ function HomePage({ history, equipment, go, linkedShop, profile, isGuest, onSign
         </div>
       </Card>
 
-      {/* Issues */}
       {issues.length > 0 && (
         <Card style={{ marginBottom: 16, borderColor: T.badB, backgroundColor: T.badL }}>
           <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}><AlertTriangle size={18} color={T.bad} /><span style={{ fontSize: 15, fontWeight: 700, color: T.bad, fontFamily: FONT_HEAD }}>{issues.length} need{issues.length === 1 ? "s" : ""} attention</span></div>
@@ -1038,7 +674,6 @@ function HomePage({ history, equipment, go, linkedShop, profile, isGuest, onSign
         </Card>
       )}
 
-      {/* Latest Readings + Health Score Breakdown (2-col on desktop) */}
       {latest && (
         <div style={{ display: desk ? "grid" : "block", gridTemplateColumns: desk ? "1fr 1fr" : "1fr", gap: desk ? 16 : 0 }}>
         <Card style={{ marginBottom: 16 }}>
@@ -1054,40 +689,18 @@ function HomePage({ history, equipment, go, linkedShop, profile, isGuest, onSign
           </div>
         </Card>
 
-        <PremiumGate feature="score breakdown">
         <Card style={{ marginBottom: 16 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 14 }}><Gauge size={18} color={T.pri} /><h3 style={{ margin: 0, fontSize: 15, fontWeight: 700, fontFamily: FONT_HEAD, color: T.tx }}>Score Breakdown</h3></div>
-          {[{ l: "Chemistry", v: health.breakdown.chemistry, max: 50, c: T.pri }, { l: "Testing Frequency", v: health.breakdown.testing, max: 20, c: T.acc }, { l: "Stability", v: health.breakdown.trends, max: 15, c: T.ok }, { l: "Equipment", v: health.breakdown.equipment, max: 15, c: T.warn }].map((s, i) => (
-            <div key={i} style={{ marginBottom: 12 }}>
-              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}>
-                <span style={{ fontSize: 13, fontWeight: 600, color: T.tx }}>{s.l}</span>
-                <span style={{ fontSize: 13, fontWeight: 700, color: s.c }}>{s.v}/{s.max}</span>
-              </div>
-              <div style={{ height: 6, backgroundColor: T.bgS, borderRadius: 3 }}>
-                <div style={{ height: "100%", width: `${(s.v / s.max) * 100}%`, backgroundColor: s.c, borderRadius: 3, transition: "width 0.5s" }} />
-              </div>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}><Sun size={18} color={T.warn} /><h3 style={{ margin: 0, fontSize: 15, fontWeight: 700, fontFamily: FONT_HEAD, color: T.tx }}>Summer Tips</h3></div>
+          {SEASONAL_TIPS.map((t, i) => (
+            <div key={i} style={{ display: "flex", gap: 12, padding: "10px 0", borderTop: i > 0 ? `1px solid ${T.brdL}` : "none" }}>
+              <ThermometerSun size={15} color={T.warn} style={{ flexShrink: 0, marginTop: 2 }} />
+              <p style={{ fontSize: 13, color: T.tx2, margin: 0, lineHeight: 1.6, fontWeight: 500 }}>{t.tip}</p>
             </div>
           ))}
         </Card>
-        </PremiumGate>
         </div>
       )}
 
-      {/* Seasonal Checklist */}
-      <div style={{ marginBottom: 16 }}>
-        <PremiumGate feature="seasonal tasks">
-          <SeasonalChecklist />
-        </PremiumGate>
-      </div>
-
-      {/* Chemical Log */}
-      <div style={{ marginBottom: 16 }}>
-        <PremiumGate feature="chemical tracking">
-          <ChemicalLogCard chemLog={chemLog} addChemical={addChemical} />
-        </PremiumGate>
-      </div>
-
-      {/* Equipment Alerts */}
       {eqAlerts.length > 0 && (
         <Card style={{ marginBottom: 16 }} hover onClick={() => go("profile")}>
           <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}><Wrench size={18} color={T.warn} /><h3 style={{ margin: 0, fontSize: 15, fontWeight: 700, fontFamily: FONT_HEAD, color: T.tx }}>Equipment Alerts</h3></div>
@@ -1100,7 +713,6 @@ function HomePage({ history, equipment, go, linkedShop, profile, isGuest, onSign
         </Card>
       )}
 
-      {/* Quick actions */}
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
         <Card hover onClick={() => go("diagnose")} style={{ textAlign: "center", padding: 18 }}>
           <HelpCircle size={28} color={T.pri} style={{ marginBottom: 8 }} />
@@ -1138,59 +750,14 @@ function TestPage({ history, setHistory, poolVolume }) {
     setHistory(entry);
   };
 
-  // ── OCR extraction via Claude Vision API ──
-  const [scanning, setScanning] = useState(false);
-  const [scanResult, setScanResult] = useState(null);
-
-  const runOCR = async (imageBase64) => {
-    setScanning(true); setScanResult(null);
-    try {
-      const base64Data = imageBase64.split(",")[1];
-      const mediaType = imageBase64.startsWith("data:image/png") ? "image/png" : "image/jpeg";
-      const response = await fetch("https://api.anthropic.com/v1/messages", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          model: "claude-sonnet-4-20250514",
-          max_tokens: 1000,
-          messages: [{ role: "user", content: [
-            { type: "image", source: { type: "base64", media_type: mediaType, data: base64Data } },
-            { type: "text", text: `You are reading a pool water test result printout from an Australian pool shop. Extract the chemical test values and return ONLY a JSON object with these fields (use null if not visible):
-{"ph":number|null,"fc":number|null,"ta":number|null,"ch":number|null,"cya":number|null,"salt":number|null,"temp":number|null,"shop_name":string|null}
-Notes: fc=Free Chlorine/FAC, ta=Total Alkalinity, ch=Calcium Hardness, cya=Cyanuric Acid/Stabiliser. Salt in ppm. If not a pool test result return {"error":"not_a_test_result"}. Return ONLY JSON.` }
-          ] }]
-        })
-      });
-      const data = await response.json();
-      const text = data.content?.map(c => c.text || "").join("") || "";
-      const parsed = JSON.parse(text.replace(/```json|```/g, "").trim());
-      if (parsed.error) { setScanResult("failed"); setScanning(false); return; }
-      const extracted = {}; let count = 0;
-      if (parsed.ph != null) { extracted.ph = String(parsed.ph); count++; }
-      if (parsed.fc != null) { extracted.fc = String(parsed.fc); count++; }
-      if (parsed.ta != null) { extracted.ta = String(parsed.ta); count++; }
-      if (parsed.ch != null) { extracted.ch = String(parsed.ch); count++; }
-      if (parsed.cya != null) { extracted.cya = String(parsed.cya); count++; }
-      if (parsed.salt != null) { extracted.salt = String(parsed.salt); count++; }
-      if (parsed.temp != null) { extracted.temp = String(parsed.temp); count++; }
-      setR(prev => ({ ...prev, ...extracted }));
-      if (parsed.shop_name && !shopName) setShopName(parsed.shop_name);
-      setScanResult(count >= 3 ? "success" : count > 0 ? "partial" : "failed");
-    } catch (err) { console.error("OCR error:", err); setScanResult("failed"); }
-    setScanning(false);
-  };
-
   const handlePhoto = (e) => {
     const file = e.target.files[0]; if (!file) return;
     const reader = new FileReader();
-    reader.onload = (ev) => {
-      setShopPhoto({ src: ev.target.result, name: file.name, date: new Date().toISOString().split("T")[0], file });
-      runOCR(ev.target.result);
-    };
+    reader.onload = (ev) => setShopPhoto({ src: ev.target.result, name: file.name, date: new Date().toISOString().split("T")[0], file });
     reader.readAsDataURL(file); e.target.value = "";
   };
 
-  const resetAll = () => { setMode(null); setDone(false); setExp(null); setR({ ph: "", fc: "", ta: "", ch: "", cya: "", salt: "", temp: "" }); setShopPhoto(null); setShopName(""); setScanning(false); setScanResult(null); };
+  const resetAll = () => { setMode(null); setDone(false); setExp(null); setR({ ph: "", fc: "", ta: "", ch: "", cya: "", salt: "", temp: "" }); setShopPhoto(null); setShopName(""); };
 
   const iSty = { width: "100%", padding: "13px 14px", borderRadius: 12, border: `2px solid ${T.brd}`, fontSize: 16, fontWeight: 700, color: T.tx, outline: "none", fontFamily: FONT, boxSizing: "border-box", backgroundColor: T.inputBg, minHeight: 48 };
   const lSty = { display: "block", fontSize: 11, fontWeight: 700, color: T.tx3, marginBottom: 6, textTransform: "uppercase", letterSpacing: "0.06em" };
@@ -1237,48 +804,18 @@ Notes: fc=Free Chlorine/FAC, ta=Total Alkalinity, ch=Calcium Hardness, cya=Cyanu
       <div>
         <Back onClick={resetAll} label="Back" />
         <h2 style={{ fontSize: 24, fontWeight: 700, margin: "0 0 4px", fontFamily: FONT_HEAD, color: T.tx }}>Shop Water Test</h2>
-        <p style={{ fontSize: 14, color: T.tx2, margin: "0 0 24px", fontWeight: 500, lineHeight: 1.5 }}>Photo your shop printout — we'll read the values automatically.</p>
+        <p style={{ fontSize: 14, color: T.tx2, margin: "0 0 24px", fontWeight: 500, lineHeight: 1.5 }}>Photo your shop printout, then enter the results. We'll save both.</p>
 
+        {/* Photo capture */}
         <Card style={{ marginBottom: 20 }}>
           <p style={lSty}>Test Result Photo</p>
           {shopPhoto ? (
-            <div>
-              <div style={{ position: "relative", borderRadius: 12, overflow: "hidden", marginBottom: 12 }}>
-                <img src={shopPhoto.src} alt="Shop test result" style={{ width: "100%", maxHeight: 240, objectFit: "cover", borderRadius: 12 }} />
-                <button onClick={() => { setShopPhoto(null); setScanResult(null); setScanning(false); }} style={{ position: "absolute", top: 8, right: 8, width: 28, height: 28, borderRadius: "50%", backgroundColor: "rgba(0,0,0,0.6)", border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}><X size={14} color="#fff" /></button>
-                <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, padding: "8px 12px", background: "linear-gradient(transparent, rgba(0,0,0,0.6))" }}>
-                  <p style={{ fontSize: 12, color: "#fff", margin: 0, fontWeight: 600 }}>Captured {shopPhoto.date}</p>
-                </div>
+            <div style={{ position: "relative", borderRadius: 12, overflow: "hidden", marginBottom: 12 }}>
+              <img src={shopPhoto.src} alt="Shop test result" style={{ width: "100%", maxHeight: 240, objectFit: "cover", borderRadius: 12 }} />
+              <button onClick={() => setShopPhoto(null)} style={{ position: "absolute", top: 8, right: 8, width: 28, height: 28, borderRadius: "50%", backgroundColor: "rgba(0,0,0,0.6)", border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}><X size={14} color="#fff" /></button>
+              <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, padding: "8px 12px", background: "linear-gradient(transparent, rgba(0,0,0,0.6))" }}>
+                <p style={{ fontSize: 12, color: "#fff", margin: 0, fontWeight: 600 }}>Captured {shopPhoto.date}</p>
               </div>
-              {scanning && (
-                <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "12px 14px", backgroundColor: T.priL, borderRadius: 10, border: `1px solid ${T.brd}` }}>
-                  <div style={{ width: 18, height: 18, border: `3px solid ${T.brd}`, borderTopColor: T.pri, borderRadius: "50%", animation: "spin 0.8s linear infinite", flexShrink: 0 }} />
-                  <span style={{ fontSize: 13, fontWeight: 600, color: T.pri }}>Reading your test results...</span>
-                  <style>{`@keyframes spin { to { transform: rotate(360deg) } }`}</style>
-                </div>
-              )}
-              {scanResult === "success" && (
-                <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "10px 14px", backgroundColor: T.okL, borderRadius: 10, border: `1px solid ${T.okB}` }}>
-                  <CheckCircle2 size={16} color={T.ok} />
-                  <span style={{ fontSize: 13, fontWeight: 600, color: T.ok }}>Values extracted — check and confirm below</span>
-                </div>
-              )}
-              {scanResult === "partial" && (
-                <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "10px 14px", backgroundColor: T.warnL, borderRadius: 10, border: `1px solid ${T.warnB}` }}>
-                  <AlertCircle size={16} color={T.warn} />
-                  <span style={{ fontSize: 13, fontWeight: 600, color: T.warn }}>Some values found — fill in the rest manually</span>
-                </div>
-              )}
-              {scanResult === "failed" && (
-                <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "10px 14px", backgroundColor: T.badL, borderRadius: 10, border: `1px solid ${T.badB}` }}>
-                  <AlertTriangle size={16} color={T.bad} />
-                  <div style={{ flex: 1 }}>
-                    <span style={{ fontSize: 13, fontWeight: 600, color: T.bad }}>Couldn't read this image</span>
-                    <p style={{ fontSize: 12, color: T.tx2, margin: "2px 0 0" }}>Try a clearer photo, or enter values manually.</p>
-                  </div>
-                  <button onClick={() => runOCR(shopPhoto.src)} style={{ padding: "6px 12px", borderRadius: 8, border: `1px solid ${T.brd}`, backgroundColor: "transparent", fontSize: 12, fontWeight: 700, color: T.pri, cursor: "pointer", fontFamily: FONT, whiteSpace: "nowrap" }}>Retry</button>
-                </div>
-              )}
             </div>
           ) : (
             <button onClick={() => photoRef.current?.click()} style={{ width: "100%", padding: "32px 20px", borderRadius: 12, border: `2px dashed ${T.brd}`, backgroundColor: T.bgS, display: "flex", flexDirection: "column", alignItems: "center", gap: 10, cursor: "pointer" }}>
@@ -1292,30 +829,29 @@ Notes: fc=Free Chlorine/FAC, ta=Total Alkalinity, ch=Calcium Hardness, cya=Cyanu
           <input ref={photoRef} type="file" accept="image/*" capture="environment" style={{ display: "none" }} onChange={handlePhoto} />
         </Card>
 
+        {/* Shop name (optional) */}
         <div style={{ marginBottom: 20 }}>
-          <label style={lSty}>Which shop? {shopName && scanResult === "success" ? <span style={{ color: T.ok, fontWeight: 600, textTransform: "none", letterSpacing: 0 }}>(auto-detected)</span> : "(optional)"}</label>
+          <label style={lSty}>Which shop? (optional)</label>
           <input value={shopName} onChange={e => setShopName(e.target.value)} placeholder="e.g. AquaClear Hornsby" style={iSty} />
         </div>
 
+        {/* Values entry */}
         <Card style={{ marginBottom: 20 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 16 }}>
             <Edit3 size={16} color={T.pri} />
-            <p style={{ fontSize: 15, fontWeight: 700, margin: 0, color: T.tx, fontFamily: FONT_HEAD }}>{scanResult === "success" ? "Confirm the readings" : "Enter the readings"}</p>
+            <p style={{ fontSize: 15, fontWeight: 700, margin: 0, color: T.tx, fontFamily: FONT_HEAD }}>Enter the readings</p>
           </div>
-          <p style={{ fontSize: 13, color: T.tx2, margin: "0 0 16px", lineHeight: 1.5 }}>{scanResult === "success" ? "We've pre-filled from your photo. Check before saving." : "Enter the values from your printout below."}</p>
+          <p style={{ fontSize: 13, color: T.tx2, margin: "0 0 16px", lineHeight: 1.5 }}>Copy the values from your printout below. We'll calculate what to do next.</p>
           <div style={{ display: "grid", gridTemplateColumns: desk ? "1fr 1fr 1fr" : "1fr 1fr", gap: 14 }}>
             {[{ k: "ph", l: "pH", p: "7.4", s: "0.1" }, { k: "fc", l: "Free Chlorine", p: "2.0", s: "0.1" }, { k: "ta", l: "Alkalinity", p: "100", s: "10" }, { k: "ch", l: "Calcium", p: "300", s: "10" }, { k: "cya", l: "CYA", p: "40", s: "5" }, { k: "salt", l: "Salt", p: "5000", s: "100" }].map(f => (
-              <div key={f.k}>
-                <label style={lSty}>{f.l} {r[f.k] && scanResult === "success" && <span style={{ color: T.ok, fontWeight: 600, textTransform: "none", letterSpacing: 0 }}>✓</span>}</label>
-                <input type="number" step={f.s} value={r[f.k]} onChange={e => setR(x => ({ ...x, [f.k]: e.target.value }))} placeholder={f.p} style={{ ...iSty, borderColor: r[f.k] && scanResult === "success" ? T.ok : T.brd }} />
-              </div>
+              <div key={f.k}><label style={lSty}>{f.l}</label><input type="number" step={f.s} value={r[f.k]} onChange={e => setR(x => ({ ...x, [f.k]: e.target.value }))} placeholder={f.p} style={iSty} /></div>
             ))}
             <div style={{ gridColumn: "1 / -1" }}><label style={lSty}>Water Temp (°C)</label><input type="number" value={r.temp} onChange={e => setR(x => ({ ...x, temp: e.target.value }))} placeholder="28" style={iSty} /></div>
           </div>
         </Card>
 
-        <Btn v="primary" sz="lg" full onClick={() => submit("shop")} dis={!hasValues || scanning}>
-          <Store size={18} /> {scanning ? "Reading photo..." : "Save Shop Results"}
+        <Btn v="primary" sz="lg" full onClick={() => submit("shop")} dis={!hasValues}>
+          <Store size={18} /> Save Shop Results
         </Btn>
         <p style={{ fontSize: 12, color: T.tx3, textAlign: "center", marginTop: 10, fontWeight: 500 }}>
           {shopPhoto ? "Photo + readings will be saved to your history" : "No photo? That's fine — just the numbers works too"}
@@ -1534,14 +1070,6 @@ function HistoryPage({ history }) {
     <div>
       <h2 style={{ fontSize: 24, fontWeight: 700, margin: "0 0 4px", fontFamily: FONT_HEAD, color: T.tx }}>Water History</h2>
       <p style={{ fontSize: 14, color: T.tx2, margin: "0 0 20px" }}>Trends over time</p>
-      {history.length === 0 ? (
-        <Card style={{ textAlign: "center", padding: 40 }}>
-          <BarChart3 size={36} color={T.tx3} style={{ marginBottom: 12 }} />
-          <h3 style={{ fontSize: 17, fontWeight: 700, margin: "0 0 6px", fontFamily: FONT_HEAD, color: T.tx }}>No tests yet</h3>
-          <p style={{ fontSize: 14, color: T.tx2, margin: 0, lineHeight: 1.6 }}>Your water test results will appear here with trend charts and analysis once you log your first test.</p>
-        </Card>
-      ) : (
-      <>
       <div style={{ display: "flex", gap: 8, marginBottom: 20, overflowX: "auto" }}>
         {params.map(x => <button key={x.k} onClick={() => setActive(x.k)} style={{ padding: "8px 16px", borderRadius: 20, border: `2px solid ${active === x.k ? x.c : T.brd}`, backgroundColor: active === x.k ? T.priL : T.card, fontSize: 13, fontWeight: 700, color: active === x.k ? x.c : T.tx3, cursor: "pointer", whiteSpace: "nowrap", fontFamily: FONT, minHeight: 38 }}>{x.l}</button>)}
       </div>
@@ -1597,8 +1125,6 @@ function HistoryPage({ history }) {
           </tbody>
         </table>
       </Card>
-      </>
-      )}
     </div>
   );
 }
@@ -1713,7 +1239,7 @@ function ProfilePage({ profile, setProfile, equipment, setEquipment, go, linkedS
         <Btn v="secondary" sz="sm" full style={{ marginTop: 16 }} onClick={() => setView("editPool")}><Edit3 size={14} /> Edit Pool Details</Btn>
       </Card>
       <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-        {[{ v: "equipment", icon: Wrench, c: T.pri, bg: T.priL, t: "My Equipment", d: `${equipment.length} items · Photos & lifecycle` }, { v: "notes", icon: FileText, c: T.acc, bg: T.accL, t: "Notes & Repairs", d: `${profile.notes.length} entries` }].map(item => (
+        {[{ v: "equipment", icon: Wrench, c: T.pri, bg: T.priL, t: "My Equipment", d: `${equipment.length} items · Photos & lifecycle` }, { v: "notes", icon: FileText, c: T.acc, bg: T.accL, t: "Notes & Repairs", d: `${profile.notes.length} entries` }, { v: "history_ext", icon: BarChart3, c: T.ok, bg: T.okL, t: "Water History", d: `${SAMPLE_HISTORY.length} tests` }].map(item => (
           <Card key={item.v} hover onClick={() => item.v === "history_ext" ? go("history") : setView(item.v)}>
             <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
               <div style={{ width: 46, height: 46, borderRadius: 13, backgroundColor: item.bg, display: "flex", alignItems: "center", justifyContent: "center" }}><item.icon size={22} color={item.c} /></div>
@@ -1737,199 +1263,6 @@ function ProfilePage({ profile, setProfile, equipment, setEquipment, go, linkedS
 /* ═══════════════════════════════════════════════════════════════
    MAIN APP
    ═══════════════════════════════════════════════════════════════ */
-/* ═══════════════════════════════════════════════════════════════
-   FEEDBACK WIDGET — floating button + modal
-   Records to Supabase 'feedback' table
-   ═══════════════════════════════════════════════════════════════ */
-const FEATURE_REQUESTS = [
-  "Push notifications for test reminders",
-  "Connect directly with my pool shop",
-  "Import past test results from photos",
-  "Apple Watch / widget support",
-  "Chemical price comparison",
-  "Pool maintenance calendar sync",
-  "Share pool with family members",
-  "Water quality predictions / AI advice",
-];
-
-function FeedbackWidget({ currentPage, userId }) {
-  const T = useTheme();
-  const { desk } = useLayout();
-  const [open, setOpen] = useState(false);
-  const [step, setStep] = useState("type"); // type, feedback, features, thanks
-  const [feedbackType, setFeedbackType] = useState("");
-  const [rating, setRating] = useState(0);
-  const [comment, setComment] = useState("");
-  const [selectedFeatures, setSelectedFeatures] = useState([]);
-  const [sending, setSending] = useState(false);
-
-  const reset = () => { setStep("type"); setFeedbackType(""); setRating(0); setComment(""); setSelectedFeatures([]); };
-  const close = () => { setOpen(false); setTimeout(reset, 300); };
-
-  const toggleFeature = (f) => setSelectedFeatures(prev => prev.includes(f) ? prev.filter(x => x !== f) : [...prev, f]);
-
-  const submit = async () => {
-    setSending(true);
-    try {
-      await supabase.from("feedback").insert({
-        user_id: userId || null,
-        page: currentPage,
-        type: feedbackType,
-        rating,
-        comment: comment.trim() || null,
-        feature_requests: selectedFeatures.length > 0 ? selectedFeatures : null,
-        user_agent: navigator.userAgent,
-      });
-    } catch (e) { console.error("Feedback error:", e); }
-    setSending(false);
-    setStep("thanks");
-  };
-
-  const iSty = { width: "100%", padding: "12px 14px", borderRadius: 10, border: `2px solid ${T.brd}`, fontSize: 14, fontWeight: 600, color: T.tx, outline: "none", fontFamily: FONT, boxSizing: "border-box", backgroundColor: T.inputBg, minHeight: 46, resize: "vertical" };
-
-  const pageLabels = { home: "Home", test: "Water Test", diagnose: "Diagnose", shops: "Pool Shops", history: "Water History", profile: "My Pool" };
-
-  return (
-    <>
-      {/* Floating button */}
-      <button onClick={() => setOpen(true)} style={{
-        position: "fixed", bottom: desk ? 24 : 78, right: desk ? 24 : 16,
-        width: 48, height: 48, borderRadius: 14,
-        backgroundColor: T.cta, border: "none", cursor: "pointer",
-        display: "flex", alignItems: "center", justifyContent: "center",
-        boxShadow: `0 4px 16px rgba(0,180,216,0.35)`,
-        zIndex: 60, transition: "transform 0.2s",
-      }} title="Send feedback">
-        <MessageSquarePlus size={22} color="#fff" />
-      </button>
-
-      {/* Modal overlay */}
-      {open && (
-        <div style={{ position: "fixed", inset: 0, backgroundColor: T.overlay, zIndex: 70, display: "flex", alignItems: desk ? "center" : "flex-end", justifyContent: "center" }} onClick={close}>
-          <div onClick={e => e.stopPropagation()} style={{
-            width: "100%", maxWidth: 420, maxHeight: desk ? "80vh" : "85vh",
-            backgroundColor: T.card, borderRadius: desk ? 20 : "20px 20px 0 0",
-            border: `1px solid ${T.brd}`, boxShadow: `0 24px 48px ${T.shadow}`,
-            display: "flex", flexDirection: "column", overflow: "hidden",
-          }}>
-            {/* Header */}
-            <div style={{ padding: "16px 20px", borderBottom: `1px solid ${T.brdL}`, display: "flex", justifyContent: "space-between", alignItems: "center", flexShrink: 0 }}>
-              <div>
-                <h3 style={{ margin: 0, fontSize: 17, fontWeight: 700, fontFamily: FONT_HEAD, color: T.tx }}>
-                  {step === "thanks" ? "Thank you!" : step === "features" ? "Feature Requests" : "Send Feedback"}
-                </h3>
-                {step !== "thanks" && <p style={{ margin: "2px 0 0", fontSize: 12, color: T.tx3, fontWeight: 600 }}>Page: {pageLabels[currentPage] || currentPage}</p>}
-              </div>
-              <button onClick={close} style={{ border: "none", background: "none", cursor: "pointer", padding: 4 }}><X size={20} color={T.tx3} /></button>
-            </div>
-
-            {/* Body */}
-            <div style={{ padding: 20, overflowY: "auto", flex: 1 }}>
-
-              {/* Step 1: Choose type */}
-              {step === "type" && (
-                <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                  {[
-                    { id: "bug", emoji: "🐛", label: "Report a bug", desc: "Something isn't working right" },
-                    { id: "improve", emoji: "💡", label: "Suggest improvement", desc: "Make something better" },
-                    { id: "praise", emoji: "🎉", label: "Something I love", desc: "Tell us what's working" },
-                    { id: "features", emoji: "🗳️", label: "Vote on features", desc: "What should we build next?" },
-                  ].map(t => (
-                    <button key={t.id} onClick={() => { if (t.id === "features") { setStep("features"); } else { setFeedbackType(t.id); setStep("feedback"); } }} style={{
-                      display: "flex", alignItems: "center", gap: 14, padding: "14px 16px",
-                      borderRadius: 12, border: `1px solid ${T.brd}`, backgroundColor: T.card,
-                      cursor: "pointer", width: "100%", textAlign: "left", fontFamily: FONT, transition: "all 0.15s",
-                    }}>
-                      <span style={{ fontSize: 24 }}>{t.emoji}</span>
-                      <div>
-                        <p style={{ fontSize: 15, fontWeight: 700, margin: 0, color: T.tx }}>{t.label}</p>
-                        <p style={{ fontSize: 13, color: T.tx3, margin: "2px 0 0" }}>{t.desc}</p>
-                      </div>
-                      <ChevronRight size={18} color={T.tx3} style={{ marginLeft: "auto" }} />
-                    </button>
-                  ))}
-                </div>
-              )}
-
-              {/* Step 2a: Feedback form */}
-              {step === "feedback" && (
-                <div>
-                  <p style={{ fontSize: 13, fontWeight: 700, color: T.tx3, margin: "0 0 10px", textTransform: "uppercase", letterSpacing: "0.06em" }}>How's your experience?</p>
-                  <div style={{ display: "flex", gap: 8, marginBottom: 20 }}>
-                    {[1,2,3,4,5].map(n => (
-                      <button key={n} onClick={() => setRating(n)} style={{
-                        flex: 1, padding: "12px 0", borderRadius: 10,
-                        border: `2px solid ${rating >= n ? T.cta : T.brd}`,
-                        backgroundColor: rating >= n ? T.accL : "transparent",
-                        cursor: "pointer", fontSize: 20, transition: "all 0.15s",
-                      }}>
-                        {n <= 2 ? "😕" : n === 3 ? "😐" : n === 4 ? "😊" : "🤩"}
-                      </button>
-                    ))}
-                  </div>
-
-                  <p style={{ fontSize: 13, fontWeight: 700, color: T.tx3, margin: "0 0 8px", textTransform: "uppercase", letterSpacing: "0.06em" }}>Tell us more</p>
-                  <textarea value={comment} onChange={e => setComment(e.target.value)} placeholder={
-                    feedbackType === "bug" ? "What happened? What did you expect?" :
-                    feedbackType === "improve" ? "What would you change? How would it help?" :
-                    "What do you love about PoolConnection?"
-                  } style={{ ...iSty, minHeight: 100 }} />
-
-                  <Btn v="primary" sz="lg" full style={{ marginTop: 16 }} onClick={submit} dis={!rating || sending}>
-                    {sending ? "Sending..." : "Send Feedback"}
-                  </Btn>
-                </div>
-              )}
-
-              {/* Step 2b: Feature voting */}
-              {step === "features" && (
-                <div>
-                  <p style={{ fontSize: 14, color: T.tx2, margin: "0 0 16px", lineHeight: 1.5 }}>Select features you'd find most valuable. Pick as many as you like.</p>
-                  <div style={{ display: "flex", flexDirection: "column", gap: 6, marginBottom: 20 }}>
-                    {FEATURE_REQUESTS.map(f => {
-                      const sel = selectedFeatures.includes(f);
-                      return (
-                        <button key={f} onClick={() => toggleFeature(f)} style={{
-                          display: "flex", alignItems: "center", gap: 10, padding: "12px 14px",
-                          borderRadius: 10, border: `2px solid ${sel ? T.cta : T.brd}`,
-                          backgroundColor: sel ? T.accL : "transparent",
-                          cursor: "pointer", width: "100%", textAlign: "left", fontFamily: FONT, transition: "all 0.15s",
-                        }}>
-                          <div style={{ width: 22, height: 22, borderRadius: 6, border: `2px solid ${sel ? T.cta : T.brd}`, backgroundColor: sel ? T.cta : "transparent", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                            {sel && <Check size={13} color="#fff" strokeWidth={3} />}
-                          </div>
-                          <span style={{ fontSize: 14, fontWeight: sel ? 700 : 500, color: sel ? T.tx : T.tx2 }}>{f}</span>
-                        </button>
-                      );
-                    })}
-                  </div>
-
-                  <p style={{ fontSize: 13, fontWeight: 700, color: T.tx3, margin: "0 0 8px", textTransform: "uppercase", letterSpacing: "0.06em" }}>Other suggestions</p>
-                  <textarea value={comment} onChange={e => setComment(e.target.value)} placeholder="Any features not listed above?" style={{ ...iSty, minHeight: 70 }} />
-
-                  <Btn v="primary" sz="lg" full style={{ marginTop: 16 }} onClick={() => { setFeedbackType("feature_vote"); submit(); }} dis={selectedFeatures.length === 0 && !comment.trim() || sending}>
-                    {sending ? "Sending..." : `Submit ${selectedFeatures.length > 0 ? `(${selectedFeatures.length} selected)` : ""}`}
-                  </Btn>
-                </div>
-              )}
-
-              {/* Thank you */}
-              {step === "thanks" && (
-                <div style={{ textAlign: "center", padding: "20px 0" }}>
-                  <div style={{ fontSize: 48, marginBottom: 12 }}>🙏</div>
-                  <h3 style={{ fontSize: 20, fontWeight: 700, margin: "0 0 8px", fontFamily: FONT_HEAD, color: T.tx }}>Feedback received</h3>
-                  <p style={{ fontSize: 14, color: T.tx2, margin: "0 0 24px", lineHeight: 1.6 }}>Your input helps us build a better app for pool owners like you. We read every response.</p>
-                  <Btn v="primary" sz="md" onClick={close}>Done</Btn>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
-    </>
-  );
-}
-
 export default function App() {
   const [dark, setDark] = useState(false);
   const [page, setPage] = useState("home");
@@ -1937,7 +1270,6 @@ export default function App() {
   const [equipment, setEquipment] = useState([]);
   const [linkedShop, setLinkedShop] = useState(null);
   const [profile, setProfile] = useState(INIT_PROFILE);
-  const [chemLog, setChemLog] = useState([]);
 
   // Auth state: null = loading, false = show welcome, "guest" = guest, {user object} = signed in
   const [authState, setAuthState] = useState(null);
@@ -1995,10 +1327,10 @@ export default function App() {
           poolSize: prof.pool_size || "",
           poolType: prof.pool_type || "",
           poolShape: prof.pool_shape || "",
-          poolSurface: prof.pool_surface || "",
-          sanitisation: prof.sanitisation || "",
-          filterType: prof.filter_type || "",
-          waterSource: prof.water_source || "",
+          poolSurface: prof.pool_surface || "Pebblecrete",
+          sanitisation: prof.sanitisation || "Salt Chlorinator",
+          filterType: prof.filter_type || "Sand Filter",
+          waterSource: prof.water_source || "Town Water",
           poolAge: prof.pool_age || "",
           cover: prof.cover || "No",
         }));
@@ -2019,6 +1351,8 @@ export default function App() {
           id: t.id, date: t.tested_at, ph: Number(t.ph), fc: Number(t.fc), ta: t.ta, ch: t.ch, cya: t.cya, salt: t.salt, temp: t.temp,
           source: t.source || "home", shopName: t.shop_name, photo: t.photo_url,
         })));
+      } else {
+        setHistory(SAMPLE_HISTORY); // Show sample data for new users
       }
 
       // Load equipment
@@ -2028,6 +1362,8 @@ export default function App() {
           id: e.id, name: e.name, brand: e.brand, model: e.model, installed: e.installed, lifeYrs: e.life_years || 8,
           status: e.status || "good", lastService: e.last_service, photos: [], note: e.note || "",
         })));
+      } else {
+        setEquipment(INIT_EQUIPMENT);
       }
 
       // Load notes
@@ -2054,8 +1390,8 @@ export default function App() {
   const handleGuest = () => {
     setAuthState("guest");
     setOnboardStep("done");
-    setHistory([]);
-    setEquipment([]);
+    setHistory(SAMPLE_HISTORY);
+    setEquipment(INIT_EQUIPMENT);
   };
 
   const handlePoolSetup = async (poolData) => {
@@ -2150,12 +1486,6 @@ export default function App() {
     }
   };
 
-  // ── Chemical log ──
-  const addChemical = (entry) => {
-    setChemLog(log => [...log, entry]);
-    // TODO: persist to Supabase chemical_log table when schema is added
-  };
-
   // ── LOADING ──
   if (authLoading) {
     return (
@@ -2240,7 +1570,7 @@ export default function App() {
             )}
 
             <div style={{ maxWidth: desk ? 900 : 480, margin: "0 auto", padding: desk ? "32px 40px 40px" : "24px 20px 110px" }}>
-              {page === "home" && <HomePage history={history} equipment={equipment} go={go} linkedShop={linkedShop} profile={profile} isGuest={isGuest} onSignUp={handleSignUp} chemLog={chemLog} addChemical={addChemical} />}
+              {page === "home" && <HomePage history={history} equipment={equipment} go={go} linkedShop={linkedShop} profile={profile} isGuest={isGuest} onSignUp={handleSignUp} />}
               {page === "test" && <TestPage history={history} setHistory={addTest} poolVolume={profile.poolSize} />}
               {page === "diagnose" && <DiagnosePage go={go} />}
               {page === "shops" && <ShopsPage linkedShop={linkedShop} setLinkedShop={setLinkedShop} />}
@@ -2250,7 +1580,6 @@ export default function App() {
           </div>
 
           {!desk && <TabBar active={page} go={go} />}
-          <FeedbackWidget currentPage={page} userId={isAuthed ? authState.id : null} />
         </div>
       </LayoutCtx.Provider>
     </ThemeCtx.Provider>
