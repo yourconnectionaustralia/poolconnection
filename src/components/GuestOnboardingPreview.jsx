@@ -140,10 +140,12 @@ function HealthScore({ data }) {
     const s = good ? 25 : Math.max(0, 25 - Math.abs(v - (lo + hi) / 2) * 7);
     return { k, v, good, s };
   }).filter(Boolean);
+
   if (!scored.length) return null;
   const total = Math.round(scored.reduce((a, b) => a + b.s, 0) / (scored.length * 25) * 100);
   const col = total >= 80 ? B.success : total >= 50 ? B.warning : B.error;
   const circ = 2 * Math.PI * 38;
+
   return (
     <div style={{ display: "flex", gap: 16, alignItems: "center", background: B.surface, border: `1px solid ${B.foam}`, borderRadius: 14, padding: 16, marginBottom: 18 }}>
       <div style={{ position: "relative", flexShrink: 0 }}>
@@ -180,11 +182,18 @@ function CompleteDone({ data, onDone }) {
       </div>
       <h2 style={{ fontFamily: "'Space Grotesk',sans-serif", fontSize: 22, fontWeight: 700, color: B.slate, margin: "0 0 6px", letterSpacing: "-.4px" }}>{name} is ready!</h2>
       <p style={{ fontSize: 13, color: B.muted, lineHeight: 1.6, margin: "0 0 18px" }}>
-        {hasReadings ? "Here's your first Health Score snapshot. We'll track trends over time so you can spot problems early." : "Your pool profile is set up. Add a water test from the dashboard to activate your Health Score."}
+        {hasReadings
+          ? "Here's your first Health Score snapshot. We'll track trends over time so you can spot problems early."
+          : "Your pool profile is set up. Add a water test from the dashboard to activate your Health Score."}
       </p>
       {hasReadings && <HealthScore data={data} />}
       <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 18 }}>
-        {[["📊","Health Score","Live chemical tracking"],["📋","Task checklist","Seasonal maintenance reminders"],["📸","OCR scan","Snap shop water test results"],["💰","Cost tracking","Chemical spend log"]].map(([ic, lb, dc]) => (
+        {[
+          ["📊", "Health Score", "Live chemical tracking"],
+          ["📋", "Task checklist", "Seasonal maintenance reminders"],
+          ["📸", "OCR scan", "Snap shop water test results"],
+          ["💰", "Cost tracking", "Chemical spend log"],
+        ].map(([ic, lb, dc]) => (
           <div key={lb} style={{ display: "flex", alignItems: "center", gap: 12, background: B.surface, border: `1px solid ${B.foam}`, borderRadius: 10, padding: "9px 13px" }}>
             <span style={{ fontSize: 18 }}>{ic}</span>
             <div>
@@ -204,6 +213,7 @@ function CompleteDone({ data, onDone }) {
   );
 }
 
+// ── Volume calc modal ──
 function VolumeCalc({ onResult, onClose }) {
   const [d, setD] = useState({ l: "", w: "", dp: "" });
   const vol = d.l && d.w && d.dp ? Math.round(+d.l * +d.w * +d.dp * 1000) : null;
@@ -216,7 +226,7 @@ function VolumeCalc({ onResult, onClose }) {
           <button style={{ background: "none", border: "none", fontSize: 14, cursor: "pointer", color: B.muted }} onClick={onClose}>✕</button>
         </div>
         <p style={{ fontSize: 11, color: B.muted, marginBottom: 14, lineHeight: 1.5 }}>Rectangular pools. For other shapes multiply by ~0.85 (freeform) or ~0.78 (round).</p>
-        {[["l","Length (m)"],["w","Width (m)"],["dp","Avg depth (m)"]].map(([k, lb]) => (
+        {[["l", "Length (m)"], ["w", "Width (m)"], ["dp", "Avg depth (m)"]].map(([k, lb]) => (
           <div key={k} style={{ marginBottom: 10 }}>
             <label style={{ fontSize: 11, fontWeight: 600, color: B.slate, display: "block", marginBottom: 3 }}>{lb}</label>
             <input type="number" placeholder="0.0" value={d[k]} onChange={e => setD(p => ({ ...p, [k]: e.target.value }))}
@@ -242,7 +252,6 @@ const S = {
   input: { flex: 1, border: `1.5px solid ${B.foam}`, borderRadius: 10, padding: "9px 11px", fontSize: 14, color: B.slate, outline: "none", background: B.surface, fontFamily: "inherit" },
 };
 
-// ── Standalone preview shell (not used in production app) ──
 export default function App() {
   const [idx, setIdx] = useState(0);
   const [data, setData] = useState({});
@@ -251,8 +260,10 @@ export default function App() {
   const [dir, setDir] = useState("fwd");
   const [showCalc, setShowCalc] = useState(false);
   const [done, setDone] = useState(false);
+  const [exited, setExited] = useState(null); // "google" | "homepage" | null
 
   const step = STEPS[idx];
+
   const set = (k, v) => { setData(p => ({ ...p, [k]: v })); setErrs(p => ({ ...p, [k]: null })); };
 
   const validate = () => {
@@ -274,13 +285,34 @@ export default function App() {
   const isFirst = idx === 0;
   const isLast = idx === STEPS.length - 1;
 
+  const restart = () => { setIdx(0); setData({}); setDone(false); setExited(null); };
+
+  if (exited) {
+    return (
+      <div style={{ minHeight: "100vh", background: `linear-gradient(135deg,${B.deepOcean},${B.ocean})`, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "'DM Sans',system-ui,sans-serif", padding: 20 }}>
+        <div style={{ background: B.white, borderRadius: 16, padding: 28, maxWidth: 400, width: "100%", textAlign: "center" }}>
+          <div style={{ fontSize: 40, marginBottom: 10 }}>{exited === "google" ? "🔐" : "🏠"}</div>
+          <h2 style={{ fontFamily: "'Space Grotesk',sans-serif", fontSize: 20, color: B.slate, margin: "0 0 8px" }}>
+            {exited === "google" ? "Redirecting to Google…" : "Returned to homepage"}
+          </h2>
+          <p style={{ fontSize: 13, color: B.muted, marginBottom: 18, lineHeight: 1.6 }}>
+            {exited === "google"
+              ? "In the real app this triggers Google OAuth. The user signs in and lands on the dashboard."
+              : "In the real app this closes the onboarding sheet and returns the user to the marketing homepage."}
+          </p>
+          <button style={S.primary} onClick={restart}>↺ Restart demo</button>
+        </div>
+      </div>
+    );
+  }
+
   if (done) {
     return (
       <div style={{ minHeight: "100vh", background: `linear-gradient(135deg,${B.deepOcean},${B.ocean})`, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "'DM Sans',system-ui,sans-serif", padding: 20 }}>
         <div style={{ background: B.white, borderRadius: 16, padding: 28, maxWidth: 400, width: "100%", textAlign: "center" }}>
           <div style={{ fontSize: 40, marginBottom: 10 }}>🎉</div>
           <h2 style={{ fontFamily: "'Space Grotesk',sans-serif", fontSize: 20, color: B.slate, margin: "0 0 8px" }}>Onboarding complete!</h2>
-          <p style={{ fontSize: 13, color: B.muted, marginBottom: 18, lineHeight: 1.6 }}>Preview only — in the real app this redirects to the dashboard.</p>
+          <p style={{ fontSize: 13, color: B.muted, marginBottom: 18, lineHeight: 1.6 }}>In the real app, this would redirect to the dashboard. Your pool data has been saved.</p>
           <div style={{ background: B.surface, borderRadius: 10, padding: 14, textAlign: "left", marginBottom: 16 }}>
             <div style={{ fontSize: 11, fontWeight: 700, color: B.muted, textTransform: "uppercase", letterSpacing: ".5px", marginBottom: 8 }}>Collected data</div>
             {Object.entries(data).filter(([, v]) => v).map(([k, v]) => (
@@ -291,7 +323,7 @@ export default function App() {
             ))}
             {!Object.values(data).some(Boolean) && <div style={{ fontSize: 12, color: B.muted }}>No data entered (all steps skipped)</div>}
           </div>
-          <button style={S.primary} onClick={() => { setIdx(0); setData({}); setDone(false); }}>↺ Restart demo</button>
+          <button style={S.primary} onClick={restart}>↺ Restart demo</button>
         </div>
       </div>
     );
@@ -304,13 +336,18 @@ export default function App() {
         @keyframes slideInRight { from{opacity:0;transform:translateX(28px)} to{opacity:1;transform:translateX(0)} }
         @keyframes slideInLeft  { from{opacity:0;transform:translateX(-28px)} to{opacity:1;transform:translateX(0)} }
         @keyframes popIn { 0%{opacity:0;transform:scale(.6)} 60%{transform:scale(1.1)} 100%{opacity:1;transform:scale(1)} }
+        @keyframes fadeUp { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
         * { box-sizing: border-box; }
         input[type=number]::-webkit-inner-spin-button { -webkit-appearance:none; }
         input::placeholder { color: #94A3B8; }
         select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L5 5L9 1' stroke='%230077B6' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 12px center; }
         button:hover { opacity: .88; }
       `}</style>
+
+      {/* Simulated blurred app background */}
       <div style={{ minHeight: "100vh", background: `linear-gradient(160deg,${B.deepOcean} 0%,${B.ocean} 50%,${B.sky} 100%)`, display: "flex", alignItems: "flex-end", justifyContent: "center", fontFamily: "'DM Sans',system-ui,sans-serif", position: "relative" }}>
+
+        {/* "App" ghost behind */}
         <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", opacity: .15, pointerEvents: "none" }}>
           <div style={{ textAlign: "center", color: B.white }}>
             <div style={{ fontSize: 48, marginBottom: 8 }}>🏊</div>
@@ -318,16 +355,24 @@ export default function App() {
             <div style={{ fontSize: 14, marginTop: 4 }}>Guest mode — setup required</div>
           </div>
         </div>
+
+        {/* Bottom sheet */}
         <div style={{ background: B.white, borderRadius: "20px 20px 0 0", width: "100%", maxWidth: 520, maxHeight: "92vh", overflowY: "auto", boxShadow: "0 -8px 40px rgba(0,119,182,.22)", display: "flex", flexDirection: "column" }}>
+
+          {/* Sticky header */}
           <div style={{ padding: "15px 20px 12px", position: "sticky", top: 0, background: B.white, zIndex: 10, borderBottom: `1px solid ${B.foam}` }}>
             <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: isFirst || isLast ? 0 : 10 }}>
               <DropletSVG />
               <span style={{ fontFamily: "'Space Grotesk',sans-serif", fontWeight: 700, fontSize: 15, color: B.ocean, letterSpacing: "-.2px" }}>PoolConnection</span>
               <span style={{ background: B.foam, color: B.ocean, fontSize: 10, fontWeight: 700, padding: "2px 8px", borderRadius: 99, marginLeft: "auto", textTransform: "uppercase", letterSpacing: ".5px" }}>Guest</span>
+              <button style={{ background: "none", border: "none", fontSize: 16, color: B.muted, cursor: "pointer", padding: "2px 4px", lineHeight: 1, marginLeft: 4 }} onClick={() => setExited("homepage")} aria-label="Close">✕</button>
             </div>
             {!isFirst && !isLast && <ProgressBar step={idx} total={STEPS.length} />}
           </div>
+
+          {/* Animated body */}
           <div key={animKey} style={{ padding: "18px 20px 0", flex: 1, animation: `${dir === "fwd" ? "slideInRight" : "slideInLeft"} .3s cubic-bezier(.16,1,.3,1)` }}>
+
             {isLast ? (
               <CompleteDone data={data} onDone={() => setDone(true)} />
             ) : (
@@ -336,6 +381,19 @@ export default function App() {
                 <h2 style={{ fontFamily: "'Space Grotesk',sans-serif", fontSize: 21, fontWeight: 700, color: B.slate, margin: "0 0 2px", letterSpacing: "-.4px" }}>{step.title}</h2>
                 <p style={{ fontSize: 11, fontWeight: 700, color: B.sky, margin: "0 0 8px", textTransform: "uppercase", letterSpacing: ".5px" }}>{step.subtitle}</p>
                 <p style={{ fontSize: 13, color: B.muted, lineHeight: 1.65, margin: "0 0 18px" }}>{step.desc}</p>
+
+                {/* Welcome screen — sign-up alternatives */}
+                {isFirst && (
+                  <>
+                    <button onClick={() => setExited("google")} style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 10, width: "100%", padding: "12px 20px", borderRadius: 12, border: `1.5px solid ${B.foam}`, background: B.white, fontSize: 14, fontWeight: 600, color: B.slate, cursor: "pointer", fontFamily: "inherit", marginBottom: 6, boxShadow: "0 1px 3px rgba(0,0,0,.07)" }}>
+                      <GoogleSVG /> Continue with Google
+                    </button>
+                    <button onClick={() => setExited("homepage")} style={{ background: "none", border: "none", color: B.muted, fontSize: 13, cursor: "pointer", padding: "6px 0", width: "100%", textAlign: "center", fontFamily: "inherit", display: "block", marginBottom: 10 }}>
+                      ← Return to homepage
+                    </button>
+                  </>
+                )}
+
                 {step.fields.map(f => (
                   <div key={f.key} style={{ marginBottom: 16 }}>
                     <label style={{ fontSize: 12, fontWeight: 600, color: B.slate, display: "flex", alignItems: "center", gap: 6, marginBottom: 5 }}>
@@ -343,20 +401,32 @@ export default function App() {
                       {f.required && <span style={{ color: B.error }}>*</span>}
                       {f.target && <span style={{ fontSize: 10, background: B.foam, color: B.ocean, padding: "1px 7px", borderRadius: 99, marginLeft: "auto" }}>Target: {f.target}</span>}
                     </label>
+
                     {(f.type === "text" || f.type === "number") && (
                       <div style={{ display: "flex", gap: 7, alignItems: "center" }}>
-                        <input type={f.type} placeholder={f.placeholder} value={data[f.key] || ""} onChange={e => set(f.key, e.target.value)} style={{ ...S.input, borderColor: errs[f.key] ? B.error : B.foam }} />
+                        <input type={f.type} placeholder={f.placeholder} value={data[f.key] || ""}
+                          onChange={e => set(f.key, e.target.value)}
+                          style={{ ...S.input, borderColor: errs[f.key] ? B.error : B.foam }} />
                         {f.unit && <span style={{ fontSize: 12, color: B.muted, whiteSpace: "nowrap" }}>{f.unit}</span>}
                       </div>
                     )}
+
                     {f.type === "select" && (
-                      <select value={data[f.key] || ""} onChange={e => set(f.key, e.target.value)} style={{ ...S.input, width: "100%", paddingRight: 32 }}>
+                      <select value={data[f.key] || ""} onChange={e => set(f.key, e.target.value)}
+                        style={{ ...S.input, width: "100%", paddingRight: 32 }}>
                         <option value="">Select…</option>
                         {f.options.map(o => <option key={o} value={o}>{o}</option>)}
                       </select>
                     )}
-                    {f.type === "cards" && <CardGrid options={f.options} value={data[f.key] || ""} onChange={v => set(f.key, v)} />}
-                    {f.type === "pills" && <Pills options={f.options} value={data[f.key] || ""} onChange={v => set(f.key, v)} />}
+
+                    {f.type === "cards" && (
+                      <CardGrid options={f.options} value={data[f.key] || ""} onChange={v => set(f.key, v)} />
+                    )}
+
+                    {f.type === "pills" && (
+                      <Pills options={f.options} value={data[f.key] || ""} onChange={v => set(f.key, v)} />
+                    )}
+
                     {f.hint && !f.calc && <p style={{ fontSize: 11, color: B.muted, marginTop: 4, lineHeight: 1.5 }}>{f.hint}</p>}
                     {f.calc && (
                       <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 4 }}>
@@ -369,20 +439,26 @@ export default function App() {
                     {errs[f.key] && <p style={{ fontSize: 11, color: B.error, marginTop: 3 }}>{errs[f.key]}</p>}
                   </div>
                 ))}
+
                 {step.ocrHint && (
                   <div style={{ display: "flex", gap: 10, alignItems: "flex-start", background: `${B.sky}12`, border: `1px solid ${B.sky}30`, borderRadius: 11, padding: "11px 13px", marginBottom: 14 }}>
                     <span style={{ fontSize: 18, flexShrink: 0 }}>📸</span>
                     <p style={{ fontSize: 12, color: B.slate, lineHeight: 1.55, margin: 0 }}>
-                      <strong>Pro tip:</strong> Got a shop water test printout? Use the <span style={{ color: B.sky, fontWeight: 700 }}>Scan results</span> feature on the dashboard to fill these in automatically.
+                      <strong>Pro tip:</strong> Got a shop water test printout? Use the{" "}
+                      <span style={{ color: B.sky, fontWeight: 700 }}>Scan results</span> feature on the dashboard to fill these in automatically.
                     </p>
                   </div>
                 )}
               </>
             )}
           </div>
+
+          {/* Footer */}
           {!isLast && (
             <div style={{ padding: "13px 20px", borderTop: `1px solid ${B.foam}`, display: "flex", justifyContent: "space-between", alignItems: "center", position: "sticky", bottom: 0, background: B.white }}>
-              {!isFirst ? <button style={{ background: "none", border: "none", color: B.muted, fontSize: 13, fontWeight: 500, cursor: "pointer", fontFamily: "inherit" }} onClick={back}>← Back</button> : <div />}
+              {!isFirst
+                ? <button style={{ background: "none", border: "none", color: B.muted, fontSize: 13, fontWeight: 500, cursor: "pointer", fontFamily: "inherit" }} onClick={back}>← Back</button>
+                : <div />}
               <div style={{ display: "flex", gap: 9, alignItems: "center" }}>
                 {step.skippable && (
                   <button style={{ background: "none", border: `1.5px solid ${B.foam}`, borderRadius: 10, padding: "8px 13px", fontSize: 12, fontWeight: 500, color: B.muted, cursor: "pointer", fontFamily: "inherit" }} onClick={() => next(true)}>
@@ -393,11 +469,26 @@ export default function App() {
               </div>
             </div>
           )}
-          {!isFirst && !isLast && <p style={{ textAlign: "center", fontSize: 11, color: B.muted, padding: "4px 0 10px", margin: 0 }}>Step {idx} of {STEPS.length - 2}</p>}
+
+          {!isFirst && !isLast && (
+            <p style={{ textAlign: "center", fontSize: 11, color: B.muted, padding: "4px 0 10px", margin: 0 }}>Step {idx} of {STEPS.length - 2}</p>
+          )}
         </div>
       </div>
+
       {showCalc && <VolumeCalc onResult={v => set("volume_litres", v)} onClose={() => setShowCalc(false)} />}
     </>
+  );
+}
+
+function GoogleSVG() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true">
+      <path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844a4.14 4.14 0 0 1-1.796 2.716v2.259h2.908c1.702-1.567 2.684-3.875 2.684-6.615z" fill="#4285F4"/>
+      <path d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18z" fill="#34A853"/>
+      <path d="M3.964 10.71A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.042l3.007-2.332z" fill="#FBBC05"/>
+      <path d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.958L3.964 6.29C4.672 4.163 6.656 3.58 9 3.58z" fill="#EA4335"/>
+    </svg>
   );
 }
 
