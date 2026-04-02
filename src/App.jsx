@@ -1619,7 +1619,18 @@ export default function App() {
 
           {/* Guest onboarding overlay — triggered on first guest entry */}
           {showGuestOnboarding && (
-            <GuestOnboarding onComplete={handleGuestOnboardingComplete} />
+            <GuestOnboarding
+              onComplete={handleGuestOnboardingComplete}
+              onSignInWithGoogle={() => {
+                setShowGuestOnboarding(false);
+                handleAuth("google");
+              }}
+              onDismiss={() => {
+                setShowGuestOnboarding(false);
+                setAuthState(false);
+                setOnboardStep(null);
+              }}
+            />
           )}
         </div>
       </LayoutCtx.Provider>

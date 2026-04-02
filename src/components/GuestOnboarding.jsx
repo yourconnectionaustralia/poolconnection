@@ -116,10 +116,11 @@ const STEPS = [
     fields: [
       {
         key: "pump_brand",
-        label: "Pump brand (optional)",
-        placeholder: "e.g. Astral, Zodiac, Hayward",
+        label: "Pump brand",
+        placeholder: "Tap to add — e.g. Astral, Zodiac, Hayward",
         type: "text",
         required: false,
+        hint: "✏️ Add your pump brand to unlock model-specific service reminders.",
       },
       {
         key: "filter_type",
@@ -127,19 +128,29 @@ const STEPS = [
         type: "card_select",
         required: false,
         options: [
-          { value: "sand", label: "Sand filter", icon: "⏳", desc: "Backwash weekly" },
-          { value: "cartridge", label: "Cartridge filter", icon: "🧻", desc: "Remove & rinse" },
-          { value: "de", label: "DE / Zeolite", icon: "🌊", desc: "Fine filtration" },
-          { value: "not_sure", label: "Not sure", icon: "❓", desc: "Skip this for now" },
+          { value: "sand", label: "Sand media", icon: "⏳", desc: "Sand filter" },
+          { value: "glass", label: "Glass media", icon: "🔷", desc: "Sand filter upgrade" },
+          { value: "cartridge", label: "Cartridge", icon: "🧻", desc: "Remove & rinse" },
+          { value: "de_zeolite", label: "DE / Zeolite", icon: "🌊", desc: "Fine filtration" },
+          { value: "not_sure", label: "Not sure", icon: "❓", desc: "Skip for now" },
         ],
+      },
+      {
+        key: "filter_brand",
+        label: "Filter brand",
+        placeholder: "Tap to add — e.g. Waterco, Astral, Onga",
+        type: "text",
+        required: false,
+        hint: "✏️ Add your filter brand to get backwash & service schedules.",
       },
       {
         key: "has_heat",
         label: "Heating",
-        type: "toggle_group",
+        type: "multi_toggle",
         required: false,
+        hint: "Select all that apply.",
         options: [
-          { value: "none", label: "No heating" },
+          { value: "none", label: "None" },
           { value: "solar", label: "Solar" },
           { value: "heat_pump", label: "Heat pump" },
           { value: "gas", label: "Gas" },
@@ -169,7 +180,7 @@ const STEPS = [
         key: "free_chlorine",
         label: "Free chlorine (ppm)",
         placeholder: "e.g. 2.5",
-        type: "number",
+        type: "decimal_input",
         required: false,
         target: "1.0 – 3.0",
         unit: "ppm",
@@ -178,7 +189,7 @@ const STEPS = [
         key: "ph",
         label: "pH",
         placeholder: "e.g. 7.4",
-        type: "number",
+        type: "decimal_input",
         required: false,
         target: "7.2 – 7.6",
         unit: "",
@@ -272,7 +283,7 @@ function ProgressBar({ current, total }) {
   );
 }
 
-// ─── Card select field ────────────────────────────────────────────────────────
+// ─── Card select field (single-select) ───────────────────────────────────────
 function CardSelect({ field, value, onChange }) {
   return (
     <div style={styles.cardGrid}>
@@ -295,7 +306,7 @@ function CardSelect({ field, value, onChange }) {
   );
 }
 
-// ─── Toggle group ─────────────────────────────────────────────────────────────
+// ─── Toggle group (single-select) ─────────────────────────────────────────────
 function ToggleGroup({ field, value, onChange }) {
   return (
     <div style={styles.toggleGroup}>
@@ -308,6 +319,81 @@ function ToggleGroup({ field, value, onChange }) {
           {opt.label}
         </button>
       ))}
+    </div>
+  );
+}
+
+// ─── Multi-toggle group (multi-select) ────────────────────────────────────────
+function MultiToggleGroup({ field, value = [], onChange }) {
+  // value is an array of selected option values
+  const selected = Array.isArray(value) ? value : (value ? [value] : []);
+
+  const toggle = (optValue) => {
+    if (optValue === "none") {
+      // Selecting "None" clears all others; deselecting "None" leaves blank
+      if (selected.includes("none")) {
+        onChange([]);
+      } else {
+        onChange(["none"]);
+      }
+      return;
+    }
+    // Selecting any real option removes "none" from selection
+    let next = selected.filter(v => v !== "none");
+    if (next.includes(optValue)) {
+      next = next.filter(v => v !== optValue);
+    } else {
+      next = [...next, optValue];
+    }
+    onChange(next);
+  };
+
+  return (
+    <div style={styles.toggleGroup}>
+      {field.options.map(opt => {
+        const isActive = selected.includes(opt.value);
+        return (
+          <button
+            key={opt.value}
+            style={{ ...styles.toggleBtn, ...(isActive ? styles.toggleBtnActive : {}) }}
+            onClick={() => toggle(opt.value)}
+          >
+            {isActive && opt.value !== "none" ? `✓ ${opt.label}` : opt.label}
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
+// ─── Decimal input — auto-inserts "." after first digit > 1 ───────────────────
+function DecimalInput({ field, value, onChange, hasError }) {
+  const handleChange = (e) => {
+    let raw = e.target.value;
+
+    // Auto-insert decimal after first digit if > '1'
+    // Only trigger when we've just gone from empty/single-char to single digit
+    if (raw.length === 1 && raw >= "2" && raw <= "9") {
+      raw = raw + ".";
+    }
+
+    onChange(raw);
+  };
+
+  return (
+    <div style={styles.inputRow}>
+      <input
+        style={{
+          ...styles.input,
+          ...(hasError ? styles.inputError : {}),
+        }}
+        type="text"
+        inputMode="decimal"
+        placeholder={field.placeholder}
+        value={value || ""}
+        onChange={handleChange}
+      />
+      {field.unit && <span style={styles.unit}>{field.unit}</span>}
     </div>
   );
 }
@@ -382,7 +468,7 @@ function HealthScorePreview({ data }) {
 }
 
 // ─── Completion screen ────────────────────────────────────────────────────────
-function CompletionScreen({ formData, onDone }) {
+function CompletionScreen({ formData, onDone, onShowLegal }) {
   const hasReadings = formData.free_chlorine || formData.ph;
   const poolName = formData.pool_name || "Your Pool";
 
@@ -425,16 +511,24 @@ function CompletionScreen({ formData, onDone }) {
       {!hasReadings && (
         <p style={styles.nudge}>💡 Tip: Most pool shops offer free water tests — grab one this week to unlock your score.</p>
       )}
+
+      <p style={styles.legalNote}>
+        By continuing you agree to our{" "}
+        <button style={styles.legalLink} onClick={() => onShowLegal("tos")}>Terms of Service</button>
+        {" "}and{" "}
+        <button style={styles.legalLink} onClick={() => onShowLegal("privacy")}>Privacy Policy</button>.
+      </p>
     </div>
   );
 }
 
 // ─── Main component ───────────────────────────────────────────────────────────
-export default function GuestOnboarding({ onComplete, isVisible = true }) {
+export default function GuestOnboarding({ onComplete, onSignInWithGoogle, onDismiss, isVisible = true }) {
   const [stepIdx, setStepIdx] = useState(0);
   const [formData, setFormData] = useState({});
   const [errors, setErrors] = useState({});
   const [showCalc, setShowCalc] = useState(false);
+  const [showLegal, setShowLegal] = useState(null); // "tos" | "privacy" | null
   const [animDir, setAnimDir] = useState("forward");
   const [animKey, setAnimKey] = useState(0);
   const containerRef = useRef();
@@ -486,6 +580,9 @@ export default function GuestOnboarding({ onComplete, isVisible = true }) {
               <DropletIcon />
               <span style={styles.brandName}>PoolConnection</span>
               <span style={styles.guestBadge}>Guest</span>
+              {onDismiss && (
+                <button style={styles.dismissBtn} onClick={onDismiss} aria-label="Close">✕</button>
+              )}
             </div>
             {!isFirst && !isLast && (
               <ProgressBar current={stepIdx} total={STEPS.length} />
@@ -503,7 +600,11 @@ export default function GuestOnboarding({ onComplete, isVisible = true }) {
             }}
           >
             {isLast ? (
-              <CompletionScreen formData={formData} onDone={() => onComplete?.(formData)} />
+              <CompletionScreen
+                formData={formData}
+                onDone={() => onComplete?.(formData)}
+                onShowLegal={setShowLegal}
+              />
             ) : (
               <>
                 <div style={styles.stepIcon}>{step.icon}</div>
@@ -522,20 +623,40 @@ export default function GuestOnboarding({ onComplete, isVisible = true }) {
                       )}
                     </label>
 
-                    {field.type === "text" || field.type === "number" ? (
+                    {field.type === "text" ? (
                       <div style={styles.inputRow}>
                         <input
                           style={{
                             ...styles.input,
                             ...(errors[field.key] ? styles.inputError : {}),
                           }}
-                          type={field.type}
+                          type="text"
+                          placeholder={field.placeholder}
+                          value={formData[field.key] || ""}
+                          onChange={e => set(field.key, e.target.value)}
+                        />
+                      </div>
+                    ) : field.type === "number" ? (
+                      <div style={styles.inputRow}>
+                        <input
+                          style={{
+                            ...styles.input,
+                            ...(errors[field.key] ? styles.inputError : {}),
+                          }}
+                          type="number"
                           placeholder={field.placeholder}
                           value={formData[field.key] || ""}
                           onChange={e => set(field.key, e.target.value)}
                         />
                         {field.unit && <span style={styles.unit}>{field.unit}</span>}
                       </div>
+                    ) : field.type === "decimal_input" ? (
+                      <DecimalInput
+                        field={field}
+                        value={formData[field.key]}
+                        onChange={v => set(field.key, v)}
+                        hasError={!!errors[field.key]}
+                      />
                     ) : field.type === "select" ? (
                       <select
                         style={styles.select}
@@ -557,6 +678,12 @@ export default function GuestOnboarding({ onComplete, isVisible = true }) {
                       <ToggleGroup
                         field={field}
                         value={formData[field.key] || ""}
+                        onChange={v => set(field.key, v)}
+                      />
+                    ) : field.type === "multi_toggle" ? (
+                      <MultiToggleGroup
+                        field={field}
+                        value={formData[field.key] || []}
                         onChange={v => set(field.key, v)}
                       />
                     ) : field.type === "month_year" ? (
@@ -592,6 +719,29 @@ export default function GuestOnboarding({ onComplete, isVisible = true }) {
                       <span style={{ color: BRAND.sky, fontWeight: 600 }}>Scan results</span> feature to fill these in automatically.
                     </p>
                   </div>
+                )}
+
+                {/* Welcome screen — sign-up options */}
+                {isFirst && (
+                  <>
+                    {onSignInWithGoogle && (
+                      <button style={styles.googleBtn} onClick={onSignInWithGoogle}>
+                        <GoogleIconSmall />
+                        Continue with Google
+                      </button>
+                    )}
+                    {onDismiss && (
+                      <button style={styles.homepageLink} onClick={onDismiss}>
+                        ← Return to homepage
+                      </button>
+                    )}
+                    <p style={{ ...styles.legalNote, marginTop: 8 }}>
+                      By continuing you agree to our{" "}
+                      <button style={styles.legalLink} onClick={() => setShowLegal("tos")}>Terms of Service</button>
+                      {" "}and{" "}
+                      <button style={styles.legalLink} onClick={() => setShowLegal("privacy")}>Privacy Policy</button>.
+                    </p>
+                  </>
                 )}
               </>
             )}
@@ -632,10 +782,128 @@ export default function GuestOnboarding({ onComplete, isVisible = true }) {
             onClose={() => setShowCalc(false)}
           />
         )}
+
+        {showLegal && (
+          <LegalModal type={showLegal} onClose={() => setShowLegal(null)} />
+        )}
       </div>
     </>
   );
 }
+
+// ─── Legal Modal ──────────────────────────────────────────────────────────────
+function LegalModal({ type, onClose }) {
+  const isTos = type === "tos";
+  return (
+    <div style={styles.modalOverlay} onClick={onClose}>
+      <div style={{ ...styles.calcModal, maxWidth: 480, maxHeight: "80vh", overflowY: "auto" }} onClick={e => e.stopPropagation()}>
+        <div style={styles.calcHeader}>
+          <span style={{ fontSize: 20 }}>{isTos ? "📋" : "🔒"}</span>
+          <h3 style={styles.calcTitle}>{isTos ? "Terms of Service" : "Privacy Policy"}</h3>
+          <button style={styles.closeBtn} onClick={onClose}>✕</button>
+        </div>
+        <div style={{ fontSize: 13, color: BRAND.muted, lineHeight: 1.7 }}>
+          {isTos ? <TermsContent /> : <PrivacyContent />}
+        </div>
+        <button style={{ ...styles.primaryBtn, width: "100%", marginTop: 16 }} onClick={onClose}>
+          Close
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// ─── Terms of Service content ─────────────────────────────────────────────────
+function TermsContent() {
+  return (
+    <>
+      <p style={{ color: BRAND.muted, fontSize: 12, marginBottom: 12 }}>Last updated: March 2026</p>
+
+      <h4 style={legalH4}>1. Acceptance of Terms</h4>
+      <p>By accessing or using PoolConnection ("the App"), you agree to be bound by these Terms of Service. If you do not agree, do not use the App.</p>
+
+      <h4 style={legalH4}>2. Description of Service</h4>
+      <p>PoolConnection is a pool water management tool for Australian residential pool owners. It provides water chemistry tracking, health scoring, maintenance reminders, and chemical dosing guidance.</p>
+
+      <h4 style={legalH4}>3. Not Professional Advice</h4>
+      <p>The information provided by PoolConnection is for general guidance only and does not constitute professional advice. Always consult a licensed pool technician for complex water chemistry issues or equipment faults. PoolConnection accepts no liability for pool damage, personal injury, or financial loss arising from use of the App.</p>
+
+      <h4 style={legalH4}>4. User Accounts</h4>
+      <p>You are responsible for maintaining the confidentiality of your account credentials and for all activity under your account. You must be 18 years of age or older to create an account.</p>
+
+      <h4 style={legalH4}>5. Acceptable Use</h4>
+      <p>You agree not to misuse the App, attempt to access other users' data, reverse-engineer the service, or use it for any unlawful purpose.</p>
+
+      <h4 style={legalH4}>6. Subscription & Payments</h4>
+      <p>Paid plans are billed in Australian Dollars (AUD). Lifetime Deal (LTD) purchases are non-refundable once activated. Annual subscriptions may be cancelled before renewal. All prices include GST where applicable.</p>
+
+      <h4 style={legalH4}>7. Intellectual Property</h4>
+      <p>All content, trademarks, and software within PoolConnection are owned by or licensed to PoolConnection and may not be reproduced without written permission.</p>
+
+      <h4 style={legalH4}>8. Limitation of Liability</h4>
+      <p>To the maximum extent permitted by Australian law, PoolConnection's total liability for any claim arising from use of the App is limited to the amount you paid in the previous 12 months.</p>
+
+      <h4 style={legalH4}>9. Changes to Terms</h4>
+      <p>We may update these Terms from time to time. Continued use of the App after changes constitutes acceptance of the new Terms.</p>
+
+      <h4 style={legalH4}>10. Governing Law</h4>
+      <p>These Terms are governed by the laws of Queensland, Australia. Any disputes will be subject to the exclusive jurisdiction of Queensland courts.</p>
+
+      <h4 style={legalH4}>11. Contact</h4>
+      <p>Questions? Email us at <span style={{ color: BRAND.sky }}>hello@poolconnection.com.au</span></p>
+    </>
+  );
+}
+
+// ─── Privacy Policy content ───────────────────────────────────────────────────
+function PrivacyContent() {
+  return (
+    <>
+      <p style={{ color: BRAND.muted, fontSize: 12, marginBottom: 12 }}>Last updated: March 2026</p>
+
+      <h4 style={legalH4}>1. Who We Are</h4>
+      <p>PoolConnection is operated by an Australian sole trader. We are committed to protecting your privacy in accordance with the Australian Privacy Act 1988 and the Australian Privacy Principles (APPs).</p>
+
+      <h4 style={legalH4}>2. Information We Collect</h4>
+      <p>We collect information you provide directly: your name, email address, pool profile details (size, surface type, equipment), water test readings, and maintenance notes. We also collect usage data to improve the App.</p>
+
+      <h4 style={legalH4}>3. How We Use Your Information</h4>
+      <p>Your data is used to: provide personalised pool health scores and dosing recommendations, send maintenance reminders, improve our algorithms, and communicate service updates. We do not sell your personal data.</p>
+
+      <h4 style={legalH4}>4. Data Storage</h4>
+      <p>Your data is stored securely using Supabase (hosted on AWS infrastructure in Australia or the US). We use encryption in transit and at rest. We retain your data for as long as your account is active, and for up to 90 days after deletion.</p>
+
+      <h4 style={legalH4}>5. Third-Party Services</h4>
+      <p>We use the following third-party services: Supabase (database & auth), Cloudflare (CDN & hosting), and Anthropic's Claude API (OCR for water test scans). Each service has its own privacy policy. We do not share personally identifiable information with these services beyond what is necessary for the App to function.</p>
+
+      <h4 style={legalH4}>6. OCR & Camera</h4>
+      <p>If you use the Scan Results feature, images are sent to Anthropic's Claude API for text extraction and then deleted. Images are not stored on our servers.</p>
+
+      <h4 style={legalH4}>7. Cookies & Analytics</h4>
+      <p>We use minimal analytics to understand App usage patterns. No advertising cookies are used. PoolConnection products are ad-free.</p>
+
+      <h4 style={legalH4}>8. Your Rights</h4>
+      <p>You have the right to access, correct, or delete your personal data at any time. Contact us at <span style={{ color: BRAND.sky }}>hello@poolconnection.com.au</span> to exercise these rights.</p>
+
+      <h4 style={legalH4}>9. Children's Privacy</h4>
+      <p>PoolConnection is not directed at children under 18. We do not knowingly collect data from children.</p>
+
+      <h4 style={legalH4}>10. Changes to This Policy</h4>
+      <p>We may update this Privacy Policy periodically. We will notify you of significant changes via email or in-app notification.</p>
+
+      <h4 style={legalH4}>11. Contact</h4>
+      <p>Privacy questions? Email us at <span style={{ color: BRAND.sky }}>hello@poolconnection.com.au</span></p>
+    </>
+  );
+}
+
+const legalH4 = {
+  fontFamily: "'Space Grotesk', sans-serif",
+  fontSize: 13,
+  fontWeight: 700,
+  color: BRAND.slate,
+  margin: "14px 0 4px",
+};
 
 // ─── Droplet brand icon ───────────────────────────────────────────────────────
 function DropletIcon() {
@@ -651,6 +919,17 @@ function DropletIcon() {
       <circle cx="12" cy="19" r="2" fill="white" fillOpacity="0.5" />
       <circle cx="20" cy="17" r="1.5" fill="white" fillOpacity="0.4" />
       <circle cx="16" cy="22" r="1" fill="white" fillOpacity="0.35" />
+    </svg>
+  );
+}
+
+function GoogleIconSmall() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true">
+      <path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844a4.14 4.14 0 0 1-1.796 2.716v2.259h2.908c1.702-1.567 2.684-3.875 2.684-6.615z" fill="#4285F4"/>
+      <path d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18z" fill="#34A853"/>
+      <path d="M3.964 10.71A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.042l3.007-2.332z" fill="#FBBC05"/>
+      <path d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.958L3.964 6.29C4.672 4.163 6.656 3.58 9 3.58z" fill="#EA4335"/>
     </svg>
   );
 }
@@ -719,6 +998,34 @@ const styles = {
     padding: "2px 8px", borderRadius: 99,
     marginLeft: "auto",
     textTransform: "uppercase", letterSpacing: "0.5px",
+  },
+  dismissBtn: {
+    background: "none", border: "none",
+    color: BRAND.muted, fontSize: 16,
+    cursor: "pointer", padding: "2px 4px",
+    lineHeight: 1, marginLeft: 4,
+    fontFamily: "inherit",
+  },
+  googleBtn: {
+    display: "flex", alignItems: "center", justifyContent: "center",
+    gap: 10, width: "100%",
+    padding: "13px 20px", borderRadius: 12,
+    border: `1.5px solid ${BRAND.foam}`,
+    background: BRAND.white,
+    fontSize: 15, fontWeight: 600,
+    color: BRAND.slate, cursor: "pointer",
+    fontFamily: "'Space Grotesk', sans-serif",
+    marginTop: 16, marginBottom: 4,
+    boxShadow: "0 1px 3px rgba(0,0,0,0.08)",
+    transition: "border-color 0.15s, box-shadow 0.15s",
+  },
+  homepageLink: {
+    background: "none", border: "none",
+    color: BRAND.muted, fontSize: 13,
+    cursor: "pointer", padding: "6px 0",
+    width: "100%", textAlign: "center",
+    fontFamily: "inherit",
+    display: "block", marginBottom: 4,
   },
   progressWrap: {
     height: 4, background: BRAND.foam,
@@ -914,6 +1221,19 @@ const styles = {
     fontSize: 12, color: BRAND.muted,
     padding: "4px 0 12px", margin: 0,
   },
+  legalNote: {
+    fontSize: 11, color: BRAND.muted,
+    textAlign: "center",
+    margin: "14px 0 4px",
+    lineHeight: 1.6,
+  },
+  legalLink: {
+    background: "none", border: "none",
+    color: BRAND.sky, fontSize: 11,
+    cursor: "pointer", padding: 0,
+    textDecoration: "underline",
+    fontFamily: "inherit",
+  },
 
   // Volume calc modal
   modalOverlay: {
@@ -938,34 +1258,39 @@ const styles = {
   },
   closeBtn: {
     background: "none", border: "none",
-    fontSize: 14, cursor: "pointer", color: BRAND.muted,
+    fontSize: 16, color: BRAND.muted,
+    cursor: "pointer", padding: 4,
+    fontFamily: "inherit",
   },
   calcNote: {
     fontSize: 12, color: BRAND.muted,
-    marginBottom: 16, lineHeight: 1.5,
+    lineHeight: 1.5, margin: "0 0 12px",
   },
-  calcRow: { marginBottom: 12 },
+  calcRow: {
+    marginBottom: 10,
+  },
   calcLabel: {
     fontSize: 12, fontWeight: 600,
-    color: BRAND.slate, display: "block", marginBottom: 4,
+    color: BRAND.slate, display: "block",
+    marginBottom: 4,
   },
   calcInput: {
-    width: "100%", boxSizing: "border-box",
+    width: "100%",
     border: `1.5px solid ${BRAND.foam}`,
     borderRadius: 8, padding: "8px 10px",
     fontSize: 14, color: BRAND.slate,
-    outline: "none", background: BRAND.surface,
+    background: BRAND.surface,
+    outline: "none",
     fontFamily: "inherit",
+    boxSizing: "border-box",
   },
   calcResult: {
-    textAlign: "center",
-    background: BRAND.surface,
-    borderRadius: 10, padding: "10px",
-    border: `1.5px solid ${BRAND.sky}`,
-    marginTop: 8,
+    background: BRAND.foam,
+    borderRadius: 10, padding: "10px 14px",
+    textAlign: "center", marginTop: 8,
   },
   calcResultNum: {
-    fontSize: 28, fontWeight: 700,
+    fontSize: 22, fontWeight: 700,
     color: BRAND.ocean,
     fontFamily: "'Space Grotesk', sans-serif",
   },
@@ -973,19 +1298,18 @@ const styles = {
     fontSize: 14, color: BRAND.muted,
   },
 
-  // Completion
+  // Completion screen
   completionWrap: {
-    padding: "8px 0 20px",
-    animation: "fadeUp 0.4s ease",
+    display: "flex", flexDirection: "column",
+    alignItems: "center", paddingBottom: 24,
+    textAlign: "center",
   },
   completionAnim: {
-    display: "flex", justifyContent: "center",
-    gap: 10, marginBottom: 16,
+    display: "flex", gap: 6, marginBottom: 12,
   },
   emoji: {
-    fontSize: 28,
-    display: "inline-block",
-    animation: "popIn 0.4s ease both",
+    fontSize: 24,
+    animation: "popIn 0.4s cubic-bezier(0.16,1,0.3,1) both",
   },
   completionTitle: {
     fontFamily: "'Space Grotesk', sans-serif",
@@ -995,40 +1319,20 @@ const styles = {
   },
   completionSub: {
     fontSize: 14, color: BRAND.muted,
-    lineHeight: 1.6, margin: "0 0 20px",
+    lineHeight: 1.6, margin: "0 0 16px",
+    maxWidth: 340,
   },
-  scorePreview: {
-    display: "flex", gap: 16, alignItems: "center",
-    background: BRAND.surface,
-    borderRadius: 14, padding: 16,
-    border: `1px solid ${BRAND.foam}`,
-    marginBottom: 20,
-  },
-  scoreCircle: {
-    position: "relative", flexShrink: 0,
-  },
-  scoreNum: {
-    position: "absolute", inset: 0,
-    display: "flex", alignItems: "center", justifyContent: "center",
-    fontFamily: "'Space Grotesk', sans-serif",
-    fontSize: 22, fontWeight: 700, color: BRAND.slate,
-  },
-  scoreBreakdown: { flex: 1 },
-  scoreRow: {
-    display: "flex", justifyContent: "space-between",
-    fontSize: 13, marginBottom: 4,
-  },
-  scoreKey: { color: BRAND.muted, fontWeight: 500 },
-  scoreStatus: { fontWeight: 600, fontSize: 12 },
   completionCards: {
     display: "flex", flexDirection: "column", gap: 8,
+    width: "100%", maxWidth: 340,
     marginBottom: 20,
   },
   featureCard: {
     display: "flex", alignItems: "center", gap: 12,
     background: BRAND.surface,
-    borderRadius: 10, padding: "10px 14px",
     border: `1px solid ${BRAND.foam}`,
+    borderRadius: 12, padding: "10px 14px",
+    textAlign: "left",
   },
   featureLabel: {
     fontSize: 13, fontWeight: 600, color: BRAND.slate,
@@ -1038,10 +1342,48 @@ const styles = {
   },
   nudge: {
     fontSize: 12, color: BRAND.muted,
-    textAlign: "center", marginTop: 12,
+    margin: "12px 0 0",
+    background: BRAND.surface,
+    border: `1px solid ${BRAND.foam}`,
+    borderRadius: 10,
+    padding: "8px 12px",
     lineHeight: 1.5,
-    background: `${BRAND.warning}15`,
-    border: `1px solid ${BRAND.warning}30`,
-    borderRadius: 8, padding: "8px 12px",
+    maxWidth: 320,
+    textAlign: "left",
+  },
+
+  // Health score preview
+  scorePreview: {
+    display: "flex", gap: 16, alignItems: "center",
+    background: BRAND.surface,
+    border: `1px solid ${BRAND.foam}`,
+    borderRadius: 14, padding: "14px 16px",
+    marginBottom: 16, width: "100%",
+    maxWidth: 340, boxSizing: "border-box",
+  },
+  scoreCircle: {
+    position: "relative",
+    width: 90, height: 90,
+    flexShrink: 0,
+  },
+  scoreNum: {
+    position: "absolute",
+    inset: 0,
+    display: "flex", alignItems: "center", justifyContent: "center",
+    fontFamily: "'Space Grotesk', sans-serif",
+    fontSize: 22, fontWeight: 700,
+    color: BRAND.slate,
+  },
+  scoreBreakdown: {
+    flex: 1, display: "flex", flexDirection: "column", gap: 6,
+  },
+  scoreRow: {
+    display: "flex", justifyContent: "space-between",
+  },
+  scoreKey: {
+    fontSize: 12, color: BRAND.muted,
+  },
+  scoreStatus: {
+    fontSize: 12, fontWeight: 600,
   },
 };
