@@ -12,6 +12,7 @@ import {
   Moon, SunMedium, Mail, ArrowRight, Shield, Sparkles, LogIn, LogOut
 } from "lucide-react";
 import { XAxis, YAxis, ResponsiveContainer, Tooltip, ReferenceLine, Area, AreaChart } from "recharts";
+import GuestOnboarding from "./components/GuestOnboarding";
 
 /* ═══════════════════════════════════════════════════════════════
    THEME SYSTEM — Brand Guidelines v1.1
@@ -1275,6 +1276,7 @@ export default function App() {
   const [authState, setAuthState] = useState(null);
   const [onboardStep, setOnboardStep] = useState(null);
   const [authLoading, setAuthLoading] = useState(true);
+  const [showGuestOnboarding, setShowGuestOnboarding] = useState(false);
 
   const T = dark ? THEMES.dark : THEMES.light;
   const layout = useWidth();
@@ -1392,6 +1394,7 @@ export default function App() {
     setOnboardStep("done");
     setHistory(SAMPLE_HISTORY);
     setEquipment(INIT_EQUIPMENT);
+    setShowGuestOnboarding(true);
   };
 
   const handlePoolSetup = async (poolData) => {
@@ -1410,6 +1413,39 @@ export default function App() {
 
   const handleSkipSetup = () => {
     setOnboardStep("done");
+  };
+
+  // ── Guest onboarding complete — map form data into app profile state ──
+  const handleGuestOnboardingComplete = (data) => {
+    if (data && Object.keys(data).length > 0) {
+      setProfile(p => ({
+        ...p,
+        name: data.pool_name || p.name,
+        poolSize: data.volume_litres || p.poolSize,
+        poolShape: data.pool_shape || p.poolShape,
+        sanitisation: data.sanitiser_type
+          ? data.sanitiser_type.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase())
+          : p.sanitisation,
+        poolSurface: data.pool_surface
+          ? data.pool_surface.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase())
+          : p.poolSurface,
+        filterType: data.filter_type
+          ? data.filter_type.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase())
+          : p.filterType,
+      }));
+      // If they entered readings, seed history with real data instead of sample
+      if (data.ph || data.free_chlorine || data.alkalinity || data.stabiliser) {
+        setHistory([{
+          date: new Date().toISOString().split("T")[0],
+          ph: parseFloat(data.ph) || null,
+          fc: parseFloat(data.free_chlorine) || null,
+          ta: parseFloat(data.alkalinity) || null,
+          cya: parseFloat(data.stabiliser) || null,
+          source: "onboarding",
+        }]);
+      }
+    }
+    setShowGuestOnboarding(false);
   };
 
   const handleSignOut = async () => {
@@ -1580,6 +1616,11 @@ export default function App() {
           </div>
 
           {!desk && <TabBar active={page} go={go} />}
+
+          {/* Guest onboarding overlay — triggered on first guest entry */}
+          {showGuestOnboarding && (
+            <GuestOnboarding onComplete={handleGuestOnboardingComplete} />
+          )}
         </div>
       </LayoutCtx.Provider>
     </ThemeCtx.Provider>
