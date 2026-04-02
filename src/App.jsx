@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { XAxis, YAxis, ResponsiveContainer, Tooltip, ReferenceLine, Area, AreaChart } from "recharts";
 import GuestOnboarding from "./components/GuestOnboarding";
+import BlogPage from "./components/BlogPage";
 
 /* ═══════════════════════════════════════════════════════════════
    THEME SYSTEM — Brand Guidelines v1.1
@@ -565,7 +566,7 @@ function GuestBanner({ onSignUp }) {
    ═══════════════════════════════════════════════════════════════ */
 function Sidebar({ active, go, dark, setDark, user, isGuest, onSignUp, onSignOut }) {
   const T = useTheme();
-  const tabs = [{ id: "home", label: "Home", icon: Home }, { id: "test", label: "Test", icon: Beaker }, { id: "diagnose", label: "Fix", icon: HelpCircle }, { id: "shops", label: "Shops", icon: Store }, { id: "history", label: "History", icon: BarChart3 }, { id: "profile", label: "My Pool", icon: User }];
+  const tabs = [{ id: "home", label: "Home", icon: Home }, { id: "test", label: "Test", icon: Beaker }, { id: "diagnose", label: "Fix", icon: HelpCircle }, { id: "shops", label: "Shops", icon: Store }, { id: "history", label: "History", icon: BarChart3 }, { id: "profile", label: "My Pool", icon: User }, { id: "blog", label: "Guides", icon: FileText }];
   return (
     <div style={{ width: 220, flexShrink: 0, position: "fixed", top: 0, left: 0, bottom: 0, backgroundColor: T.card, borderRight: `1px solid ${T.brd}`, display: "flex", flexDirection: "column", zIndex: 40, overflowY: "auto", overflowX: "hidden" }}>
       {/* Logo */}
@@ -1612,6 +1613,7 @@ export default function App() {
               {page === "shops" && <ShopsPage linkedShop={linkedShop} setLinkedShop={setLinkedShop} />}
               {page === "history" && <HistoryPage history={history} />}
               {page === "profile" && <ProfilePage profile={profile} setProfile={updateProfile} equipment={equipment} setEquipment={setEquipment} go={go} linkedShop={linkedShop} addNote={addNote} deleteNote={deleteNote} />}
+              {page === "blog" && <BlogPage go={go} onSignUp={handleSignUp} />}
             </div>
           </div>
 
