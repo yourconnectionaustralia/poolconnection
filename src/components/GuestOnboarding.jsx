@@ -963,7 +963,7 @@ const styles = {
     backdropFilter: "blur(6px)",
     display: "flex", alignItems: "flex-end", justifyContent: "center",
     zIndex: 9999,
-    fontFamily: "'DM Sans', system-ui, sans-serif",
+    fontFamily: "'Inter', system-ui, sans-serif",
   },
   sheet: {
     background: BRAND.white,

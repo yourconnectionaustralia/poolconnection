@@ -111,9 +111,9 @@ const THEMES = {
   }
 };
 
-// Brand typography: Outfit for display (clean, warm, professional), DM Sans for body/UI
-const FONT = "'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
-const FONT_HEAD = "'Outfit', 'DM Sans', -apple-system, sans-serif";
+// Brand typography (DESIGN.md v1.0): Inter for body/UI, Newsreader for editorial display
+const FONT = "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
+const FONT_HEAD = "'Newsreader', 'Inter', -apple-system, sans-serif";
 
 /* ═══════════════════════════════════════════════════════════════
    BRAND LOGO — Droplet Node (from brand guidelines SVG)

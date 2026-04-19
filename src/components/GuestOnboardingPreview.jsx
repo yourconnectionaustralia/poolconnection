@@ -289,7 +289,7 @@ export default function App() {
 
   if (exited) {
     return (
-      <div style={{ minHeight: "100vh", background: `linear-gradient(135deg,${B.deepOcean},${B.ocean})`, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "'DM Sans',system-ui,sans-serif", padding: 20 }}>
+      <div style={{ minHeight: "100vh", background: `linear-gradient(135deg,${B.deepOcean},${B.ocean})`, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "'Inter',system-ui,sans-serif", padding: 20 }}>
         <div style={{ background: B.white, borderRadius: 16, padding: 28, maxWidth: 400, width: "100%", textAlign: "center" }}>
           <div style={{ fontSize: 40, marginBottom: 10 }}>{exited === "google" ? "🔐" : "🏠"}</div>
           <h2 style={{ fontFamily: "'Space Grotesk',sans-serif", fontSize: 20, color: B.slate, margin: "0 0 8px" }}>
@@ -308,7 +308,7 @@ export default function App() {
 
   if (done) {
     return (
-      <div style={{ minHeight: "100vh", background: `linear-gradient(135deg,${B.deepOcean},${B.ocean})`, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "'DM Sans',system-ui,sans-serif", padding: 20 }}>
+      <div style={{ minHeight: "100vh", background: `linear-gradient(135deg,${B.deepOcean},${B.ocean})`, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "'Inter',system-ui,sans-serif", padding: 20 }}>
         <div style={{ background: B.white, borderRadius: 16, padding: 28, maxWidth: 400, width: "100%", textAlign: "center" }}>
           <div style={{ fontSize: 40, marginBottom: 10 }}>🎉</div>
           <h2 style={{ fontFamily: "'Space Grotesk',sans-serif", fontSize: 20, color: B.slate, margin: "0 0 8px" }}>Onboarding complete!</h2>
@@ -345,7 +345,7 @@ export default function App() {
       `}</style>
 
       {/* Simulated blurred app background */}
-      <div style={{ minHeight: "100vh", background: `linear-gradient(160deg,${B.deepOcean} 0%,${B.ocean} 50%,${B.sky} 100%)`, display: "flex", alignItems: "flex-end", justifyContent: "center", fontFamily: "'DM Sans',system-ui,sans-serif", position: "relative" }}>
+      <div style={{ minHeight: "100vh", background: `linear-gradient(160deg,${B.deepOcean} 0%,${B.ocean} 50%,${B.sky} 100%)`, display: "flex", alignItems: "flex-end", justifyContent: "center", fontFamily: "'Inter',system-ui,sans-serif", position: "relative" }}>
 
         {/* "App" ghost behind */}
         <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", opacity: .15, pointerEvents: "none" }}>
