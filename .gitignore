@@ -1,5 +1,6 @@
 node_modules
 dist
+marketing-dist
 .DS_Store
 *.local
 
