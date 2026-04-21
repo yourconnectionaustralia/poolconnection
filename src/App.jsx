@@ -16,83 +16,89 @@ import GuestOnboarding from "./components/GuestOnboarding";
 import BlogPage from "./components/BlogPage";
 
 /* ═══════════════════════════════════════════════════════════════
-   THEME SYSTEM — Brand Guidelines v1.1
-   Light-first (consumer outdoor use) with brand dark mode toggle
+   THEME SYSTEM — DESIGN.md v1.0 (editorial, neutral-led)
+   Light-first (consumer outdoor use) with brand dark mode toggle.
+   Palette: warm neutrals foundation + water-palette accents used sparingly,
+   matching the Apr 18 marketing page at poolconnection.pages.dev.
    ═══════════════════════════════════════════════════════════════ */
 const ThemeCtx = createContext();
 const useTheme = () => useContext(ThemeCtx);
 
 const THEMES = {
   light: {
-    // Brand palette adapted for light/outdoor consumer use
-    pri: "#0077B6",       // Ocean — primary brand blue
-    priL: "#E6F3FA",      // Ocean at 10% on white
-    priD: "#03045E",      // Deep — contrast punches
-    acc: "#00B4D8",       // Sky — primary CTAs, highlights
-    accL: "#E5F6FB",      // Sky at 10%
-    ok: "#10B981",        // Green (slightly deeper for light bg contrast)
-    okL: "#ECFDF5",
-    okB: "#A7F3D0",
-    warn: "#F4A261",      // Gold — warm highlights
-    warnL: "#FEF3E2",
-    warnB: "#FCDCB0",
-    bad: "#FF6B6B",       // Coral — alerts
-    badL: "#FEE9E9",
-    badB: "#FDB5B5",
-    tx: "#03045E",        // Deep navy text (high contrast for sun)
-    tx2: "#4A6070",       // muted
-    tx3: "#8899A6",       // tertiary
-    bg: "#F4F7FA",        // cool near-white
-    bgS: "#E8EDF2",       // slightly darker
-    card: "#FFFFFF",
-    cardH: "#FAFCFF",     // brand white on hover
-    brd: "#DAE2EA",
-    brdL: "#EDF1F5",
-    hdr: "rgba(244,247,250,0.92)",
-    shadow: "rgba(3,4,94,0.06)",
-    shadowH: "rgba(3,4,94,0.12)",
-    overlay: "rgba(3,4,94,0.4)",
+    // Primary — water-palette, used as accent not as surface colour
+    pri: "#1565A0",       // water-mid — primary action blue
+    priL: "#E8F4FA",      // water-pale
+    priD: "#0A3554",      // water-deep — emphasis / headings on water surfaces
+    acc: "#4A90C4",       // water-light — secondary accents
+    accL: "#E8F4FA",
+    // Semantic — editorial (muted, paper-feel)
+    ok: "#0F7B6C",        // green — readings within range
+    okL: "#EDFAF7",       // green-bg
+    okB: "#B5E6DC",
+    warn: "#C17D39",      // amber — out-of-range, caution
+    warnL: "#FBF3E4",     // amber-bg
+    warnB: "#EDD9B5",
+    bad: "#C73535",       // red — critical alerts
+    badL: "#FBEBEB",
+    badB: "#F0BDBD",
+    // Text — warm-leaning neutrals
+    tx: "#191919",        // black — body / primary
+    tx2: "#6B6B6B",       // gray-mid — muted
+    tx3: "#9B9A97",       // gray-light — tertiary
+    // Surfaces — neutral foundation
+    bg: "#F7F7F5",        // gray-bg — app canvas
+    bgS: "#EFEFEE",       // slightly darker for zoning
+    card: "#FFFFFF",      // white — cards on gray-bg
+    cardH: "#FAFAF9",     // near-white hover
+    // Borders — thin, barely-there
+    brd: "#E9E9E7",       // gray-line
+    brdL: "#F0F0EE",      // even lighter for inner dividers
+    hdr: "rgba(247,247,245,0.92)",   // frosted gray-bg for sticky header
+    shadow: "rgba(25,25,25,0.04)",   // barely-there
+    shadowH: "rgba(25,25,25,0.08)",
+    overlay: "rgba(25,25,25,0.5)",
     inputBg: "#FFFFFF",
-    chartGrid: "#DAE2EA",
-    // Glass surfaces (light mode uses subtle ocean tints)
-    glass1: "rgba(0,119,182,0.04)",
-    glass2: "rgba(0,119,182,0.07)",
-    glass3: "rgba(0,180,216,0.10)",
-    glass4: "rgba(0,119,182,0.14)",
-    // CTA button uses Sky per brand rules
-    cta: "#00B4D8",
-    ctaHover: "#00A0C2",
-    starCol: "#F4A261",
-    coral: "#E8734A",       // Coral — warmth, trust, pricing callouts, social proof
-    coralL: "#FDF0EB",      // Coral at 8% on white
-    coralB: "#F5C4AD",      // Coral border
+    chartGrid: "#E9E9E7",
+    // Glass surfaces (water tints, understated)
+    glass1: "rgba(21,101,160,0.03)",
+    glass2: "rgba(21,101,160,0.06)",
+    glass3: "rgba(74,144,196,0.08)",
+    glass4: "rgba(21,101,160,0.12)",
+    // CTA — black primary per marketing page
+    cta: "#191919",
+    ctaHover: "#252525",
+    starCol: "#C17D39",     // amber for stars/ratings
+    coral: "#C17D39",       // amber — folded into warm-accent family (no distinct coral in DESIGN.md)
+    coralL: "#FBF3E4",
+    coralB: "#EDD9B5",
   },
   dark: {
-    // Brand dark — primary canvas as specified in guidelines
-    pri: "#00B4D8",       // Sky becomes primary in dark (higher visibility)
-    priL: "rgba(0,180,216,0.12)",   // glass-3
-    priD: "#90E0EF",      // Foam for emphasis text on dark
-    acc: "#00B4D8",       // Sky
-    accL: "rgba(0,180,216,0.12)",
-    ok: "#6EE7B7",        // Brand green
+    // Dark mode — neutral-led spirit, preserves toggle for outdoor night use
+    pri: "#4A90C4",       // water-light — higher visibility on dark
+    priL: "rgba(74,144,196,0.14)",
+    priD: "#E8F4FA",      // water-pale for emphasis text on dark
+    acc: "#4A90C4",
+    accL: "rgba(74,144,196,0.14)",
+    ok: "#6EE7B7",
     okL: "rgba(110,231,183,0.12)",
-    okB: "rgba(110,231,183,0.25)",
-    warn: "#F4A261",      // Gold
-    warnL: "rgba(244,162,97,0.12)",
-    warnB: "rgba(244,162,97,0.25)",
-    bad: "#FF6B6B",       // Coral
-    badL: "rgba(255,107,107,0.12)",
-    badB: "rgba(255,107,107,0.25)",
-    tx: "#FAFCFF",        // Brand white
-    tx2: "#90A4B8",
-    tx3: "#5E7687",
-    bg: "#081428",        // Brand dark background
-    bgS: "#0D1B30",       // Slightly lighter
-    card: "rgba(255,255,255,0.04)",   // glass-1
-    cardH: "rgba(255,255,255,0.08)",  // glass-2
+    okB: "rgba(110,231,183,0.28)",
+    warn: "#E0A87B",       // lighter amber for dark visibility
+    warnL: "rgba(224,168,123,0.14)",
+    warnB: "rgba(224,168,123,0.28)",
+    bad: "#E87070",
+    badL: "rgba(232,112,112,0.14)",
+    badB: "rgba(232,112,112,0.28)",
+    tx: "#F5F5F3",        // warm off-white
+    tx2: "#A8A6A0",
+    tx3: "#6E6B65",
+    bg: "#191918",        // warm near-black (matches neutral-led spirit)
+    bgS: "#222220",
+    card: "rgba(255,255,255,0.03)",
+    cardH: "rgba(255,255,255,0.06)",
     brd: "rgba(255,255,255,0.08)",
     brdL: "rgba(255,255,255,0.04)",
-    hdr: "rgba(8,20,40,0.92)",
+    hdr: "rgba(25,25,24,0.92)",
     shadow: "rgba(0,0,0,0.3)",
     shadowH: "rgba(0,0,0,0.5)",
     overlay: "rgba(0,0,0,0.6)",
@@ -100,14 +106,14 @@ const THEMES = {
     chartGrid: "rgba(255,255,255,0.08)",
     glass1: "rgba(255,255,255,0.04)",
     glass2: "rgba(255,255,255,0.08)",
-    glass3: "rgba(0,180,216,0.12)",
-    glass4: "rgba(0,119,182,0.15)",
-    cta: "#00B4D8",
-    ctaHover: "#00C8F0",
-    starCol: "#F4A261",
-    coral: "#E8734A",       // Coral — warmth, trust, pricing callouts, social proof
-    coralL: "rgba(232,115,74,0.12)",
-    coralB: "rgba(232,115,74,0.30)",
+    glass3: "rgba(74,144,196,0.14)",
+    glass4: "rgba(21,101,160,0.18)",
+    cta: "#F5F5F3",        // inverted — light primary on dark canvas
+    ctaHover: "#FFFFFF",
+    starCol: "#E0A87B",
+    coral: "#E0A87B",
+    coralL: "rgba(224,168,123,0.14)",
+    coralB: "rgba(224,168,123,0.28)",
   }
 };
 
