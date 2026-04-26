@@ -1,4 +1,12 @@
 node_modules
 dist
+marketing-dist
 .DS_Store
 *.local
+
+# Environment variables — never commit real keys.
+# .env.example IS committed (template); .env / .env.local are NOT.
+.env
+.env.local
+.env.*.local
+

@@ -238,7 +238,7 @@ function BlogList({ onSelect, onSignUp }) {
   }).sort((a, b) => new Date(b.publishDate) - new Date(a.publishDate));
 
   return (
-    <div style={{ fontFamily: "'DM Sans', sans-serif" }}>
+    <div style={{ fontFamily: "'Inter', sans-serif" }}>
       {/* Hero */}
       <div style={{ background: `linear-gradient(135deg, ${B.deepOcean}, ${B.ocean} 60%, ${B.sky})`,
         padding: "40px 0 32px", margin: "0 -20px", textAlign: "center" }}>
@@ -327,7 +327,7 @@ function BlogPost({ slug, onBack, onSignUp }) {
 
   if (!article) {
     return (
-      <div style={{ textAlign: "center", padding: "60px 0", fontFamily: "'DM Sans', sans-serif" }}>
+      <div style={{ textAlign: "center", padding: "60px 0", fontFamily: "'Inter', sans-serif" }}>
         <span style={{ fontSize: 48 }}>💧</span>
         <h2 style={{ color: B.slate }}>Article not found</h2>
         <button onClick={onBack}
@@ -343,7 +343,7 @@ function BlogPost({ slug, onBack, onSignUp }) {
   const related = ARTICLES.filter(a => a.slug !== slug && a.category === article.category).slice(0, 3);
 
   return (
-    <div style={{ fontFamily: "'DM Sans', sans-serif" }}>
+    <div style={{ fontFamily: "'Inter', sans-serif" }}>
       {/* Hero */}
       <div style={{ background: `linear-gradient(135deg, ${B.deepOcean}, ${B.ocean} 60%, ${B.sky})`,
         padding: "28px 0 36px", margin: "0 -20px" }}>
