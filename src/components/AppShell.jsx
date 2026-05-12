@@ -25,6 +25,16 @@ function LogoMark({ size = 26 }) {
   );
 }
 
+// ── Season helper (Australian calendar) ──────────────
+function getAUSeason() {
+  const m = new Date().getMonth() + 1; // 1–12
+  if (m >= 3 && m <= 5) return 'Autumn';
+  if (m >= 6 && m <= 8) return 'Winter';
+  if (m >= 9 && m <= 11) return 'Spring';
+  return 'Summer';
+}
+const SEASONAL_TIPS_LABEL = `${getAUSeason()} Tips`;
+
 // ── Nav items config ──────────────────────────────────
 const NAV_SECTIONS = [
   {
@@ -41,7 +51,7 @@ const NAV_SECTIONS = [
     items: [
       { href: '/equipment',   icon: '⚙️', label: 'Equipment' },
       { href: '/chemicals',   icon: '💊', label: 'Chemical Log' },
-      { href: '/tasks',       icon: '📋', label: 'Seasonal Tasks' },
+      { href: '/tasks',       icon: '📋', label: SEASONAL_TIPS_LABEL },
     ],
   },
 ];
