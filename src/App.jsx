@@ -118,6 +118,88 @@ function LogoMark() {
 }
 
 // ─────────────────────────────────────────────────────────────────
+// SEASON HELPERS (Australian calendar)
+// ─────────────────────────────────────────────────────────────────
+function getAUSeason() {
+  const m = new Date().getMonth() + 1; // 1–12
+  if (m >= 3 && m <= 5) return 'Autumn';
+  if (m >= 6 && m <= 8) return 'Winter';
+  if (m >= 9 && m <= 11) return 'Spring';
+  return 'Summer';
+}
+const SEASONAL_TIPS_LABEL = `${getAUSeason()} Tips`;
+
+// ─────────────────────────────────────────────────────────────────
+// EQUIPMENT CONSTANTS
+// ─────────────────────────────────────────────────────────────────
+const EQUIPMENT_TYPES = [
+  'Pump', 'Filter', 'Heater / Heat Pump', 'Robotic Cleaner',
+  'Suction Cleaner', 'Salt Chlorinator', 'Lighting', 'Other',
+];
+
+function equipmentEmoji(type) {
+  if (!type) return '⚙️';
+  const t = type.toLowerCase();
+  if (t.includes('pump'))    return '💧';
+  if (t.includes('filter'))  return '🔵';
+  if (t.includes('heat'))    return '🔥';
+  if (t.includes('robot') || t.includes('suction') || t.includes('cleaner')) return '🤖';
+  if (t.includes('chlorin') || t.includes('salt'))  return '⚗️';
+  if (t.includes('light'))   return '💡';
+  return '⚙️';
+}
+
+// ─────────────────────────────────────────────────────────────────
+// SEASONAL TIPS DATA
+// ─────────────────────────────────────────────────────────────────
+const SEASONAL_TIPS = {
+  Autumn: {
+    icon: '🍂',
+    intro: 'As temperatures drop your pool needs less chlorine but more protection. Stay ahead of algae and prepare for winter.',
+    tips: [
+      { title: 'Reduce chlorine dosage', body: 'Cooler water consumes chlorine more slowly. Cut your dose by 20–30% and let your readings guide you.' },
+      { title: 'Test alkalinity now', body: 'Balanced alkalinity (80–120 ppm) going into winter prevents pH drift and saves you costly corrective work in spring.' },
+      { title: 'Clean your filter', body: 'Backwash or rinse the filter before the slow season. A clean filter runs more efficiently on reduced pump hours.' },
+      { title: 'Check your pool cover', body: 'Autumn leaves are your biggest enemy. A cover saves hours of cleaning and keeps debris out of the filter.' },
+      { title: 'Adjust pump run time', body: 'Drop your timer from 8–10 hrs down to 6–8 hrs. Cooler water needs less circulation to stay clear.' },
+    ],
+  },
+  Winter: {
+    icon: '❄️',
+    intro: "Minimal chemicals, minimal effort — but don't ignore it completely. A well-maintained pool in winter opens cleanly in spring.",
+    tips: [
+      { title: 'Test fortnightly', body: "Water chemistry moves slowly in winter. Fortnightly testing is enough unless you've had heavy rain or high winds." },
+      { title: 'Keep chlorine above 0.5 ppm', body: "You don't need 1–3 ppm in winter — it's a waste. Just keep it above 0.5 ppm to prevent algae." },
+      { title: 'Watch for pH drift after rain', body: 'Rain lowers pH. After heavy rainfall, test pH first and add pH Up if it drops below 7.2.' },
+      { title: 'Run pump 4–6 hrs/day', body: "Short daily circulation prevents stagnation. Never switch the pump off entirely — still water breeds algae." },
+      { title: 'Use algaecide monthly', body: 'A monthly algaecide dose is cheap insurance. Far easier than treating a green pool when spring arrives.' },
+    ],
+  },
+  Spring: {
+    icon: '🌿',
+    intro: 'Time to wake your pool up. A thorough test and a good shock now means a clean opening before summer arrives.',
+    tips: [
+      { title: 'Full water test first', body: 'Test all parameters — chlorine, pH, alkalinity, CYA, and calcium. Winter drift compounds, so start with a complete picture.' },
+      { title: 'Shock the pool', body: 'Super-chlorinate to 10–20 ppm to kill any algae spores before the water warms up and they bloom.' },
+      { title: 'Backwash your filter', body: "Flush out winter debris before increasing pump hours. A clogged filter won't keep up with spring demand." },
+      { title: 'Increase pump run time', body: 'Ramp back up to 8 hrs/day as temperatures rise. More swimmers and warmer water needs more circulation.' },
+      { title: 'Book your service', body: 'Spring is peak season for pool techs. Book a service or equipment check now before the wait list fills up.' },
+    ],
+  },
+  Summer: {
+    icon: '☀️',
+    intro: 'High temperatures and heavy use challenge water chemistry fast. Test twice weekly and stay on top of chlorine.',
+    tips: [
+      { title: 'Test twice a week', body: 'In summer, chlorine can drop to zero within 48 hours of heavy use. Test Monday and Thursday as a minimum.' },
+      { title: 'Keep CYA in range', body: 'Cyanuric acid (30–50 ppm) protects chlorine from UV. Without it, outdoor pools lose chlorine 3× faster.' },
+      { title: 'Shock after big swim days', body: 'After parties or heavy use, super-chlorinate that evening — bathers add nitrogen compounds that destroy free chlorine.' },
+      { title: 'Run pump 10–12 hrs/day', body: 'Heat + heavy use = fast algae risk. Extended circulation keeps water moving and the filter working.' },
+      { title: 'Act on slime early', body: 'Walls feel slightly slimy? Add algaecide and brush immediately. Green water takes a week to recover.' },
+    ],
+  },
+};
+
+// ─────────────────────────────────────────────────────────────────
 // SIDEBAR
 // ─────────────────────────────────────────────────────────────────
 function Sidebar({ activeView, onNav, pendingActions }) {
@@ -172,7 +254,7 @@ function Sidebar({ activeView, onNav, pendingActions }) {
           onClick={() => onNav('schedule')}
         >
           <span className="sidebar-icon">{Icon.calendar}</span>
-          Schedule
+          {SEASONAL_TIPS_LABEL}
         </div>
       </div>
 
@@ -570,6 +652,251 @@ function SetupPage({ poolProfile, onSave }) {
 }
 
 // ─────────────────────────────────────────────────────────────────
+// SEASONAL TIPS PAGE
+// ─────────────────────────────────────────────────────────────────
+function SeasonalTipsPage({ season }) {
+  const data = SEASONAL_TIPS[season] || SEASONAL_TIPS.Autumn;
+  return (
+    <div>
+      <h1 className="page-title">{data.icon} {season} Tips</h1>
+      <p className="page-subtitle">{data.intro}</p>
+
+      <div className="card-section" style={{ marginBottom: 16 }}>
+        {data.tips.map((tip, i) => (
+          <div
+            key={i}
+            style={{
+              display: 'flex',
+              gap: 14,
+              padding: '14px 0',
+              borderBottom: i < data.tips.length - 1 ? 'var(--border)' : 'none',
+            }}
+          >
+            <div style={{
+              width: 28, height: 28, borderRadius: '50%',
+              background: 'var(--water-pale)',
+              color: 'var(--blue)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              fontFamily: 'var(--font-read)', fontSize: 13, fontWeight: 500,
+              flexShrink: 0, marginTop: 1,
+            }}>
+              {i + 1}
+            </div>
+            <div>
+              <div style={{ fontSize: 14, fontWeight: 500, color: 'var(--black)', marginBottom: 3 }}>
+                {tip.title}
+              </div>
+              <div style={{ fontSize: 13, color: 'var(--gray-mid)', lineHeight: 1.55 }}>
+                {tip.body}
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div className="callout callout-info">
+        <span className="callout-icon" style={{ color: 'var(--blue)', display: 'inline-flex' }}>
+          {Icon.info}
+        </span>
+        <div className="callout-body">
+          Tips update automatically each season — next season: <strong>
+            {season === 'Autumn' ? 'Winter' : season === 'Winter' ? 'Spring' : season === 'Spring' ? 'Summer' : 'Autumn'}
+          </strong> tips will appear in{' '}
+          {season === 'Autumn' ? 'June' : season === 'Winter' ? 'September' : season === 'Spring' ? 'December' : 'March'}.
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────
+// EQUIPMENT FORM (shared by add + edit)
+// ─────────────────────────────────────────────────────────────────
+function EquipmentForm({ form, setForm, onSave, onCancel, isNew }) {
+  return (
+    <>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+        <div className="input-group" style={{ gridColumn: '1 / -1' }}>
+          <label className="input-label">Equipment type</label>
+          <select
+            className="input"
+            value={form.type}
+            onChange={e => setForm(v => ({ ...v, type: e.target.value }))}
+          >
+            {EQUIPMENT_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
+          </select>
+        </div>
+        <div className="input-group">
+          <label className="input-label">Brand</label>
+          <input
+            className="input"
+            placeholder="e.g. Davey, Zodiac"
+            value={form.brand}
+            onChange={e => setForm(v => ({ ...v, brand: e.target.value }))}
+          />
+        </div>
+        <div className="input-group">
+          <label className="input-label">Model</label>
+          <input
+            className="input"
+            placeholder="e.g. PowerMaster 200"
+            value={form.model}
+            onChange={e => setForm(v => ({ ...v, model: e.target.value }))}
+          />
+        </div>
+        <div className="input-group" style={{ gridColumn: '1 / -1' }}>
+          <label className="input-label">Notes (optional)</label>
+          <input
+            className="input"
+            placeholder="e.g. Installed 2022, runs 8 hrs/day"
+            value={form.notes}
+            onChange={e => setForm(v => ({ ...v, notes: e.target.value }))}
+          />
+        </div>
+      </div>
+      <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end', marginTop: 12 }}>
+        <button className="btn btn-ghost btn-sm" onClick={onCancel}>Cancel</button>
+        <button className="btn btn-primary btn-sm" onClick={onSave}>
+          {isNew ? 'Add equipment' : 'Save changes'}
+        </button>
+      </div>
+    </>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────
+// EQUIPMENT PAGE
+// ─────────────────────────────────────────────────────────────────
+function EquipmentPage({ equipment, onAdd, onUpdate, onDelete }) {
+  const EMPTY_FORM = { type: 'Pump', brand: '', model: '', notes: '' };
+  const [mode, setMode] = useState('list'); // 'list' | 'new' | item-id string
+  const [form, setForm] = useState(EMPTY_FORM);
+
+  const startNew = () => { setForm(EMPTY_FORM); setMode('new'); };
+  const startEdit = (item) => {
+    setForm({ type: item.type, brand: item.brand, model: item.model, notes: item.notes || '' });
+    setMode(item.id);
+  };
+  const handleSave = () => {
+    if (mode === 'new') {
+      onAdd({ ...form, id: String(Date.now()) });
+    } else {
+      onUpdate({ ...form, id: mode });
+    }
+    setMode('list');
+  };
+
+  return (
+    <div>
+      <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: 4 }}>
+        <h1 className="page-title" style={{ margin: 0 }}>Equipment</h1>
+        {mode === 'list' && equipment.length > 0 && (
+          <button className="btn btn-primary btn-sm" onClick={startNew}>+ Add</button>
+        )}
+      </div>
+      <p className="page-subtitle" style={{ marginBottom: 20 }}>Pump, filter, heater, and pool hardware</p>
+
+      {/* Existing equipment list */}
+      {equipment.length > 0 && (
+        <div className="card-section" style={{ marginBottom: 16 }}>
+          {equipment.map((item, i) => (
+            <div key={item.id}>
+              {mode === item.id ? (
+                <div style={{ padding: '16px 0' }}>
+                  <div className="eyebrow" style={{ marginBottom: 12 }}>Edit {item.type}</div>
+                  <EquipmentForm
+                    form={form}
+                    setForm={setForm}
+                    onSave={handleSave}
+                    onCancel={() => setMode('list')}
+                    isNew={false}
+                  />
+                </div>
+              ) : (
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 12,
+                  padding: '12px 0',
+                  borderBottom: i < equipment.length - 1 ? 'var(--border)' : 'none',
+                }}>
+                  <span style={{ fontSize: 22, flexShrink: 0 }}>{equipmentEmoji(item.type)}</span>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontSize: 14, fontWeight: 500, color: 'var(--black)' }}>{item.type}</div>
+                    <div style={{ fontSize: 12, color: 'var(--gray-mid)', marginTop: 2 }}>
+                      {[item.brand, item.model].filter(Boolean).join(' · ') || 'No brand/model added'}
+                    </div>
+                    {item.notes && (
+                      <div style={{ fontSize: 12, color: 'var(--gray-light)', marginTop: 2 }}>{item.notes}</div>
+                    )}
+                  </div>
+                  <div style={{ display: 'flex', gap: 6, flexShrink: 0 }}>
+                    <button
+                      className="btn btn-ghost btn-sm"
+                      onClick={() => startEdit(item)}
+                      style={{ fontSize: 12 }}
+                    >
+                      Edit
+                    </button>
+                    <button
+                      className="btn btn-ghost btn-sm"
+                      onClick={() => onDelete(item.id)}
+                      style={{ fontSize: 12, color: '#e05555' }}
+                    >
+                      Remove
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Add new inline form */}
+      {mode === 'new' && (
+        <div className="card-section" style={{ marginBottom: 16 }}>
+          <div className="eyebrow" style={{ marginBottom: 12 }}>Add equipment</div>
+          <EquipmentForm
+            form={form}
+            setForm={setForm}
+            onSave={handleSave}
+            onCancel={() => setMode('list')}
+            isNew={true}
+          />
+        </div>
+      )}
+
+      {/* Empty state */}
+      {equipment.length === 0 && mode === 'list' && (
+        <div className="card">
+          <div className="empty-state">
+            <div className="empty-state-icon">{Icon.equipment}</div>
+            <div className="empty-state-title">No equipment added</div>
+            <div className="empty-state-body">
+              Add your pump, filter, and heater details. PoolConnection uses this to tailor maintenance schedules for your setup.
+            </div>
+            <button className="btn btn-primary btn-sm" onClick={startNew}>Add first item</button>
+          </div>
+        </div>
+      )}
+
+      {/* Tip callout when items exist */}
+      {equipment.length > 0 && mode === 'list' && (
+        <div className="callout callout-info" style={{ marginTop: 8 }}>
+          <span className="callout-icon" style={{ color: 'var(--blue)', display: 'inline-flex' }}>
+            {Icon.info}
+          </span>
+          <div className="callout-body">
+            Accurate equipment details improve maintenance reminders and service interval tracking.
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────
 // OCR SCAN MODAL
 // ─────────────────────────────────────────────────────────────────
 function ScanModal({ onClose, onComplete }) {
@@ -878,6 +1205,7 @@ export default function App() {
   const [poolProfile, setPoolProfile] = useState({ name: 'Backyard pool', volumeKl: 32, sanitiser: 'chlorine' });
   const [showScan, setShowScan] = useState(false);
   const [trialDaysLeft, setTrialDaysLeft] = useState(7);
+  const [equipment, setEquipment] = useState([]);
 
   // Count parameters out of range as pending actions
   const pendingActions = testData
@@ -899,6 +1227,10 @@ export default function App() {
   const handleSavePool = (profile) => {
     setPoolProfile(profile);
   };
+
+  const handleAddEquipment    = (item) => setEquipment(e => [...e, item]);
+  const handleUpdateEquipment = (item) => setEquipment(e => e.map(x => x.id === item.id ? item : x));
+  const handleDeleteEquipment = (id)   => setEquipment(e => e.filter(x => x.id !== id));
 
   // Show trial expiry screen if trial ended
   if (trialDaysLeft <= 0) {
@@ -950,35 +1282,15 @@ export default function App() {
             <SetupPage poolProfile={poolProfile} onSave={handleSavePool} />
           )}
           {activeView === 'equipment' && (
-            <div>
-              <h1 className="page-title">Equipment</h1>
-              <p className="page-subtitle">Pump, filter, heater, and automation settings</p>
-              <div className="card">
-                <div className="empty-state">
-                  <div className="empty-state-icon">{Icon.equipment}</div>
-                  <div className="empty-state-title">No equipment added</div>
-                  <div className="empty-state-body">
-                    Adding your pump and filter model helps PoolConnection tailor maintenance schedules for your setup.
-                  </div>
-                  <button className="btn btn-primary btn-sm">Add equipment</button>
-                </div>
-              </div>
-            </div>
+            <EquipmentPage
+              equipment={equipment}
+              onAdd={handleAddEquipment}
+              onUpdate={handleUpdateEquipment}
+              onDelete={handleDeleteEquipment}
+            />
           )}
           {activeView === 'schedule' && (
-            <div>
-              <h1 className="page-title">Schedule</h1>
-              <p className="page-subtitle">Upcoming maintenance and test reminders</p>
-              <div className="card">
-                <div className="empty-state">
-                  <div className="empty-state-icon">{Icon.calendar}</div>
-                  <div className="empty-state-title">No schedule yet</div>
-                  <div className="empty-state-body">
-                    Log your first water test to generate a personalised testing schedule.
-                  </div>
-                </div>
-              </div>
-            </div>
+            <SeasonalTipsPage season={getAUSeason()} />
           )}
           {activeView === 'profile' && (
             <div>
