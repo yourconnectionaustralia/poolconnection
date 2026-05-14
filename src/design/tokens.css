@@ -1,0 +1,122 @@
+/* ════════════════════════════════════════════════════════════════
+   PoolConnection — Design Tokens
+   Version 1.0 · April 2026
+   Single source of truth for all visual values.
+   Import this file first in any stylesheet.
+   ════════════════════════════════════════════════════════════════ */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;1,6..72,300;1,6..72,400&display=swap');
+
+:root {
+
+  /* ── COLOUR: Neutrals ─────────────────────────────────────── */
+  --black:        #191919;   /* primary text, primary buttons */
+  --near-black:   #252525;   /* hover state for black elements */
+  --gray-dark:    #37352F;   /* body text */
+  --gray-mid:     #6B6B6B;   /* secondary text, labels */
+  --gray-light:   #9B9A97;   /* placeholder, eyebrows, captions */
+  --gray-line:    #E9E9E7;   /* borders, dividers, table lines */
+  --gray-bg:      #F7F7F5;   /* page backgrounds, row hovers */
+  --white:        #FFFFFF;   /* card backgrounds, inputs */
+
+  /* ── COLOUR: Water Brand Palette ─────────────────────────── */
+  /* Use sparingly — logo, score ring, progress bars, accents.  */
+  /* Never as a large background.                               */
+  --water-deep:   #0A3554;   /* logo background, darkest brand */
+  --water-mid:    #1565A0;   /* score ring, progress bars, links */
+  --water-light:  #4A90C4;   /* secondary accents */
+  --water-pale:   #E8F4FA;   /* chip backgrounds, tinted surfaces */
+
+  /* ── COLOUR: Semantic Status ─────────────────────────────── */
+  /* Always pair foreground token with matching background token */
+  --green:        #0F7B6C;   --green-bg:    #EDFAF7;
+  --amber:        #C17D39;   --amber-bg:    #FBF3E4;
+  --red:          #C73535;   --red-bg:      #FEF3F2;
+  --blue:         #2383E2;   --blue-light:  #EBF3FD;
+
+  /* ── TYPOGRAPHY: Font Families ───────────────────────────── */
+  --font-ui:      'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-read:    'Newsreader', Georgia, serif;
+
+  /* ── TYPOGRAPHY: Scale ───────────────────────────────────── */
+  /* All sizes assume 16px root. Use rem for scalability.       */
+  --text-display: clamp(42px, 6.5vw, 72px);   /* Hero H1 — Newsreader 300 */
+  --text-h2:      clamp(28px, 3.5vw, 44px);   /* Section heads — Newsreader 300 */
+  --text-h3:      1.625rem;                    /* 26px — Card titles, Newsreader 400 */
+  --text-page:    1.75rem;                     /* 28px — In-app page title, Newsreader 400 */
+  --text-body-lg: 1.125rem;                    /* 18px — Body large, Inter 300 */
+  --text-body:    1rem;                        /* 16px — Body, Inter 400 */
+  --text-body-sm: 0.9375rem;                   /* 15px — Body small, Inter 400 */
+  --text-label:   0.8125rem;                   /* 13px — Data, labels, Inter 400 */
+  --text-caption: 0.75rem;                     /* 12px — Captions, eyebrows, Inter 400-500 */
+  --text-micro:   0.6875rem;                   /* 11px — Tags, badges, Inter 500 */
+
+  /* ── TYPOGRAPHY: Line Heights ────────────────────────────── */
+  --lh-display:   1.1;
+  --lh-heading:   1.2;
+  --lh-body:      1.6;
+  --lh-body-lg:   1.65;
+  --lh-label:     1.55;
+
+  /* ── TYPOGRAPHY: Letter Spacing ──────────────────────────── */
+  --ls-display:   -0.5px;
+  --ls-heading:   -0.3px;
+  --ls-eyebrow:   1px;     /* uppercase labels */
+  --ls-badge:     0.5px;   /* table header uppercase */
+
+  /* ── SPACING: 8px Base Grid ──────────────────────────────── */
+  --space-1:  4px;    /* micro gaps — icon-to-label, tag padding */
+  --space-2:  8px;    /* tight component spacing */
+  --space-3:  12px;   /* internal component padding */
+  --space-4:  16px;   /* standard component padding */
+  --space-5:  20px;   /* card padding small */
+  --space-6:  24px;   /* standard section padding, card body */
+  --space-8:  32px;   /* larger card padding */
+  --space-10: 40px;   /* section breathing room */
+  --space-14: 56px;   /* between major sections */
+  --space-20: 80px;   /* between major sections (wide) */
+
+  /* ── LAYOUT ──────────────────────────────────────────────── */
+  --max-w-content: 680px;    /* reading width, FAQ, long-form */
+  --max-w-hero:    760px;    /* centered hero */
+  --max-w-layout:  1100px;   /* main page max width */
+  --sidebar-w:     220px;    /* app sidebar */
+  --topnav-h:      52px;     /* fixed top nav height */
+
+  /* ── BORDER RADIUS ───────────────────────────────────────── */
+  --r-xs:  4px;    /* buttons, tags, chips, inputs, callouts */
+  --r-sm:  6px;    /* small cards, spots blocks */
+  --r-md:  8px;    /* standard cards, feature lists */
+  --r-lg:  12px;   /* app preview browser frame */
+  --r-full: 9999px; /* pills */
+
+  /* ── BORDERS ─────────────────────────────────────────────── */
+  --border:         1px solid var(--gray-line);
+  --border-focus:   1px solid var(--water-mid);
+
+  /* ── SHADOWS ─────────────────────────────────────────────── */
+  /* Prefer borders over shadows. Use shadows for floating elements only. */
+  --shadow-card:   0 4px 24px rgba(0,0,0,0.06), 0 1px 3px rgba(0,0,0,0.04);
+  --shadow-float:  0 4px 8px rgba(0,0,0,0.04), 0 16px 40px rgba(0,0,0,0.08);
+  --shadow-modal:  0 24px 64px rgba(0,0,0,0.2);
+
+  /* ── TRANSITIONS ─────────────────────────────────────────── */
+  --transition-fast:   0.10s ease;
+  --transition-base:   0.12s ease;
+  --transition-reveal: 0.55s ease;
+  --transition-score:  1.8s cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* ── Z-INDEX ─────────────────────────────────────────────── */
+  --z-sidebar:  100;
+  --z-topnav:   200;
+  --z-dropdown: 300;
+  --z-modal:    400;
+  --z-toast:    500;
+
+}
+
+/* ── BREAKPOINTS (reference only — use in media queries) ─────
+   Mobile:   < 600px
+   Tablet:   < 860px
+   Desktop: >= 860px
+   ──────────────────────────────────────────────────────────── */
