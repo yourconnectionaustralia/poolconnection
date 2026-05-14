@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import SuggestionBox from './components/SuggestionBox';
 
 // ─────────────────────────────────────────────────────────────────
 // DESIGN SYSTEM ICONS — inline SVG only, no library dependency
@@ -1323,6 +1324,9 @@ export default function App() {
           onComplete={handleScanComplete}
         />
       )}
+
+      {/* In-app feedback widget (Figma-style pin drops). Available on every view. */}
+      <SuggestionBox currentView={activeView} />
     </div>
   );
 }
